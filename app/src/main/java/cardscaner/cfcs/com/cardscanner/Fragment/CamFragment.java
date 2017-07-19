@@ -52,6 +52,7 @@ import java.util.regex.Pattern;
 
 import cardscaner.cfcs.com.cardscanner.R;
 import cardscaner.cfcs.com.cardscanner.source.EditTextMonitor;
+import cardscaner.cfcs.com.cardscanner.source.MultiTouchListener;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -137,6 +138,8 @@ public class CamFragment extends Fragment {
         detectedTextView = (EditTextMonitor)rootView.findViewById(R.id.detected_text);
         phoneNumberTxt = (EditTextMonitor)rootView.findViewById(R.id.phone_number2);
 
+       // MultiTouchListener touchListener=new MultiTouchListener(getActivity());
+
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -147,6 +150,8 @@ public class CamFragment extends Fragment {
             }
         });
 
+        //floatingActionButton.onTouchEvent(touchListener);
+        //floatingActionButton.setOnTouchListener(touchListener);
         if (!isGooglePlayServicesAvailable(getActivity())) {
 
             Log.e("onCreate", "Google Play Services not available. Ending Test case.");
