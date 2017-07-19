@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_card"
+        android:icon="@mipmap/card_icon"
+        android:title="Card" />
+
+    <item
+        android:id="@+id/navigation_msg"
+        android:icon="@mipmap/msg_icon"
+        android:title="Messages" />
+
+    <item
+        android:id="@+id/navigation_scanner"
+        android:icon="@mipmap/cam_icon"
+        android:title="Scanner" />
+
+    <item
+        android:id="@+id/navigation_sos"
+        android:icon="@mipmap/sos_icon"
+        android:title="Sos" />
+
+    <item
+        android:id="@+id/navigation_pro"
+        android:icon="@mipmap/pro_icon"
+        android:title="Sos" />
+
+</menu>
