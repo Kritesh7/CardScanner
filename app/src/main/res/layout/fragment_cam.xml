@@ -273,6 +273,33 @@
                             android:textSize="16dp"
                             android:theme="@style/MyEditText" />
                     </android.support.design.widget.TextInputLayout>
+
+                    <android.support.design.widget.TextInputLayout
+                        android:layout_marginTop="10dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nextFocusLeft="@id/autotext"
+                        android:nextFocusUp="@id/autotext"
+                        android:textColorHint="#888888"
+                        app:hintTextAppearance="@style/TextAppearenceWith.App.TextInputLayout">
+
+                        <cardscaner.cfcs.com.cardscanner.source.EditTextMonitor
+                            android:id="@+id/phone_number3"
+                            android:inputType="textPersonName"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:background="@drawable/linebelowedittext"
+                            android:backgroundTint="@color/edit_below_line"
+                            android:hint="Phone Number3"
+                            android:paddingBottom="10dp"
+                            android:paddingTop="10dp"
+                            android:textColor="@color/text_color"
+                            android:textColorHint="@color/edit_below_line"
+                            android:textSize="16dp"
+                            android:theme="@style/MyEditText" />
+                    </android.support.design.widget.TextInputLayout>
+
                     <android.support.design.widget.TextInputLayout
                         android:layout_marginTop="10dp"
                         android:layout_width="match_parent"

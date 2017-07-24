@@ -83,8 +83,8 @@ public class CamFragment extends Fragment {
     private static final int REQUEST_WRITE_PERMISSION = 20;
 
     private Uri imageUri;
-    private EditTextMonitor detectedTextView, emailTxt, phoneTxt, nameTxt,addresstxt,secondName,
-            thirdTxt,designation, company_name,phoneNumberTxt;
+    private EditTextMonitor detectedTextView, emailTxt, phoneTxt, nameTxt,addresstxt,PostalCode,
+            thirdTxt,designation, company_name,phoneNumberTxt,PhoneTxtthird;
     public ImageView cardImg;
     Fragment frag;
 
@@ -130,13 +130,15 @@ public class CamFragment extends Fragment {
         emailTxt = (EditTextMonitor)rootView.findViewById(R.id.email_text);
         nameTxt = (EditTextMonitor)rootView.findViewById(R.id.name_txt);
         addresstxt = (EditTextMonitor)rootView.findViewById(R.id.address_txt);
-        secondName = (EditTextMonitor)rootView.findViewById(R.id.second_name_txt);
+        PostalCode = (EditTextMonitor)rootView.findViewById(R.id.second_name_txt);
         thirdTxt = (EditTextMonitor)rootView.findViewById(R.id.third_name_txt);
         designation = (EditTextMonitor)rootView.findViewById(R.id.designation_txt);
         cardImg = (ImageView)rootView.findViewById(R.id.cardImg);
         company_name = (EditTextMonitor)rootView.findViewById(R.id.comapnyname_text);
         detectedTextView = (EditTextMonitor)rootView.findViewById(R.id.detected_text);
         phoneNumberTxt = (EditTextMonitor)rootView.findViewById(R.id.phone_number2);
+        PhoneTxtthird = (EditTextMonitor)rootView.findViewById(R.id.phone_number3);
+
 
        // MultiTouchListener touchListener=new MultiTouchListener(getActivity());
 
@@ -285,7 +287,7 @@ public class CamFragment extends Fragment {
                                     if(!Pattern.matches("[a-zA-Z]+",firstLine)) {
 
                                         // firstLine = firstLine.replaceAll("[^\\d.]", "");
-                                        phoneTxt.setText(firstLine);
+                                     /*   phoneTxt.setText(firstLine);*/
                                     }
                                 }
                             }else
@@ -318,7 +320,7 @@ public class CamFragment extends Fragment {
                             Matcher zipMatcher = zipPattern.matcher(firstLine);
                             if (zipMatcher.find()) {
                                 String zip = zipMatcher.group(1);
-                                secondName.setText(zip);
+                             //   PostalCode.setText(zip);
                             }else {
 
                                 // checking phone number
@@ -327,7 +329,7 @@ public class CamFragment extends Fragment {
                                 if (ma.find()) {
                                     if (!Pattern.matches("[a-zA-Z]+", firstLine)) {
 
-                                        phoneTxt.setText(firstLine);
+                                     //   phoneTxt.setText(firstLine);
                                     } else
                                     {
                                         thirdTxt.setText(firstLine);
@@ -355,7 +357,7 @@ public class CamFragment extends Fragment {
                                 }
 
                                 if (digitCount1 >=6) {
-                                    phoneTxt.setText(lines[i+1]);
+                              //      phoneTxt.setText(lines[i+1]);
                                 }else
                                 {
                                     if (!firstLine.contains("@"))
@@ -449,9 +451,58 @@ public class CamFragment extends Fragment {
                     Matcher ma = pa.matcher(community);
                     if (ma.find()) {
                         if (!Pattern.matches("[a-zA-Z]+", firstLine)) {
-                            phoneNumberTxt.setText(firstLine);
+
+                            phoneTxt.setText(firstLine);
+
+                            try {
+
+                                int numberOfDigits = lines[i-1].length();
+                                if (numberOfDigits>2) {
+
+                                    Pattern p = Pattern.compile("(([A-Z].*[0-9]))");
+                                    Matcher m = p.matcher(lines[i - 1]);
+                                    boolean b = m.find();
+                                    System.out.println(b);
+
+                                    if (b) {
+
+                                        phoneNumberTxt.setText(lines[i - 1]);
+                                    }
+                                }
+
+                            } catch (ArrayIndexOutOfBoundsException e) {
+                                e.printStackTrace();
+                            }
+
+                            try {
+
+                                int numberOfDigits = lines[i-2].length();
+                                if (numberOfDigits>2) {
+
+                                    Pattern p = Pattern.compile("(([A-Z].*[0-9]))");
+                                    Matcher m = p.matcher(lines[i - 2]);
+                                    boolean b = m.find();
+                                    System.out.println(b);
+
+                                    if (b) {
+                                        PhoneTxtthird.setText(lines[i - 2]);
+                                    }
+                                }
+
+                            } catch (ArrayIndexOutOfBoundsException e) {
+                                e.printStackTrace();
+                            }
+
                         }
 
+                    }
+
+                    //postal code
+                    Pattern zipPattern = Pattern.compile("(\\d{6})");
+                    Matcher zipMatcher = zipPattern.matcher(community);
+                    if (zipMatcher.find()) {
+                        String zip = zipMatcher.group(1);
+                        PostalCode.setText(zip);
                     }
                 }
                 //email
@@ -463,6 +514,8 @@ public class CamFragment extends Fragment {
                 }
 
 
+
+
             }
 
 
@@ -470,6 +523,26 @@ public class CamFragment extends Fragment {
         finally {
             textRecognizer.release();
         }
+    }
+
+    // extract the string
+    public static String extractNumber(final String str) {
+
+        if(str == null || str.isEmpty()) return "";
+
+        StringBuilder sb = new StringBuilder();
+        boolean found = false;
+        for(char c : str.toCharArray()){
+            if(Character.isDigit(c)){
+                sb.append(c);
+                found = true;
+            } else if(found){
+                // If we already found a digit before and this char is not a digit, stop looping
+                break;
+            }
+        }
+
+        return sb.toString();
     }
 
     public static int getCount(String number) {
@@ -507,6 +580,47 @@ public class CamFragment extends Fragment {
                 }
             }
         }
+    }
+
+
+    boolean isValidPostalCode(String code) {
+
+        // must have 6 digits
+
+        if(code.length() != 6)
+
+        return false;
+
+
+
+        // make if uppercase for not having to chack for A to Z AND a to z
+
+        code = code.toUpperCase();
+
+        // translate into digit
+
+        char[] digit = code.toCharArray();
+
+        for(int i = 0; i < 4; ++i) {
+
+            if(digit[i] < '0' || digit[i] > '9')
+
+            return false;
+
+        }
+
+        for(int i = 4; i < 6; ++i) {
+
+            if(digit[i] < 'A' || digit[i] > 'Z')
+
+            return false;
+
+        }
+
+        // sounds OK to me
+
+        return true;
+
     }
 
 
