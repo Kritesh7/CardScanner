@@ -37,25 +37,25 @@ public class HomeActivity extends AppCompatActivity {
                     replaceFragment(cardFragment);
                     checkFrag = "1";
                     return true;
-                case R.id.navigation_msg:
+               /* case R.id.navigation_msg:
                     messgaeFragment = new MessageFragment();
                     replaceFragment(messgaeFragment);
                     checkFrag = "2";
-                    return  true;
+                    return  true;*/
                 case R.id.navigation_scanner:
                     camFragment = new CamFragment();
                     replaceFragment(camFragment);
-                    checkFrag = "3";
+                    checkFrag = "2";
                     return true;
-                case R.id.navigation_sos:
+               /* case R.id.navigation_sos:
                     sosFragment = new SosFragment();
                     replaceFragment(sosFragment);
                     checkFrag = "4";
-                    return true;
+                    return true;*/
                 case R.id.navigation_pro:
                     proFragment = new ProfileFragment();
                     replaceFragment(proFragment);
-                    checkFrag = "5";
+                    checkFrag = "3";
                     return true;
             }
             return false;
@@ -112,7 +112,7 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
 
-        if (checkFrag.equalsIgnoreCase("3"))
+        if (checkFrag.equalsIgnoreCase("2"))
         {
             finish();
         }else
@@ -120,7 +120,7 @@ public class HomeActivity extends AppCompatActivity {
                 Fragment mFragment3 = new CamFragment();
                 replaceFragment(mFragment3);
                 selectBottomNavigationBarItem(R.id.navigation_scanner);
-                checkFrag = "3";
+                checkFrag = "2";
             }
 
         //  SaveImageTask.this.finish();

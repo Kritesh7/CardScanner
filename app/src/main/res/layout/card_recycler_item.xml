@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+    android:id="@+id/cardview"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="10dp"
+    android:layout_marginRight="10dp"
+    android:layout_marginTop="12dp"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    app:cardCornerRadius="10dp"
+    app:cardElevation="10dp"
+    app:cardBackgroundColor="#B2DFDB"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <LinearLayout
+        android:clickable="true"
+        android:background="?attr/selectableItemBackground"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_weight=".4"
+        android:layout_height="120dp"
+        android:src="@drawable/card"/>
+
+    <LinearLayout
+        android:layout_marginLeft="10dp"
+        android:layout_gravity="center"
+        android:orientation="vertical"
+        android:layout_width="0dp"
+        android:layout_weight=".6"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:textSize="18sp"
+            android:textColor="@color/status_color"
+            android:id="@+id/name_txt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Name"/>
+
+
+
+        <TextView
+            android:textStyle="italic"
+            android:textColor="@color/backround_color"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Devloper"/>
+
+        <TextView
+
+            android:textColor="#444444"
+            android:id="@+id/comapnyname_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Comp. Name"/>
+
+
+        <TextView
+
+            android:textColor="@color/backround_color"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="9821567896"/>
+
+    </LinearLayout>
+
+    </LinearLayout>
+
+</android.support.v7.widget.CardView>

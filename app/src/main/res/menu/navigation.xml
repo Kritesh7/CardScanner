@@ -6,24 +6,24 @@
         android:icon="@mipmap/card_icon"
         android:title="Card" />
 
-    <item
+   <!-- <item
         android:id="@+id/navigation_msg"
         android:icon="@mipmap/msg_icon"
-        android:title="Messages" />
+        android:title="Messages" />-->
 
     <item
         android:id="@+id/navigation_scanner"
         android:icon="@mipmap/cam_icon"
         android:title="Scanner" />
 
-    <item
+  <!--  <item
         android:id="@+id/navigation_sos"
         android:icon="@mipmap/sos_icon"
-        android:title="Sos" />
+        android:title="Sos" />-->
 
     <item
         android:id="@+id/navigation_pro"
         android:icon="@mipmap/pro_icon"
-        android:title="Sos" />
+        android:title="Profile" />
 
 </menu>

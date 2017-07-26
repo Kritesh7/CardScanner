@@ -352,6 +352,14 @@
                             android:theme="@style/MyEditText" />
                     </android.support.design.widget.TextInputLayout>
 
+
+                    <Button
+                        android:layout_marginTop="20dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/backround_color"
+                        android:textColor="@color/white"
+                        android:text="Submit"/>
                 </LinearLayout>
 
 
@@ -366,17 +374,9 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        app:backgroundTint="@color/backround_color"
+        app:backgroundTint="@color/status_color"
         app:elevation="6dp"
         android:src="@drawable/cam"
         />
-   <!-- <android.support.design.widget.FloatingActionButton
-           android:id="@+id/fab"
-           android:layout_width="wrap_content"
-           android:layout_height="wrap_content"
-           android:layout_gravity="bottom|end"
-           android:backgroundTint="@color/backround_color"
-           android:layout_margin="@dimen/fab_margin"
-           app:srcCompat="@android:id/message" />-->
 
 </FrameLayout>

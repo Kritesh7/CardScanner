@@ -4,10 +4,17 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
+
+import cardscaner.cfcs.com.cardscanner.Adapter.CardListAdapter;
+import cardscaner.cfcs.com.cardscanner.Model.CardListModel;
 import cardscaner.cfcs.com.cardscanner.R;
 
 /**
@@ -27,6 +34,9 @@ public class CardFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    public RecyclerView cardRecycler;
+    public ArrayList<CardListModel> list = new ArrayList<>();
+    public CardListAdapter adapter;
 
     private OnFragmentInteractionListener mListener;
 
@@ -65,8 +75,34 @@ public class CardFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_card, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_card, container, false);
+
+        cardRecycler = (RecyclerView)rootView.findViewById(R.id.card_recyceler);
+
+        adapter = new CardListAdapter(getActivity(),list);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
+        cardRecycler.setLayoutManager(mLayoutManager);
+        cardRecycler.setItemAnimator(new DefaultItemAnimator());
+        cardRecycler.setAdapter(adapter);
+
+        prepareMemberData();
+
+        return rootView;
     }
+
+   private void prepareMemberData() {
+        CardListModel model = new CardListModel("Himanshu Dubey","Nmtronics Privat Limited");
+        list.add(model);
+
+        model = new CardListModel("Rahul","Cfcs");
+        list.add(model);
+
+        model = new CardListModel("Jaiswal Ji","Cfcs");
+        list.add(model);
+
+         adapter.notifyDataSetChanged();
+    }
+
 
     // TODO: Rename method, update argument and hook method into UI event
    /* public void onButtonPressed(Uri uri) {
