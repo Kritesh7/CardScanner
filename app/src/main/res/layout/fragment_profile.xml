@@ -2,12 +2,151 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="cardscaner.cfcs.com.cardscanner.Fragment.ProfileFragment">
 
     <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
+        android:padding="10dp"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="Profile Fragment" />
+       >
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_marginTop="10dp"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nextFocusLeft="@id/autotext"
+            android:nextFocusUp="@id/autotext"
+            android:textColorHint="#888888"
+            app:hintTextAppearance="@style/TextAppearenceWith.App.TextInputLayout">
+
+            <EditText
+
+                android:inputType="textPersonName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/linebelowedittext"
+                android:backgroundTint="@color/edit_below_line"
+                android:hint="Name"
+                android:paddingBottom="10dp"
+                android:paddingTop="10dp"
+                android:textColor="@color/text_color"
+                android:textColorHint="@color/edit_below_line"
+                android:textSize="16dp"
+                android:theme="@style/MyEditText" />
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_marginTop="10dp"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nextFocusLeft="@id/autotext"
+            android:nextFocusUp="@id/autotext"
+            android:textColorHint="#888888"
+            app:hintTextAppearance="@style/TextAppearenceWith.App.TextInputLayout">
+
+            <EditText
+
+                android:inputType="textPersonName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/linebelowedittext"
+                android:backgroundTint="@color/edit_below_line"
+                android:hint="Designation"
+                android:paddingBottom="10dp"
+                android:paddingTop="10dp"
+                android:textColor="@color/text_color"
+                android:textColorHint="@color/edit_below_line"
+                android:textSize="16dp"
+                android:theme="@style/MyEditText" />
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_marginTop="10dp"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nextFocusLeft="@id/autotext"
+            android:nextFocusUp="@id/autotext"
+            android:textColorHint="#888888"
+            app:hintTextAppearance="@style/TextAppearenceWith.App.TextInputLayout">
+
+            <EditText
+
+                android:inputType="textPersonName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/linebelowedittext"
+                android:backgroundTint="@color/edit_below_line"
+                android:hint="Gender"
+                android:paddingBottom="10dp"
+                android:paddingTop="10dp"
+                android:textColor="@color/text_color"
+                android:textColorHint="@color/edit_below_line"
+                android:textSize="16dp"
+                android:theme="@style/MyEditText" />
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_marginTop="10dp"
+            android:id="@+id/autotext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nextFocusLeft="@id/autotext"
+            android:nextFocusUp="@id/autotext"
+            android:textColorHint="#888888"
+            app:hintTextAppearance="@style/TextAppearenceWith.App.TextInputLayout">
+
+            <EditText
+                android:id="@+id/name_txt"
+                android:inputType="textPersonName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/linebelowedittext"
+                android:backgroundTint="@color/edit_below_line"
+                android:hint="Phone Number"
+                android:paddingBottom="10dp"
+                android:paddingTop="10dp"
+                android:textColor="@color/text_color"
+                android:textColorHint="@color/edit_below_line"
+                android:textSize="16dp"
+                android:theme="@style/MyEditText" />
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:layout_marginTop="10dp"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nextFocusLeft="@id/autotext"
+            android:nextFocusUp="@id/autotext"
+            android:textColorHint="#888888"
+            app:hintTextAppearance="@style/TextAppearenceWith.App.TextInputLayout">
+
+            <EditText
+
+                android:inputType="textPersonName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/linebelowedittext"
+                android:backgroundTint="@color/edit_below_line"
+                android:hint="Email Id"
+                android:paddingBottom="10dp"
+                android:paddingTop="10dp"
+                android:textColor="@color/text_color"
+                android:textColorHint="@color/edit_below_line"
+                android:textSize="16dp"
+                android:theme="@style/MyEditText" />
+        </android.support.design.widget.TextInputLayout>
+        </LinearLayout>
 
 </FrameLayout>

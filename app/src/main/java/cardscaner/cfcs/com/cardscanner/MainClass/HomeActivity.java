@@ -1,4 +1,4 @@
-package cardscaner.cfcs.com.cardscanner;
+package cardscaner.cfcs.com.cardscanner.MainClass;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,6 +18,7 @@ import cardscaner.cfcs.com.cardscanner.Fragment.CardFragment;
 import cardscaner.cfcs.com.cardscanner.Fragment.MessageFragment;
 import cardscaner.cfcs.com.cardscanner.Fragment.ProfileFragment;
 import cardscaner.cfcs.com.cardscanner.Fragment.SosFragment;
+import cardscaner.cfcs.com.cardscanner.R;
 
 public class HomeActivity extends AppCompatActivity {
 

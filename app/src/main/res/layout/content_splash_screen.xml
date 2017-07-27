@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="cardscaner.cfcs.com.cardscanner.SplashScreen"
+    tools:context="cardscaner.cfcs.com.cardscanner.MainClass.SplashScreen"
     tools:showIn="@layout/activity_splash_screen">
 
     <LinearLayout
