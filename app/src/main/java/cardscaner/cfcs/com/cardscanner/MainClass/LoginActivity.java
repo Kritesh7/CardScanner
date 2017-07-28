@@ -30,6 +30,7 @@ public class LoginActivity extends AppCompatActivity {
             window.setStatusBarColor(this.getResources().getColor(R.color.status_color));
         }
 
+        //
         loginBtn = (Button)findViewById(R.id.loginbtn);
         forgetPassBtn = (TextView)findViewById(R.id.forgetpass);
 
