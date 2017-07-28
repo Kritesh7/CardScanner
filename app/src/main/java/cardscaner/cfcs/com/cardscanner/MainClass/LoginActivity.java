@@ -9,6 +9,7 @@ import android.view.MenuItem;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.TextView;
 
 import cardscaner.cfcs.com.cardscanner.MainClass.HomeActivity;
 import cardscaner.cfcs.com.cardscanner.R;
@@ -16,6 +17,7 @@ import cardscaner.cfcs.com.cardscanner.R;
 public class LoginActivity extends AppCompatActivity {
 
     public Button loginBtn;
+    public TextView forgetPassBtn ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,6 +31,19 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         loginBtn = (Button)findViewById(R.id.loginbtn);
+        forgetPassBtn = (TextView)findViewById(R.id.forgetpass);
+
+        forgetPassBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Intent i = new Intent(getApplicationContext(), ForgetPasswordActivity.class);
+                startActivity(i);
+                overridePendingTransition(R.anim.push_right_in, R.anim.push_left_out);
+                finish();
+
+            }
+        });
 
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override

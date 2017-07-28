@@ -22,9 +22,20 @@
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/card"/>
+            android:src="@drawable/bglogo"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Card Scanner"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textColor="#ffffff"
+            android:textSize="25sp"
+            android:textStyle="bold"/>
 
         <com.tuyenmonkey.mkloader.MKLoader
+            android:layout_marginTop="10dp"
             android:id="@+id/animated_progress"
             android:layout_centerInParent="true"
             android:layout_gravity="center"
