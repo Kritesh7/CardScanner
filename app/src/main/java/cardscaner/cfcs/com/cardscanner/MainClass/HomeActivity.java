@@ -25,7 +25,7 @@ public class HomeActivity extends AppCompatActivity {
     private TextView mTextMessage;
     public BottomNavigationView navigation;
     public  Fragment camFragment , cardFragment , messgaeFragment,sosFragment,proFragment;
-    public String checkFrag = "1";
+    public String checkFrag = "2";
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -38,21 +38,13 @@ public class HomeActivity extends AppCompatActivity {
                     replaceFragment(cardFragment);
                     checkFrag = "1";
                     return true;
-               /* case R.id.navigation_msg:
-                    messgaeFragment = new MessageFragment();
-                    replaceFragment(messgaeFragment);
-                    checkFrag = "2";
-                    return  true;*/
+
                 case R.id.navigation_scanner:
                     camFragment = new CamFragment();
                     replaceFragment(camFragment);
                     checkFrag = "2";
                     return true;
-               /* case R.id.navigation_sos:
-                    sosFragment = new SosFragment();
-                    replaceFragment(sosFragment);
-                    checkFrag = "4";
-                    return true;*/
+
                 case R.id.navigation_pro:
                     proFragment = new ProfileFragment();
                     replaceFragment(proFragment);

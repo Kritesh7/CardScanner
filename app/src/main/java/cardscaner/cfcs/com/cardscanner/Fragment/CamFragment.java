@@ -20,6 +20,9 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.SparseArray;
@@ -50,6 +53,14 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import cardscaner.cfcs.com.cardscanner.Adapter.BusinessVerticalAdapter;
+import cardscaner.cfcs.com.cardscanner.Adapter.CardListAdapter;
+import cardscaner.cfcs.com.cardscanner.Adapter.IndusteryAdapter;
+import cardscaner.cfcs.com.cardscanner.Adapter.PrincipalTypeAdapter;
+import cardscaner.cfcs.com.cardscanner.Model.BusinessVerticalCheckList;
+import cardscaner.cfcs.com.cardscanner.Model.CardListModel;
+import cardscaner.cfcs.com.cardscanner.Model.IndustryModel;
+import cardscaner.cfcs.com.cardscanner.Model.PrincipalTypeModel;
 import cardscaner.cfcs.com.cardscanner.R;
 import cardscaner.cfcs.com.cardscanner.source.EditTextMonitor;
 import cardscaner.cfcs.com.cardscanner.source.MultiTouchListener;
@@ -87,7 +98,15 @@ public class CamFragment extends Fragment {
     private EditTextMonitor detectedTextView, emailTxt, phoneTxt, nameTxt,addresstxt,PostalCode,
             thirdTxt,designation, company_name,phoneNumberTxt,PhoneTxtthird,webUrlTxt;
     public ImageView cardImg;
+    public RecyclerView businessVerticalRecycler, industeryRecycler,principalTypeRecycler ;
     Fragment frag;
+
+    public BusinessVerticalAdapter adapter;
+    public IndusteryAdapter industeryAdapter;
+    public PrincipalTypeAdapter principalTypeAdapter;
+    public ArrayList<PrincipalTypeModel> principalTypeList = new ArrayList<>();
+    public ArrayList<IndustryModel> indstryList = new ArrayList<>();
+    public ArrayList<BusinessVerticalCheckList> list = new ArrayList<>();
 
     public CamFragment() {
         // Required empty public constructor
@@ -140,9 +159,42 @@ public class CamFragment extends Fragment {
         phoneNumberTxt = (EditTextMonitor)rootView.findViewById(R.id.phone_number2);
         PhoneTxtthird = (EditTextMonitor)rootView.findViewById(R.id.phone_number3);
         webUrlTxt = (EditTextMonitor)rootView.findViewById(R.id.web_url);
+        businessVerticalRecycler = (RecyclerView)rootView.findViewById(R.id.business_vertical_recycler);
+        industeryRecycler = (RecyclerView)rootView.findViewById(R.id.industery_recycler);
+        principalTypeRecycler = (RecyclerView)rootView.findViewById(R.id.principal_type_recycler);
 
 
-       // MultiTouchListener touchListener=new MultiTouchListener(getActivity());
+        // Business Vertical List
+        adapter = new BusinessVerticalAdapter(getActivity(),list);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
+        businessVerticalRecycler.setLayoutManager(mLayoutManager);
+        businessVerticalRecycler.setItemAnimator(new DefaultItemAnimator());
+        businessVerticalRecycler.setAdapter(adapter);
+
+        prepareMemberData();
+
+        //Industery List
+        industeryAdapter = new IndusteryAdapter(getActivity(),indstryList);
+        RecyclerView.LayoutManager industerymLayoutManager = new LinearLayoutManager(getActivity());
+        industeryRecycler.setLayoutManager(industerymLayoutManager);
+        industeryRecycler.setItemAnimator(new DefaultItemAnimator());
+        industeryRecycler.setAdapter(industeryAdapter);
+
+        prepareIndusteryData();
+
+        //principal List
+        principalTypeAdapter = new PrincipalTypeAdapter(getActivity(),principalTypeList);
+        RecyclerView.LayoutManager principalmLayoutManager = new LinearLayoutManager(getActivity());
+        principalTypeRecycler.setLayoutManager(principalmLayoutManager);
+        principalTypeRecycler.setItemAnimator(new DefaultItemAnimator());
+        principalTypeRecycler.setAdapter(principalTypeAdapter);
+
+        preparePrincipalData();
+
+
+
+
+        // MultiTouchListener touchListener=new MultiTouchListener(getActivity());
 
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -166,6 +218,44 @@ public class CamFragment extends Fragment {
         }
 
         return rootView;
+    }
+
+    private void prepareMemberData() {
+        BusinessVerticalCheckList model = new BusinessVerticalCheckList("First Check");
+        list.add(model);
+
+        model = new BusinessVerticalCheckList("Second Check");
+        list.add(model);
+
+        model = new BusinessVerticalCheckList("Third Check");
+        list.add(model);
+        adapter.notifyDataSetChanged();
+    }
+
+    private void prepareIndusteryData() {
+        IndustryModel model = new IndustryModel("Ind First Check");
+        indstryList.add(model);
+
+        model = new IndustryModel("Ind First Check");
+        indstryList.add(model);
+
+        model = new IndustryModel("Ind First Check");
+        indstryList.add(model);
+
+        industeryAdapter.notifyDataSetChanged();
+    }
+
+    private void preparePrincipalData() {
+        PrincipalTypeModel model = new PrincipalTypeModel("Ind Principal Check");
+        principalTypeList.add(model);
+
+        model = new PrincipalTypeModel("Ind Principal Check");
+        principalTypeList.add(model);
+
+        model = new PrincipalTypeModel("Ind Principal Check");
+        principalTypeList.add(model);
+
+        principalTypeAdapter.notifyDataSetChanged();
     }
 
     @Override

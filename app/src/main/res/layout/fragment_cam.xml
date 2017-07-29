@@ -34,6 +34,12 @@
                 android:layout_height="wrap_content">
 
                 <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                   >
+
+                <LinearLayout
                     android:layout_margin="5dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -352,15 +358,139 @@
                             android:theme="@style/MyEditText" />
                     </android.support.design.widget.TextInputLayout>
 
+                </LinearLayout>
 
-                    <Button
+                    <View
+                        android:layout_marginTop="10dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="2dp"
+                        android:background="@color/status_color"/>
+
+                    <LinearLayout
+                        android:layout_margin="5dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                    <TextView
+                        android:layout_marginTop="10dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Contact Other Details"
+                        android:textStyle="bold"
+                        android:textColor="@color/status_color"
+                        android:textSize="18sp"/>
+
+                        <TextView
+                            android:layout_marginTop="10dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Business Vertical"
+                            android:textColor="@color/backround_color"
+                            android:textSize="16sp"
+                            android:padding="5dp"/>
+
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/business_vertical_recycler"
+                            android:padding="5dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                        </android.support.v7.widget.RecyclerView>
+
+                        <TextView
+                            android:layout_marginTop="10dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Industry"
+                            android:textColor="@color/backround_color"
+                            android:textSize="16sp"
+                            android:padding="5dp"/>
+
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/industery_recycler"
+                            android:padding="5dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                        </android.support.v7.widget.RecyclerView>
+
+                        <TextView
+                            android:layout_marginTop="10dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Industry Type"
+                            android:textColor="@color/backround_color"
+                            android:textSize="16sp"
+                            android:padding="5dp"/>
+
+                        <RadioGroup
+                            android:orientation="horizontal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+
+                            <RadioButton
+                                android:buttonTint="@color/status_color"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Oem"/>
+                            <RadioButton
+                                android:buttonTint="@color/status_color"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Odm"/>
+                        </RadioGroup>
+
+                        <TextView
+                            android:layout_marginTop="10dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Principal Type"
+                            android:textColor="@color/backround_color"
+                            android:textSize="16sp"
+                            android:padding="5dp"/>
+
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/principal_type_recycler"
+                            android:padding="5dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                        </android.support.v7.widget.RecyclerView>
+
+                        <android.support.design.widget.TextInputLayout
+                            android:layout_marginTop="10dp"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColorHint="#888888"
+                            app:hintTextAppearance="@style/TextAppearenceWith.App.TextInputLayout">
+
+                            <cardscaner.cfcs.com.cardscanner.source.EditTextMonitor
+                                android:inputType="textMultiLine"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="10dp"
+                                android:background="@drawable/linebelowedittext"
+                                android:backgroundTint="@color/edit_below_line"
+                                android:hint="Principal Detail"
+                                android:paddingBottom="10dp"
+                                android:paddingTop="10dp"
+                                android:textColor="@color/text_color"
+                                android:textColorHint="@color/edit_below_line"
+                                android:textSize="16dp"
+                                android:theme="@style/MyEditText" />
+                        </android.support.design.widget.TextInputLayout>
+
+                        <Button
                         android:layout_marginTop="20dp"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:background="@color/backround_color"
                         android:textColor="@color/white"
                         android:text="Submit"/>
+
+                    </LinearLayout>
                 </LinearLayout>
+
 
 
             </LinearLayout>
