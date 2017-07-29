@@ -27,6 +27,8 @@ public class HomeActivity extends AppCompatActivity {
     public  Fragment camFragment , cardFragment , messgaeFragment,sosFragment,proFragment;
     public String checkFrag = "2";
 
+    //
+
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
 
