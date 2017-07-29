@@ -48,6 +48,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
@@ -551,10 +552,14 @@ public class CamFragment extends Fragment {
                 if(!firstLine.contains("@")) {
 
                     StringTokenizer st = new StringTokenizer(firstLine, "ltd");
-                    String community = st.nextToken();
 
-                    Log.e("ciommnunit", community);
+                    String community = "";
+                    try {
+                        community = st.nextToken();
+                    } catch (NoSuchElementException e) {
 
+                        Toast.makeText(getActivity(), "Scan Failed please Try again!", Toast.LENGTH_SHORT).show();
+                    }
 
                     //name
                     Pattern pattern = Pattern.compile("\\s");
