@@ -98,6 +98,7 @@ public class CamFragment extends Fragment {
     int count = 0;
     private EditTextMonitor detectedTextView, emailTxt, phoneTxt, nameTxt,addresstxt,PostalCode,
             thirdTxt,designation, company_name,phoneNumberTxt,PhoneTxtthird,webUrlTxt;
+
     public ImageView cardImg;
     public RecyclerView businessVerticalRecycler, industeryRecycler,principalTypeRecycler ;
     Fragment frag;
