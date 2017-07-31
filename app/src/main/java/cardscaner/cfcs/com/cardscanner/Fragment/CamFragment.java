@@ -90,6 +90,7 @@ public class CamFragment extends Fragment {
     public android.support.design.widget.FloatingActionButton floatingActionButton;
     private static final int REQUEST_GALLERY = 0;
     private static final int REQUEST_CAMERA = 1;
+
     private static final String TAG = "Cam Scanner";
     private static final int REQUEST_WRITE_PERMISSION = 20;
 
