@@ -110,6 +110,8 @@ public class CamFragment extends Fragment {
     public ArrayList<IndustryModel> indstryList = new ArrayList<>();
     public ArrayList<BusinessVerticalCheckList> list = new ArrayList<>();
 
+
+
     public CamFragment() {
         // Required empty public constructor
     }
