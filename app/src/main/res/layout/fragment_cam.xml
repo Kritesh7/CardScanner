@@ -444,7 +444,7 @@
                             android:layout_marginTop="10dp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Principal Type"
+                            android:text="Principle Type"
                             android:textColor="@color/backround_color"
                             android:textSize="16sp"
                             android:padding="5dp"/>
@@ -471,7 +471,7 @@
                                 android:layout_marginTop="10dp"
                                 android:background="@drawable/linebelowedittext"
                                 android:backgroundTint="@color/edit_below_line"
-                                android:hint="Principal Detail"
+                                android:hint="Principle Detail"
                                 android:paddingBottom="10dp"
                                 android:paddingTop="10dp"
                                 android:textColor="@color/text_color"

@@ -428,7 +428,9 @@ public class CamFragment extends Fragment {
                                         //    thirdTxt.setText(firstLine);
 
                                         try {
-                                            addresstxt.setText(lines[i + 1]);
+                                            if (!thirdTxt.getText().toString().equalsIgnoreCase(lines[i + 1])) {
+                                                addresstxt.setText(lines[i + 1]);
+                                            }
                                         } catch (ArrayIndexOutOfBoundsException e) {
                                             e.printStackTrace();
                                         }
@@ -485,14 +487,19 @@ public class CamFragment extends Fragment {
 
 
 
-                                    Pattern p = Pattern.compile("(([A-Z].*[0-9]))");
+                                    Pattern p = Pattern.compile(".*\\d+.*");
                                     Matcher ma = p.matcher(firstLine);
                                     boolean b = ma.find();
                                     if (!b) {
 
                                         if (!firstLine.contains(".com")) {
                                             if (!designation.getText().toString().equalsIgnoreCase(firstLine)) {
-                                                company_name.setText(firstLine);
+                                                if (!addresstxt.getText().toString().equalsIgnoreCase(firstLine)) {
+                                                    if (!firstLine.contains(".com") && !firstLine.contains("@") &&
+                                                            !firstLine.contains("co.in")) {
+                                                        company_name.setText(firstLine);
+                                                    }
+                                                    }
                                             }
                                         }
                                     }
@@ -530,6 +537,8 @@ public class CamFragment extends Fragment {
                                                 Matcher m = p.matcher(lines[i +1]);
                                                 boolean b = m.find();
                                                 System.out.println(b);
+
+
 
                                                 if (!b) {
                                                //if(Pattern.matches(".*[a-zA-Z]+.*[a-zA-Z]", firstLine)) {
@@ -570,11 +579,12 @@ public class CamFragment extends Fragment {
                             nameTxt.setText(firstLine);
                             count++;
 
-                            Pattern p = Pattern.compile("(([A-Z].*[0-9]))");
+                            Pattern p = Pattern.compile(".*\\d+.*");
                             Matcher m = p.matcher(lines[i +1]);
                             boolean b = m.find();
                             if (!b) {
                                 if(Pattern.matches(".*[a-zA-Z]+.*[a-zA-Z]", firstLine)) {
+
                                     designation.setText(lines[i + 1]);
                                 }
                             }
@@ -593,7 +603,35 @@ public class CamFragment extends Fragment {
                     if (ma.find()) {
                         if (!Pattern.matches("[a-zA-Z]+", firstLine)) {
 
-                            phoneTxt.setText(firstLine);
+                            if (!PhoneTxtthird.getText().toString().equalsIgnoreCase(firstLine)) {
+                                if (!phoneNumberTxt.getText().toString().equalsIgnoreCase(firstLine) ) {
+
+                                    if (!addresstxt.getText().toString().equalsIgnoreCase(firstLine) ) {
+
+                                        if (!thirdTxt.getText().toString().equalsIgnoreCase(firstLine)) {
+
+                                            char[] ch = firstLine.toCharArray();
+                                            int letter = 0;
+                                            int num = 0;
+                                            for(int id = 0; id < firstLine.length(); id++){
+                                                if(Character.isLetter(ch[id])){
+                                                    letter ++ ;
+                                                }
+                                                else if(Character.isDigit(ch[id])){
+                                                    num ++ ;
+                                                }
+                                            }
+
+                                            if (letter<=12) {
+                                                phoneTxt.setText(firstLine);
+                                            }else
+                                            {
+                                                addresstxt.setText(firstLine);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
 
                             try {
 
@@ -606,8 +644,34 @@ public class CamFragment extends Fragment {
                                     System.out.println(b);
 
                                     if (b) {
+                                        if (!PhoneTxtthird.getText().toString().equalsIgnoreCase(lines[i - 1])) {
 
-                                        phoneNumberTxt.setText(lines[i - 1]);
+                                            if ( !phoneTxt.getText().toString().equalsIgnoreCase(lines[i - 1])) {
+                                                if (!addresstxt.getText().toString().equalsIgnoreCase(lines[i - 1])) {
+                                                    if (!thirdTxt.getText().toString().equalsIgnoreCase(lines[i - 1])) {
+
+                                                        char[] ch = lines[i - 1].toCharArray();
+                                                        int letter = 0;
+                                                        int num = 0;
+                                                        for(int id = 0; id < lines[i - 1].length(); id++){
+                                                            if(Character.isLetter(ch[id])){
+                                                                letter ++ ;
+                                                            }
+                                                            else if(Character.isDigit(ch[id])){
+                                                                num ++ ;
+                                                            }
+                                                        }
+
+                                                        if (letter<=12) {
+                                                            phoneNumberTxt.setText(lines[i - 1]);
+                                                        }else
+                                                        {
+                                                            addresstxt.setText(lines[i - 1]);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                 }
 
@@ -626,7 +690,33 @@ public class CamFragment extends Fragment {
                                     System.out.println(b);
 
                                     if (b) {
-                                        PhoneTxtthird.setText(lines[i - 2]);
+                                        if (!phoneTxt.getText().toString().equalsIgnoreCase(lines[i - 2])) {
+                                            if ( !phoneNumberTxt.getText().toString().equalsIgnoreCase(lines[i - 2])) {
+                                                if ( !addresstxt.getText().toString().equalsIgnoreCase(lines[i - 2])) {
+                                                    if (!thirdTxt.getText().toString().equalsIgnoreCase(lines[i - 2])) {
+
+                                                        char[] ch = lines[i - 2].toCharArray();
+                                                        int letter = 0;
+                                                        int num = 0;
+                                                        for(int id = 0; id < lines[i - 2].length(); id++){
+                                                            if(Character.isLetter(ch[id])){
+                                                                letter ++ ;
+                                                            }
+                                                            else if(Character.isDigit(ch[id])){
+                                                                num ++ ;
+                                                            }
+                                                        }
+
+                                                        if (letter<=12) {
+                                                            PhoneTxtthird.setText(lines[i - 2]);
+                                                        }else
+                                                            {
+                                                                addresstxt.setText(lines[i - 2]);
+                                                            }
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                 }
 
@@ -667,7 +757,14 @@ public class CamFragment extends Fragment {
                         if (!firstLine.contains(".com")) {
 
                             if (!designation.getText().toString().equalsIgnoreCase(firstLine)) {
-                                thirdTxt.setText(firstLine);
+
+                                if (!addresstxt.getText().toString().equalsIgnoreCase(firstLine)) {
+                                    if (!firstLine.contains(".com") && !firstLine.contains("@") &&
+                                             !firstLine.contains("co.in") && !firstLine.contains("w.")) {
+
+                                        thirdTxt.setText(firstLine);
+                                    }
+                                }
                             }
                         }
                     }
@@ -678,7 +775,8 @@ public class CamFragment extends Fragment {
                 }
 
                 //Web Url ---
-                if (firstLine.contains(".com") && !firstLine.contains("@")) {
+                if (firstLine.contains(".com") && !firstLine.contains("@") || firstLine.contains("w.") || firstLine.contains("co.in")) {
+
                     webUrlTxt.setText(firstLine);
                 }
 
