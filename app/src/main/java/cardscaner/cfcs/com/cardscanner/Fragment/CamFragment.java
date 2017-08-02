@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -370,7 +371,7 @@ public class CamFragment extends Fragment {
                         Pattern pe = Pattern.compile("\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b");
                         Matcher m = pe.matcher(firstLine);
                         if (m.find()) {
-                            emailTxt.setText(firstLine);
+                 //           emailTxt.setText(firstLine);
                         } else {
 
                             if (getCount(firstLine)>=6) {
@@ -432,7 +433,35 @@ public class CamFragment extends Fragment {
 
                                         try {
                                             if (!thirdTxt.getText().toString().equalsIgnoreCase(lines[i + 1])) {
-                                                addresstxt.setText(lines[i + 1]);
+                                                if (!lines[i + 1].contains(".com")) {
+                                                    if (!lines[i + 1].contains("@")) {
+                                                        if ( !lines[i + 1].contains("co.in")) {
+                                                            if (!lines[i + 1].contains("w.")) {
+
+                                                                char[] ch1 = lines[i + 1].toCharArray();
+                                                                int letter1 = 0;
+                                                                int num1 = 0;
+                                                                for(int id = 0; id < lines[i + 1].length(); id++){
+                                                                    if(Character.isLetter(ch1[id])){
+                                                                        letter1 ++ ;
+                                                                    }
+                                                                    else if(Character.isDigit(ch1[id])){
+                                                                        num1 ++ ;
+                                                                    }
+                                                                }
+
+                                                                if (num1>=1 && num1<=12 && letter1>=5) {
+                                                                    if (!designation.getText().toString().equalsIgnoreCase(lines[i + 1])) {
+                                                                        if (!lines[i+1].contains("mobile") ||!lines[i+1].contains("Phone")
+                                                                                || !lines[i+1].contains("Phone No.")) {
+                                                                            addresstxt.setText(lines[i + 1]);
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
                                             }
                                         } catch (ArrayIndexOutOfBoundsException e) {
                                             e.printStackTrace();
@@ -450,18 +479,23 @@ public class CamFragment extends Fragment {
                             try {
 
                                 // check the number of numeric character
-                                Pattern digitPattern1 = Pattern.compile("\\d");
-                                Matcher digitMatcher1 = digitPattern1.matcher(firstLine);
-                                int digitCount1 = 0;
-                                while (digitMatcher1.find()) {
-                                    digitCount1++;
+                                char[] ch1 = lines[i + 1].toCharArray();
+                                int letter1 = 0;
+                                int num1 = 0;
+                                for(int id = 0; id < lines[i + 1].length(); id++){
+                                    if(Character.isLetter(ch1[id])){
+                                        letter1 ++ ;
+                                    }
+                                    else if(Character.isDigit(ch1[id])){
+                                        num1 ++ ;
+                                    }
                                 }
 
-                                if (digitCount1 >=6) {
-                                }else
-                                {
-                                    if (!firstLine.contains("@"))
+                                if (num1>=1 && num1<=12 && letter1>=5) {
+                                    if (!lines[i+1].contains("mobile") ||!lines[i+1].contains("Phone")
+                                            || !lines[i+1].contains("Phone No.")) {
                                         addresstxt.setText(lines[i + 1]);
+                                    }
                                 }
                             } catch (ArrayIndexOutOfBoundsException e) {
                                 e.printStackTrace();
@@ -483,12 +517,10 @@ public class CamFragment extends Fragment {
                                 Pattern.CASE_INSENSITIVE);
                         Matcher m = pe.matcher(firstLine);
                         if (m.find()) {
-                            emailTxt.setText(firstLine);
+                 //           emailTxt.setText(firstLine);
                         }else
                         {
                             if (!firstLine.contains("@")) {
-
-
 
                                     Pattern p = Pattern.compile(".*\\d+.*");
                                     Matcher ma = p.matcher(firstLine);
@@ -498,14 +530,16 @@ public class CamFragment extends Fragment {
                                         if (!firstLine.contains(".com")) {
                                             if (!designation.getText().toString().equalsIgnoreCase(firstLine)) {
                                                 if (!addresstxt.getText().toString().equalsIgnoreCase(firstLine)) {
-                                                    if (!firstLine.contains(".com") && !firstLine.contains("@") &&
+                                                    if (!firstLine.contains(".com")  &&
                                                             !firstLine.contains("co.in")) {
-                                                        company_name.setText(firstLine);
+                                                        if (detectedTextView.getText().toString().equalsIgnoreCase("")) {
+                                                            company_name.setText(firstLine);
+                                                        }
                                                     }
                                                     }
                                             }
                                         }
-                                    }
+                                   }
                             }
                         }
 
@@ -578,24 +612,48 @@ public class CamFragment extends Fragment {
                     Matcher matcher = pattern.matcher(firstLine);
                     boolean found = matcher.find();
                     if (found) {
-                        if (count == 0) {
-                            nameTxt.setText(firstLine);
-                            count++;
+                        if (Pattern.matches(".*[a-zA-Z]+.*[a-zA-Z]", firstLine)) {
+                            if (!community.contains("PVT.")) {
+                                if (count == 0) {
 
-                            Pattern p = Pattern.compile(".*\\d+.*");
-                            Matcher m = p.matcher(lines[i +1]);
-                            boolean b = m.find();
-                            if (!b) {
-                                if(Pattern.matches(".*[a-zA-Z]+.*[a-zA-Z]", firstLine)) {
+                                    char[] ch1 = firstLine.toCharArray();
+                                    int letter1 = 0;
+                                    int num1 = 0;
+                                    for (int id = 0; id < firstLine.length(); id++) {
+                                        if (Character.isLetter(ch1[id])) {
+                                            letter1++;
+                                        } else if (Character.isDigit(ch1[id])) {
+                                            num1++;
+                                        }
+                                    }
+                                    if (letter1 <= 20 && num1 == 0) {
+                                        nameTxt.setText(firstLine);
+                                        count++;
 
-                                    designation.setText(lines[i + 1]);
+                                    }
+
+
+                                    Pattern p = Pattern.compile(".*\\d+.*");
+                                    Matcher m = null;
+                                    try {
+                                        m = p.matcher(lines[i + 1]);
+                                        boolean b = m.find();
+                                        if (!b) {
+                                            if (Pattern.matches(".*[a-zA-Z]+.*[a-zA-Z]", firstLine)) {
+
+                                                designation.setText(lines[i + 1]);
+                                            }
+                                        }
+                                    } catch (ArrayIndexOutOfBoundsException e) {
+                                        e.printStackTrace();
+                                    }
                                 }
                             }
+                            // break;
                         }
-                       // break;
                     }
 
-                    if (community.contains("PVT. LT")) {
+                    if (community.contains("PVT.")) {
                         detectedTextView.setText(firstLine);
                     }
 
@@ -625,11 +683,15 @@ public class CamFragment extends Fragment {
                                                 }
                                             }
 
-                                            if (letter<=12) {
+                                            if (num>=10) {
                                                 phoneTxt.setText(firstLine);
                                             }else
                                             {
-                                                addresstxt.setText(firstLine);
+                                                if (num>=1 && num<=12 && letter>=5)
+                                                    if (!firstLine.contains("mobile") ||!firstLine.contains("Phone")
+                                                            || !firstLine.contains("Phone No.")) {
+                                                        addresstxt.setText(firstLine);
+                                                    }
                                             }
                                         }
                                     }
@@ -641,12 +703,12 @@ public class CamFragment extends Fragment {
                                 int numberOfDigits = lines[i-1].length();
                                 if (numberOfDigits>2) {
 
-                                    Pattern p = Pattern.compile("(([A-Z].*[0-9]))");
+                                   /* Pattern p = Pattern.compile("(([A-Z].*[0-9]))");
                                     Matcher m = p.matcher(lines[i - 1]);
                                     boolean b = m.find();
                                     System.out.println(b);
 
-                                    if (b) {
+                                    if (b) {*/
                                         if (!PhoneTxtthird.getText().toString().equalsIgnoreCase(lines[i - 1])) {
 
                                             if ( !phoneTxt.getText().toString().equalsIgnoreCase(lines[i - 1])) {
@@ -665,18 +727,23 @@ public class CamFragment extends Fragment {
                                                             }
                                                         }
 
-                                                        if (letter<=12) {
+                                                        if (num>=10) {
                                                             phoneNumberTxt.setText(lines[i - 1]);
                                                         }else
                                                         {
-                                                            addresstxt.setText(lines[i - 1]);
+                                                            if (num>=1 && num<=12 && letter>=5) {
+                                                                if (!lines[i-1].contains("mobile") ||!lines[i - 1].contains("Phone")
+                                                                        || !lines[i - 1].contains("Phone No.") ) {
+                                                                    addresstxt.setText(lines[i - 1]);
+                                                                }
+                                                            }
                                                         }
                                                     }
                                                 }
                                             }
                                         }
                                     }
-                                }
+                              //  }
 
                             } catch (ArrayIndexOutOfBoundsException e) {
                                 e.printStackTrace();
@@ -687,12 +754,12 @@ public class CamFragment extends Fragment {
                                 int numberOfDigits = lines[i-2].length();
                                 if (numberOfDigits>2) {
 
-                                    Pattern p = Pattern.compile("(([A-Z].*[0-9]))");
+                                   /* Pattern p = Pattern.compile("(([A-Z].*[0-9]))");
                                     Matcher m = p.matcher(lines[i - 2]);
                                     boolean b = m.find();
                                     System.out.println(b);
 
-                                    if (b) {
+                                    if (b) {*/
                                         if (!phoneTxt.getText().toString().equalsIgnoreCase(lines[i - 2])) {
                                             if ( !phoneNumberTxt.getText().toString().equalsIgnoreCase(lines[i - 2])) {
                                                 if ( !addresstxt.getText().toString().equalsIgnoreCase(lines[i - 2])) {
@@ -710,18 +777,23 @@ public class CamFragment extends Fragment {
                                                             }
                                                         }
 
-                                                        if (letter<=12) {
+                                                        if (num>=10) {
                                                             PhoneTxtthird.setText(lines[i - 2]);
                                                         }else
                                                             {
-                                                                addresstxt.setText(lines[i - 2]);
+                                                                if (num>=1 && num<=12 && letter>=5) {
+                                                                    if (!lines[i-2].contains("mobile") ||!lines[i - 2].contains("Phone")
+                                                                            || !lines[i - 2].contains("Phone No.")) {
+                                                                        addresstxt.setText(lines[i - 2]);
+                                                                    }
+                                                                }
                                                             }
                                                     }
                                                 }
                                             }
                                         }
                                     }
-                                }
+                              //  }
 
                             } catch (ArrayIndexOutOfBoundsException e) {
                                 e.printStackTrace();
@@ -732,10 +804,11 @@ public class CamFragment extends Fragment {
                     }
 
                     //postal code
-                    Pattern zipPattern = Pattern.compile("(\\d{6})");
+                    Pattern zipPattern = Pattern.compile("[0-9]{5}(?!.*([0-9]{5}))");
                     Matcher zipMatcher = zipPattern.matcher(community);
                     if (zipMatcher.find()) {
                         String zip = zipMatcher.group(1);
+
                         PostalCode.setText(zip);
                     }
 
@@ -762,10 +835,38 @@ public class CamFragment extends Fragment {
                             if (!designation.getText().toString().equalsIgnoreCase(firstLine)) {
 
                                 if (!addresstxt.getText().toString().equalsIgnoreCase(firstLine)) {
-                                    if (!firstLine.contains(".com") && !firstLine.contains("@") &&
-                                             !firstLine.contains("co.in") && !firstLine.contains("w.")) {
+                                    if (!firstLine.contains("@")) {
 
-                                        thirdTxt.setText(firstLine);
+                                        if (!firstLine.contains("co.in")) {
+                                            if (!firstLine.contains("w.")) {
+                                                if (!company_name.getText().toString().equalsIgnoreCase(firstLine)) {
+
+                                                    char[] ch1 = firstLine.toCharArray();
+                                                    int letter1 = 0;
+                                                    int num1 = 0;
+                                                    for(int id = 0; id < firstLine.length(); id++){
+                                                        if(Character.isLetter(ch1[id])){
+                                                            letter1 ++ ;
+                                                        }
+                                                        else if(Character.isDigit(ch1[id])){
+                                                            num1 ++ ;
+                                                        }
+                                                    }
+
+                                                  //  if (letter1<=9) {
+                                                    if (!detectedTextView.getText().toString().equalsIgnoreCase(firstLine)) {
+
+                                                        if (!nameTxt.getText().toString().equalsIgnoreCase(firstLine)) {
+
+                                                            if (num1>=1 && num1<=12 && letter1>=5) {
+                                                                thirdTxt.setText(firstLine);
+                                                            }
+                                                        }
+                                                    }
+                                                   // }
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -784,12 +885,15 @@ public class CamFragment extends Fragment {
                 }
 
                 //email
-                Pattern pe = Pattern.compile("\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b",
+                /*Pattern pe = Pattern.compile("\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b",
                         Pattern.CASE_INSENSITIVE);
                 Matcher matcher1 = pe.matcher(firstLine);
-                while(matcher1.find()) {
-                    emailTxt.setText(matcher1.group());
+                while(matcher1.find()) {*/
+
+                if (firstLine.contains("@")) {
+                    emailTxt.setText(firstLine);
                 }
+          //      }
 
 
 
@@ -991,42 +1095,55 @@ public class CamFragment extends Fragment {
 
                 if (imageUri != null) {
                     inspect(imageUri);
-                    cardImg.setImageURI(imageUri);
+
+                    cardImg.setImageBitmap(decodeSampledBitmapFromResource(getPath(imageUri), 200, 200));
+                   // cardImg.setImageURI(imageUri);
                 }
 
             }
         }
     }
 
-    public Uri bitmapToUriConverter(Bitmap mBitmap) {
-        Uri uri = null;
-        try {
-            final BitmapFactory.Options options = new BitmapFactory.Options();
-            // Calculate inSampleSize
-            //options.inSampleSize = calculateInSampleSize(options, 100, 100);
+    public static int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+// Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 2;
 
-            // Decode bitmap with inSampleSize set
-            options.inJustDecodeBounds = false;
-            Bitmap newBitmap = Bitmap.createScaledBitmap(mBitmap, 200, 200,
-                    true);
-            File file = new File(getActivity().getFilesDir(), "Image"
-                    + new Random().nextInt() + ".jpeg");
-            FileOutputStream out = getActivity().openFileOutput(file.getName(),
-                    Context.MODE_WORLD_READABLE);
-            newBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
-            out.flush();
-            out.close();
-            //get absolute path
-            String realPath = file.getAbsolutePath();
-            File f = new File(realPath);
-            uri = Uri.fromFile(f);
-
-        } catch (Exception e) {
-            Log.e("Your Error Message", e.getMessage());
+        if (height > reqHeight || width > reqWidth) {
+            if (width > height) {
+                inSampleSize = Math.round((float) height / (float) reqHeight);
+            } else {
+                inSampleSize = Math.round((float) width / (float) reqWidth);
+            }
         }
-        return uri;
+        return inSampleSize;
     }
 
+    public static Bitmap decodeSampledBitmapFromResource(String resId,
+                                                         int reqWidth, int reqHeight) {
+
+        // First decode with inJustDecodeBounds=true to check dimensions
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(resId, options);
+
+        // Calculate inSampleSize
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+
+        // Decode bitmap with inSampleSize set
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeFile(resId, options);
+    }
+
+    public String getPath(Uri uri)
+    {
+        Cursor cursor = getActivity().getContentResolver().query(uri, null, null, null, null);
+        cursor.moveToFirst();
+        int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+        return cursor.getString(idx);
+    }
 
     // TODO: Rename method, update argument and hook method into UI event
     /*public void onButtonPressed(Uri uri) {
