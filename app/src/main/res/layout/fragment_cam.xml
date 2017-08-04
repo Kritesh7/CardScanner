@@ -149,7 +149,149 @@
                             android:theme="@style/MyEditText" />
                     </android.support.design.widget.TextInputLayout>
 
+<LinearLayout
+    android:layout_marginTop="10dp"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 
+    <TextView
+        android:textSize="18sp"
+        android:textColor="#888888"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Address"/>
+
+    <LinearLayout
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    <cardscaner.cfcs.com.cardscanner.source.EditTextMonitor
+        android:id="@+id/third_name_txt"
+        android:inputType="textMultiLine"
+        android:layout_width="0dp"
+        android:layout_weight=".7"
+        android:layout_height="wrap_content"
+        android:background="@drawable/linebelowedittext"
+        android:backgroundTint="@color/edit_below_line"
+        android:hint="Address Line 1"
+        android:paddingBottom="10dp"
+        android:paddingTop="10dp"
+        android:textColor="@color/text_color"
+        android:textColorHint="@color/edit_below_line"
+        android:textSize="16dp"
+        android:theme="@style/MyEditText" />
+
+        <Spinner
+            android:layout_width="0dp"
+            android:layout_weight=".3"
+            android:layout_height="wrap_content"
+            android:id="@+id/spinner_address">
+
+        </Spinner>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    <cardscaner.cfcs.com.cardscanner.source.EditTextMonitor
+        android:id="@+id/address_txt"
+        android:inputType="textMultiLine"
+        android:layout_width="0dp"
+        android:layout_weight=".7"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/linebelowedittext"
+        android:backgroundTint="@color/edit_below_line"
+        android:hint="Address Line 2"
+        android:paddingTop="10dp"
+        android:textColor="@color/text_color"
+        android:textColorHint="@color/edit_below_line"
+        android:textSize="16dp"
+        android:theme="@style/MyEditText" />
+
+        <Spinner
+            android:layout_width="0dp"
+            android:layout_weight=".3"
+            android:layout_height="wrap_content"
+            android:id="@+id/spinner_address2">
+
+        </Spinner>
+
+</LinearLayout>
+
+
+    <LinearLayout
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    <cardscaner.cfcs.com.cardscanner.source.EditTextMonitor
+        android:id="@+id/home_address_txt1"
+        android:inputType="textMultiLine"
+        android:layout_width="0dp"
+        android:layout_weight=".7"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/linebelowedittext"
+        android:backgroundTint="@color/edit_below_line"
+        android:hint="Address Line 3"
+        android:paddingBottom="10dp"
+        android:paddingTop="10dp"
+        android:textColor="@color/text_color"
+        android:textColorHint="@color/edit_below_line"
+        android:textSize="16dp"
+        android:theme="@style/MyEditText" />
+
+        <Spinner
+            android:layout_width="0dp"
+            android:layout_weight=".3"
+            android:layout_height="wrap_content"
+            android:id="@+id/spinner_address3">
+
+        </Spinner>
+
+        </LinearLayout>
+
+    <LinearLayout
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    <cardscaner.cfcs.com.cardscanner.source.EditTextMonitor
+        android:id="@+id/home_address_txt2"
+        android:inputType="textMultiLine"
+        android:layout_width="0dp"
+        android:layout_weight=".7"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/linebelowedittext"
+        android:backgroundTint="@color/edit_below_line"
+        android:hint="Address Line 4"
+        android:paddingBottom="10dp"
+        android:paddingTop="10dp"
+        android:textColor="@color/text_color"
+        android:textColorHint="@color/edit_below_line"
+        android:textSize="16dp"
+        android:theme="@style/MyEditText" />
+
+        <Spinner
+            android:layout_width="0dp"
+            android:layout_weight=".3"
+            android:layout_height="wrap_content"
+            android:id="@+id/spinner_address4">
+
+        </Spinner>
+
+        </LinearLayout>
+
+</LinearLayout><!--
                     <android.support.design.widget.TextInputLayout
                         android:layout_marginTop="10dp"
                         android:layout_width="match_parent"
@@ -159,21 +301,7 @@
                         android:textColorHint="#888888"
                         app:hintTextAppearance="@style/TextAppearenceWith.App.TextInputLayout">
 
-                        <cardscaner.cfcs.com.cardscanner.source.EditTextMonitor
-                            android:id="@+id/third_name_txt"
-                            android:inputType="textPersonName"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
-                            android:background="@drawable/linebelowedittext"
-                            android:backgroundTint="@color/edit_below_line"
-                            android:hint="Address Line 1"
-                            android:paddingBottom="10dp"
-                            android:paddingTop="10dp"
-                            android:textColor="@color/text_color"
-                            android:textColorHint="@color/edit_below_line"
-                            android:textSize="16dp"
-                            android:theme="@style/MyEditText" />
+
                     </android.support.design.widget.TextInputLayout>
 
                     <android.support.design.widget.TextInputLayout
@@ -185,23 +313,9 @@
                         android:textColorHint="#888888"
                         app:hintTextAppearance="@style/TextAppearenceWith.App.TextInputLayout">
 
-                        <cardscaner.cfcs.com.cardscanner.source.EditTextMonitor
-                            android:id="@+id/address_txt"
-                            android:inputType="textPersonName"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
-                            android:background="@drawable/linebelowedittext"
-                            android:backgroundTint="@color/edit_below_line"
-                            android:hint="Address Line 2"
-                            android:paddingBottom="10dp"
-                            android:paddingTop="10dp"
-                            android:textColor="@color/text_color"
-                            android:textColorHint="@color/edit_below_line"
-                            android:textSize="16dp"
-                            android:theme="@style/MyEditText" />
-                    </android.support.design.widget.TextInputLayout>
 
+                    </android.support.design.widget.TextInputLayout>
+-->
                     <android.support.design.widget.TextInputLayout
                         android:layout_marginTop="10dp"
                         android:layout_width="match_parent"
@@ -228,21 +342,31 @@
                             android:theme="@style/MyEditText" />
                     </android.support.design.widget.TextInputLayout>
 
-                    <android.support.design.widget.TextInputLayout
+                    <LinearLayout
                         android:layout_marginTop="10dp"
+                        android:orientation="vertical"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:nextFocusLeft="@id/autotext"
-                        android:nextFocusUp="@id/autotext"
-                        android:textColorHint="#888888"
-                        app:hintTextAppearance="@style/TextAppearenceWith.App.TextInputLayout">
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:textSize="18sp"
+                            android:textColor="#888888"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Contact Number"/>
+
+                        <LinearLayout
+                            android:layout_marginTop="10dp"
+                            android:orientation="horizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
 
                         <cardscaner.cfcs.com.cardscanner.source.EditTextMonitor
                             android:id="@+id/phone_number"
                             android:inputType="textPersonName"
-                            android:layout_width="match_parent"
+                            android:layout_width="0dp"
+                            android:layout_weight=".7"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="10dp"
                             android:background="@drawable/linebelowedittext"
                             android:backgroundTint="@color/edit_below_line"
                             android:hint="Phone Number1"
@@ -252,21 +376,28 @@
                             android:textColorHint="@color/edit_below_line"
                             android:textSize="16dp"
                             android:theme="@style/MyEditText" />
-                    </android.support.design.widget.TextInputLayout>
 
-                    <android.support.design.widget.TextInputLayout
-                        android:layout_marginTop="10dp"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:nextFocusLeft="@id/autotext"
-                        android:nextFocusUp="@id/autotext"
-                        android:textColorHint="#888888"
-                        app:hintTextAppearance="@style/TextAppearenceWith.App.TextInputLayout">
+                            <Spinner
+                                android:layout_width="0dp"
+                                android:layout_weight=".3"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/spinner_phone">
+
+                            </Spinner>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_marginTop="10dp"
+                            android:orientation="horizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
 
                         <cardscaner.cfcs.com.cardscanner.source.EditTextMonitor
                             android:id="@+id/phone_number2"
                             android:inputType="textPersonName"
-                            android:layout_width="match_parent"
+                            android:layout_width="0dp"
+                            android:layout_weight=".7"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
                             android:background="@drawable/linebelowedittext"
@@ -278,21 +409,28 @@
                             android:textColorHint="@color/edit_below_line"
                             android:textSize="16dp"
                             android:theme="@style/MyEditText" />
-                    </android.support.design.widget.TextInputLayout>
 
-                    <android.support.design.widget.TextInputLayout
-                        android:layout_marginTop="10dp"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:nextFocusLeft="@id/autotext"
-                        android:nextFocusUp="@id/autotext"
-                        android:textColorHint="#888888"
-                        app:hintTextAppearance="@style/TextAppearenceWith.App.TextInputLayout">
+                            <Spinner
+                                android:layout_width="0dp"
+                                android:layout_weight=".3"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/spinner_phone2">
+
+                            </Spinner>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_marginTop="10dp"
+                            android:orientation="horizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
 
                         <cardscaner.cfcs.com.cardscanner.source.EditTextMonitor
                             android:id="@+id/phone_number3"
                             android:inputType="textPersonName"
-                            android:layout_width="match_parent"
+                            android:layout_width="0dp"
+                            android:layout_weight=".7"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
                             android:background="@drawable/linebelowedittext"
@@ -304,7 +442,122 @@
                             android:textColorHint="@color/edit_below_line"
                             android:textSize="16dp"
                             android:theme="@style/MyEditText" />
+
+                            <Spinner
+                                android:layout_width="0dp"
+                                android:layout_weight=".3"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/spinner_phone3">
+
+                            </Spinner>
+
+                            </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_marginTop="10dp"
+                            android:orientation="horizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+
+                        <cardscaner.cfcs.com.cardscanner.source.EditTextMonitor
+                            android:id="@+id/phone_number4"
+                            android:inputType="textPersonName"
+                            android:layout_width="0dp"
+                            android:layout_weight=".7"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:background="@drawable/linebelowedittext"
+                            android:backgroundTint="@color/edit_below_line"
+                            android:hint="Phone Number4"
+                            android:paddingBottom="10dp"
+                            android:paddingTop="10dp"
+                            android:textColor="@color/text_color"
+                            android:textColorHint="@color/edit_below_line"
+                            android:textSize="16dp"
+                            android:theme="@style/MyEditText" />
+
+
+                            <Spinner
+                                android:layout_width="0dp"
+                                android:layout_weight=".3"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/spinner_phone4">
+
+                            </Spinner>
+
+                            </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_marginTop="10dp"
+                            android:orientation="horizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+
+                        <cardscaner.cfcs.com.cardscanner.source.EditTextMonitor
+                            android:id="@+id/phone_number5"
+                            android:inputType="textPersonName"
+                            android:layout_width="0dp"
+                            android:layout_weight=".7"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:background="@drawable/linebelowedittext"
+                            android:backgroundTint="@color/edit_below_line"
+                            android:hint="Phone Number5"
+                            android:paddingBottom="10dp"
+                            android:paddingTop="10dp"
+                            android:textColor="@color/text_color"
+                            android:textColorHint="@color/edit_below_line"
+                            android:textSize="16dp"
+                            android:theme="@style/MyEditText" />
+
+                            <Spinner
+                                android:layout_width="0dp"
+                                android:layout_weight=".3"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/spinner_phone5">
+
+                            </Spinner>
+
+                            </LinearLayout>
+
+                    </LinearLayout>
+                    <!--<android.support.design.widget.TextInputLayout
+                        android:layout_marginTop="10dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nextFocusLeft="@id/autotext"
+                        android:nextFocusUp="@id/autotext"
+                        android:textColorHint="#888888"
+                        app:hintTextAppearance="@style/TextAppearenceWith.App.TextInputLayout">
+
+
                     </android.support.design.widget.TextInputLayout>
+
+                    <android.support.design.widget.TextInputLayout
+                        android:layout_marginTop="10dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nextFocusLeft="@id/autotext"
+                        android:nextFocusUp="@id/autotext"
+                        android:textColorHint="#888888"
+                        app:hintTextAppearance="@style/TextAppearenceWith.App.TextInputLayout">
+
+
+                    </android.support.design.widget.TextInputLayout>
+
+                    <android.support.design.widget.TextInputLayout
+                        android:layout_marginTop="10dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:nextFocusLeft="@id/autotext"
+                        android:nextFocusUp="@id/autotext"
+                        android:textColorHint="#888888"
+                        app:hintTextAppearance="@style/TextAppearenceWith.App.TextInputLayout">
+
+
+                    </android.support.design.widget.TextInputLayout>-->
 
                     <android.support.design.widget.TextInputLayout
                         android:layout_marginTop="10dp"
@@ -479,6 +732,42 @@
                                 android:textSize="16dp"
                                 android:theme="@style/MyEditText" />
                         </android.support.design.widget.TextInputLayout>
+
+                        <LinearLayout
+                            android:layout_marginBottom="10dp"
+                            android:id="@+id/backcardbtn"
+                            android:layout_marginTop="10dp"
+                            android:orientation="horizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:src="@drawable/addbtn"
+                                />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="10dp"
+                                android:textColor="@color/status_color"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:layout_gravity="center"
+                                android:text="Add To Card Back Image"/>
+
+                        </LinearLayout>
+
+                        <ImageView
+                            android:layout_marginTop="20dp"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginRight="10dp"
+                            android:scaleType="fitXY"
+                            android:id="@+id/backcardImg"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            />
 
                         <Button
                         android:layout_marginTop="20dp"

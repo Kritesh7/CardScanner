@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -30,7 +31,11 @@ import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -96,13 +101,17 @@ public class CamFragment extends Fragment {
     private static final int REQUEST_WRITE_PERMISSION = 20;
 
     private Uri imageUri;
-    int count = 0;
+    int count = 0, addCnt = 0;
     private EditTextMonitor detectedTextView, emailTxt, phoneTxt, nameTxt,addresstxt,PostalCode,
-            thirdTxt,designation, company_name,phoneNumberTxt,PhoneTxtthird,webUrlTxt;
+            thirdTxt,designation, company_name,phoneNumberTxt,PhoneTxtthird,webUrlTxt,homeaddressFirst, homeaddressSecond
+            , phoneNumerfour, phonenumerfivth;
+    public Spinner addressOneSpinner, addressSpinersecond, addressSpinnerThirs, addressSpinnerFourth
+            ,phoneSpinner,phoneSecondSpinner, phoneThirdSpinner,phoneFourthSpinner,phoneFivthSpinner;
 
-    public ImageView cardImg;
+    public ImageView cardImg, backCardImg;
+    public LinearLayout backCardBtn;
     public RecyclerView businessVerticalRecycler, industeryRecycler,principalTypeRecycler ;
-    Fragment frag;
+    public int flag = 0;
 
     public BusinessVerticalAdapter adapter;
     public IndusteryAdapter industeryAdapter;
@@ -110,6 +119,8 @@ public class CamFragment extends Fragment {
     public ArrayList<PrincipalTypeModel> principalTypeList = new ArrayList<>();
     public ArrayList<IndustryModel> indstryList = new ArrayList<>();
     public ArrayList<BusinessVerticalCheckList> list = new ArrayList<>();
+    public ArrayList<String> adressList = new ArrayList<>();
+    public ArrayList<String> phoneList = new ArrayList<>();
 
 
 
@@ -167,6 +178,113 @@ public class CamFragment extends Fragment {
         businessVerticalRecycler = (RecyclerView)rootView.findViewById(R.id.business_vertical_recycler);
         industeryRecycler = (RecyclerView)rootView.findViewById(R.id.industery_recycler);
         principalTypeRecycler = (RecyclerView)rootView.findViewById(R.id.principal_type_recycler);
+        homeaddressFirst = (EditTextMonitor)rootView.findViewById(R.id.home_address_txt1);
+        homeaddressSecond = (EditTextMonitor)rootView.findViewById(R.id.home_address_txt2);
+        phoneNumerfour = (EditTextMonitor)rootView.findViewById(R.id.phone_number4);
+        phonenumerfivth = (EditTextMonitor)rootView.findViewById(R.id.phone_number5);
+        addressOneSpinner = (Spinner)rootView.findViewById(R.id.spinner_address);
+        addressSpinersecond = (Spinner)rootView.findViewById(R.id.spinner_address2);
+        addressSpinnerThirs = (Spinner)rootView.findViewById(R.id.spinner_address3);
+        addressSpinnerFourth = (Spinner)rootView.findViewById(R.id.spinner_address4);
+        phoneSpinner = (Spinner)rootView.findViewById(R.id.spinner_phone);
+        phoneSecondSpinner = (Spinner)rootView.findViewById(R.id.spinner_phone2);
+        phoneThirdSpinner = (Spinner)rootView.findViewById(R.id.spinner_phone3);
+        phoneFourthSpinner = (Spinner)rootView.findViewById(R.id.spinner_phone4);
+        phoneFivthSpinner = (Spinner)rootView.findViewById(R.id.spinner_phone5);
+        backCardBtn = (LinearLayout)rootView.findViewById(R.id.backcardbtn);
+        backCardImg = (ImageView)rootView.findViewById(R.id.backcardImg);
+
+
+        // address List
+        if (adressList.size()>0)
+        {
+            adressList.clear();
+        }
+        adressList.add("");
+        adressList.add("Home");
+        adressList.add("Office");
+        adressList.add("Plant");
+        adressList.add("Other");
+
+        //spinner first address
+        addressOneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
+        ArrayAdapter<String> adressOneAdapter = new ArrayAdapter<String>(getActivity(),R.layout.customizespinner,
+                adressList);
+        adressOneAdapter.setDropDownViewResource(R.layout.customizespinner);
+        addressOneSpinner.setAdapter(adressOneAdapter);
+
+        //spinner second address
+        addressOneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
+        ArrayAdapter<String> adressSecondAdapter = new ArrayAdapter<String>(getActivity(),R.layout.customizespinner,
+                adressList);
+        adressSecondAdapter.setDropDownViewResource(R.layout.customizespinner);
+        addressSpinersecond.setAdapter(adressSecondAdapter);
+
+        //spinner third address
+        addressOneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
+        ArrayAdapter<String> adressThirdAdapter = new ArrayAdapter<String>(getActivity(),R.layout.customizespinner,
+                adressList);
+        adressThirdAdapter.setDropDownViewResource(R.layout.customizespinner);
+        addressSpinnerThirs.setAdapter(adressThirdAdapter);
+
+        //spinner fourth address
+        addressOneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
+        ArrayAdapter<String> adressFourthAdapter = new ArrayAdapter<String>(getActivity(),R.layout.customizespinner,
+                adressList);
+        adressFourthAdapter.setDropDownViewResource(R.layout.customizespinner);
+        addressSpinnerFourth.setAdapter(adressFourthAdapter);
+
+
+        if (phoneList.size()>0)
+        {
+            phoneList.clear();
+        }
+        //Phone List
+        phoneList.add("");
+        phoneList.add("Home");
+        phoneList.add("Work");
+        phoneList.add("Mobile No.");
+        phoneList.add("Main");
+        phoneList.add("Home Fax");
+        phoneList.add("Work Fax");
+        phoneList.add("Extension");
+        phoneList.add("Other");
+
+        //spinner First Phone
+        addressOneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
+        ArrayAdapter<String> phoneFirstAdapter = new ArrayAdapter<String>(getActivity(),R.layout.customizespinner,
+                phoneList);
+        phoneFirstAdapter.setDropDownViewResource(R.layout.customizespinner);
+        phoneSpinner.setAdapter(phoneFirstAdapter);
+
+        //spinner Second Phone
+        addressOneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
+        ArrayAdapter<String> phoneSecondAdapter = new ArrayAdapter<String>(getActivity(),R.layout.customizespinner,
+                phoneList);
+        phoneSecondAdapter.setDropDownViewResource(R.layout.customizespinner);
+        phoneSecondSpinner.setAdapter(phoneSecondAdapter);
+
+        //spinner Third Phone
+        addressOneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
+        ArrayAdapter<String> phoneThirdAdapter = new ArrayAdapter<String>(getActivity(),R.layout.customizespinner,
+                phoneList);
+        phoneThirdAdapter.setDropDownViewResource(R.layout.customizespinner);
+        phoneThirdSpinner.setAdapter(phoneThirdAdapter);
+
+        //spinner Fourth Phone
+        addressOneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
+        ArrayAdapter<String> phoneFourthAdapter = new ArrayAdapter<String>(getActivity(),R.layout.customizespinner,
+                phoneList);
+        phoneFourthAdapter.setDropDownViewResource(R.layout.customizespinner);
+        phoneFourthSpinner.setAdapter(phoneFourthAdapter);
+
+        //spinner Fivth Phone
+        addressOneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
+        ArrayAdapter<String> phoneFivthAdapter = new ArrayAdapter<String>(getActivity(),R.layout.customizespinner,
+                phoneList);
+        phoneFivthAdapter.setDropDownViewResource(R.layout.customizespinner);
+        phoneFivthSpinner.setAdapter(phoneFivthAdapter);
+
 
 
         // Business Vertical List
@@ -175,6 +293,8 @@ public class CamFragment extends Fragment {
         businessVerticalRecycler.setLayoutManager(mLayoutManager);
         businessVerticalRecycler.setItemAnimator(new DefaultItemAnimator());
         businessVerticalRecycler.setAdapter(adapter);
+
+
 
         prepareMemberData();
 
@@ -205,6 +325,7 @@ public class CamFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
+                flag = 1;
                 requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.CAMERA}, REQUEST_WRITE_PERMISSION);
 
 
@@ -221,6 +342,17 @@ public class CamFragment extends Fragment {
         else {
             Log.e("onCreate", "Google Play Services available. Continuing.");
         }
+
+
+        backCardBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                flag = 2;
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.CAMERA}, REQUEST_WRITE_PERMISSION);
+
+            }
+        });
 
         return rootView;
     }
@@ -383,8 +515,6 @@ public class CamFragment extends Fragment {
                                 if (ma.find()) {
                                     if(!Pattern.matches("[a-zA-Z]+",firstLine)) {
 
-                                        // firstLine = firstLine.replaceAll("[^\\d.]", "");
-                                     /*   phoneTxt.setText(firstLine);*/
                                     }
                                 }
                             }else
@@ -684,7 +814,26 @@ public class CamFragment extends Fragment {
                                             }
 
                                             if (num>=10) {
-                                                phoneTxt.setText(firstLine);
+                                                String[] splitString = firstLine.split(",");
+                                                if (splitString.length>0) {
+
+                                                    phoneTxt.setText(splitString[0]);
+                                                    try {
+                                                        phoneNumberTxt.setText(splitString[1]);
+                                                        PhoneTxtthird.setText(splitString[2]);
+                                                        phoneNumerfour.setText(splitString[3]);
+                                                        if (!detectedTextView.getText().toString().equalsIgnoreCase(splitString[4])) {
+                                                            phonenumerfivth.setText(splitString[4]);
+                                                        }
+
+                                                    } catch (ArrayIndexOutOfBoundsException e) {
+                                                        e.printStackTrace();
+                                                    }
+                                                }else
+                                                    {
+
+                                                        phoneTxt.setText(firstLine);
+                                                    }
                                             }else
                                             {
                                                 if (num>=1 && num<=12 && letter>=5)
@@ -697,7 +846,6 @@ public class CamFragment extends Fragment {
                                     }
                                 }
                             }
-
                             try {
 
                                 int numberOfDigits = lines[i-1].length();
@@ -728,7 +876,46 @@ public class CamFragment extends Fragment {
                                                         }
 
                                                         if (num>=10) {
-                                                            phoneNumberTxt.setText(lines[i - 1]);
+                                                            //if (phoneNumberTxt.getText().toString().equalsIgnoreCase("")) {
+
+                                                                String[] splitString = lines[i - 1].split(",");
+                                                                if (splitString.length>0) {
+
+                                                                 //   phoneTxt.setText(splitString[0]);
+                                                                    try {
+                                                                        if (phoneNumberTxt.getText().toString().equalsIgnoreCase("")) {
+                                                                            phoneNumberTxt.setText(splitString[0]);
+                                                                        }
+
+                                                                        if (PhoneTxtthird.getText().toString().equalsIgnoreCase("")) {
+                                                                            PhoneTxtthird.setText(splitString[1]);
+                                                                        }
+
+                                                                        if (phoneNumerfour.getText().toString().equalsIgnoreCase("")) {
+                                                                            phoneNumerfour.setText(splitString[2]);
+                                                                        }
+
+                                                                        if (phonenumerfivth.getText().toString().equalsIgnoreCase("")) {
+                                                                            if (!phoneNumerfour.getText().toString().equalsIgnoreCase(splitString[3])) {
+                                                                                if (!detectedTextView.getText().toString().equalsIgnoreCase(splitString[3])) {
+                                                                                    phonenumerfivth.setText(splitString[3]);
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    } catch (ArrayIndexOutOfBoundsException e) {
+                                                                        e.printStackTrace();
+                                                                    }
+
+
+                                                                }else
+                                                                {
+                                                                    if (phoneNumberTxt.getText().toString().equalsIgnoreCase("")) {
+                                                                        phoneNumberTxt.setText(lines[i - 1]);
+                                                                    }
+                                                                }
+
+
+                                                           // }
                                                         }else
                                                         {
                                                             if (num>=1 && num<=12 && letter>=5) {
@@ -778,7 +965,9 @@ public class CamFragment extends Fragment {
                                                         }
 
                                                         if (num>=10) {
-                                                            PhoneTxtthird.setText(lines[i - 2]);
+                                                            if (PhoneTxtthird.getText().toString().equalsIgnoreCase("")) {
+                                                                PhoneTxtthird.setText(lines[i - 2]);
+                                                            }
                                                         }else
                                                             {
                                                                 if (num>=1 && num<=12 && letter>=5) {
@@ -795,6 +984,77 @@ public class CamFragment extends Fragment {
                                     }
                               //  }
 
+
+                                // fourth phone numer
+                                int numberOfDigitsfourth = lines[i-3].length();
+                                if (numberOfDigitsfourth>2) {
+                                    if (!phoneTxt.getText().toString().equalsIgnoreCase(lines[i - 3])) {
+                                        if ( !phoneNumberTxt.getText().toString().equalsIgnoreCase(lines[i - 3])) {
+                                            if ( !addresstxt.getText().toString().equalsIgnoreCase(lines[i - 3])) {
+                                                if (!thirdTxt.getText().toString().equalsIgnoreCase(lines[i - 3])) {
+                                                    if (!PhoneTxtthird.getText().toString().equalsIgnoreCase(lines[i - 3])) {
+
+                                                        char[] ch = lines[i - 3].toCharArray();
+                                                        int letter = 0;
+                                                        int num = 0;
+                                                        for (int id = 0; id < lines[i - 3].length(); id++) {
+                                                            if (Character.isLetter(ch[id])) {
+                                                                letter++;
+                                                            } else if (Character.isDigit(ch[id])) {
+                                                                num++;
+                                                            }
+                                                        }
+
+                                                        if (num >= 10) {
+                                                            if (phoneNumerfour.getText().toString().equalsIgnoreCase("")) {
+                                                                phoneNumerfour.setText(lines[i - 3]);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                // fivth number
+                                int numberOfDigitsfivth = lines[i-4].length();
+                                if (numberOfDigitsfivth>2) {
+                                    if (!phoneTxt.getText().toString().equalsIgnoreCase(lines[i - 4])) {
+                                        if ( !phoneNumberTxt.getText().toString().equalsIgnoreCase(lines[i - 4])) {
+                                            if ( !addresstxt.getText().toString().equalsIgnoreCase(lines[i - 4])) {
+                                                if (!thirdTxt.getText().toString().equalsIgnoreCase(lines[i - 4])) {
+                                                    if (!PhoneTxtthird.getText().toString().equalsIgnoreCase(lines[i - 4])) {
+                                                        if (!phoneNumerfour.getText().toString().equalsIgnoreCase(lines[i - 4])) {
+
+                                                            char[] ch = lines[i - 4].toCharArray();
+                                                            int letter = 0;
+                                                            int num = 0;
+                                                            for (int id = 0; id < lines[i - 4].length(); id++) {
+                                                                if (Character.isLetter(ch[id])) {
+                                                                    letter++;
+                                                                } else if (Character.isDigit(ch[id])) {
+                                                                    num++;
+                                                                }
+                                                            }
+
+                                                            if (num >= 10) {
+
+                                                                if (phonenumerfivth.getText().toString().equalsIgnoreCase("")) {
+                                                                    if (!phoneNumerfour.getText().toString().equalsIgnoreCase(lines[i - 3])) {
+                                                                        if (!detectedTextView.getText().toString().equalsIgnoreCase(lines[i - 3])) {
+                                                                            phonenumerfivth.setText(lines[i - 3]);
+                                                                        }
+                                                                    }
+                                                                }
+
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             } catch (ArrayIndexOutOfBoundsException e) {
                                 e.printStackTrace();
                             }
@@ -830,6 +1090,7 @@ public class CamFragment extends Fragment {
 
                     if (letter>5 && num<15 ) {
 
+                        // first address geting
                         if (!firstLine.contains(".com")) {
 
                             if (!designation.getText().toString().equalsIgnoreCase(firstLine)) {
@@ -853,17 +1114,32 @@ public class CamFragment extends Fragment {
                                                         }
                                                     }
 
-                                                  //  if (letter1<=9) {
+
                                                     if (!detectedTextView.getText().toString().equalsIgnoreCase(firstLine)) {
 
                                                         if (!nameTxt.getText().toString().equalsIgnoreCase(firstLine)) {
 
                                                             if (num1>=1 && num1<=12 && letter1>=5) {
-                                                                thirdTxt.setText(firstLine);
-                                                            }
+
+
+                                                                //if (thirdTxt.getText().toString().equalsIgnoreCase("")) {
+                                                                  //  if (addCnt == 0) {
+                                                                        thirdTxt.setText(firstLine);
+                                                                    //    addCnt++;
+                                                                     //   break;
+                                                                 //   }
+                                                              //  }
+                                                            }else
+                                                                {
+                                                                    if (num1>=1 ) {
+                                                                        if (addresstxt.getText().toString().equalsIgnoreCase("")) {
+                                                                            addresstxt.setText(firstLine);
+                                                                        }
+                                                                    }
+                                                                }
                                                         }
                                                     }
-                                                   // }
+
                                                 }
                                             }
                                         }
@@ -871,6 +1147,10 @@ public class CamFragment extends Fragment {
                                 }
                             }
                         }
+
+
+
+
                     }
 
 
@@ -893,7 +1173,150 @@ public class CamFragment extends Fragment {
                 if (firstLine.contains("@")) {
                     emailTxt.setText(firstLine);
                 }
-          //      }
+
+                //second type address getting
+                char[] ch1 = firstLine.toCharArray();
+                int letter1 = 0;
+                int num1 = 0;
+                for(int id = 0; id < firstLine.length(); id++){
+                    if(Character.isLetter(ch1[id])){
+                        letter1 ++ ;
+                    }
+                    else if(Character.isDigit(ch1[id])){
+                        num1 ++ ;
+                    }
+                }
+
+                if (num1<10 && letter1>4)
+                {
+
+                    // space count
+                    int spaceCount = 0;
+                    for (char c : firstLine.toCharArray()) {
+                        if (c == ' ') {
+                            spaceCount++;
+                        }
+                    }
+
+                    //second home address first line get with any number
+                    if (!addresstxt.getText().toString().equalsIgnoreCase(firstLine))
+                    {
+                        if (!thirdTxt.getText().toString().equalsIgnoreCase(firstLine))
+                        {
+                            if (!phoneTxt.getText().toString().equalsIgnoreCase(firstLine)) {
+                                if (!phoneNumberTxt.getText().toString().equalsIgnoreCase(firstLine)) {
+                                    if (!firstLine.contains("@")) {
+                                        if (!firstLine.contains(".com")) {
+                                            if (!nameTxt.getText().toString().equalsIgnoreCase(firstLine)) {
+                                                if (!detectedTextView.getText().toString().equalsIgnoreCase(firstLine)) {
+                                                    if (!company_name.getText().toString().equalsIgnoreCase(firstLine)) {
+                                                        homeaddressFirst.setText(firstLine);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    //second home address second line get with any number
+                    if (!addresstxt.getText().toString().equalsIgnoreCase(firstLine))
+                    {
+                        if (!thirdTxt.getText().toString().equalsIgnoreCase(firstLine))
+                        {
+                            if (!homeaddressFirst.getText().toString().equalsIgnoreCase(firstLine))
+                            {
+                                if (!phoneTxt.getText().toString().equalsIgnoreCase(firstLine)) {
+                                    if (!phoneNumberTxt.getText().toString().equalsIgnoreCase(firstLine)) {
+                                        if (!firstLine.contains("@")) {
+                                            if (!firstLine.contains(".com")) {
+                                                if (!nameTxt.getText().toString().equalsIgnoreCase(firstLine)) {
+                                                    if (!detectedTextView.getText().toString().equalsIgnoreCase(firstLine)) {
+                                                        if (!company_name.getText().toString().equalsIgnoreCase(firstLine)) {
+                                                            homeaddressSecond.setText(firstLine);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }else
+                    {
+                        //second home address first line get with no number
+                        if (!addresstxt.getText().toString().equalsIgnoreCase(firstLine))
+                        {
+                            if (!thirdTxt.getText().toString().equalsIgnoreCase(firstLine))
+                            {
+                                if (!homeaddressFirst.getText().toString().equalsIgnoreCase(firstLine))
+                                {
+                                    if (!homeaddressSecond.getText().toString().equalsIgnoreCase(firstLine)) {
+                                        if (!phoneTxt.getText().toString().equalsIgnoreCase(firstLine)) {
+                                            if (!phoneNumberTxt.getText().toString().equalsIgnoreCase(firstLine)) {
+                                                if (!firstLine.contains(".com")) {
+                                                    if (!firstLine.contains(".co.in") ||
+                                                            !firstLine.contains("Ltd")) {
+                                                        if (!company_name.getText().toString().equalsIgnoreCase(firstLine) ) {
+
+                                                            if (!nameTxt.getText().toString().equalsIgnoreCase(firstLine)) {
+                                                                if (!firstLine.contains("@")) {
+
+                                                                    if (!designation.getText().toString().equalsIgnoreCase(firstLine)) {
+                                                                       if (!detectedTextView.getText().toString().equalsIgnoreCase(firstLine)) {
+                                                                           homeaddressFirst.setText(firstLine);
+                                                                       }
+                                                                   }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        //second home address second line get with no number
+                        if (!addresstxt.getText().toString().equalsIgnoreCase(firstLine))
+                        {
+                            if (!thirdTxt.getText().toString().equalsIgnoreCase(firstLine))
+                            {
+                                if (!homeaddressFirst.getText().toString().equalsIgnoreCase(firstLine))
+                                {
+                                    if (!homeaddressSecond.getText().toString().equalsIgnoreCase(firstLine)) {
+                                        if (!phoneTxt.getText().toString().equalsIgnoreCase(firstLine)) {
+                                            if (!phoneNumberTxt.getText().toString().equalsIgnoreCase(firstLine)) {
+                                                if (!firstLine.contains(".com")) {
+                                                    if (!firstLine.contains(".co.in")) {
+                                                        if (!company_name.getText().toString().equalsIgnoreCase(firstLine)) {
+                                                            if (!nameTxt.getText().toString().equalsIgnoreCase(firstLine)) {
+                                                                if (!firstLine.contains("@")) {
+                                                                    if (!designation.getText().toString().equalsIgnoreCase(firstLine)) {
+                                                                        if (!detectedTextView.getText().toString().equalsIgnoreCase(firstLine)) {
+                                                                            homeaddressSecond.setText(firstLine);
+
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
 
 
 
@@ -1022,81 +1445,26 @@ public class CamFragment extends Fragment {
 
     }
 
-
-
-   /* @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case REQUEST_GALLERY:
-                if (resultCode == RESULT_OK) {
-                    inspect(data.getData());
-
-
-                }
-                break;
-            case REQUEST_CAMERA:
-                if (resultCode == RESULT_OK) {
-                    if (imageUri != null) {
-                        inspect(imageUri);
-
-                      *//*  Bitmap photo = (Bitmap) data.getExtras().get("data");
-
-                       // enhanceImage(photo,8,8);
-                        cardImg.setImageBitmap( enhanceImage(photo,5,50));*//*
-                        cardImg.setImageURI(imageUri);
-                    }
-                }
-                break;
-            default:
-                super.onActivityResult(requestCode, resultCode, data);
-                break;
-        }
-    }*/
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-       /* switch (requestCode) {
-            case REQUEST_GALLERY:
-                if (resultCode == RESULT_OK) {
-                    inspect(data.getData());
-                }
-                break;
-            case REQUEST_CAMERA:
-                if (resultCode == RESULT_OK) {
-                    if (imageUri != null) {
-                        inspect(imageUri);
-                        cardImg.setImageURI(imageUri);
-                    }
-                }
-                break;
-        }*/
-
         if (requestCode == REQUEST_CAMERA) {
             if (resultCode == Activity.RESULT_OK) {
-
-          /*      Bitmap bmp = (Bitmap) data.getExtras().get("data");
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-
-                bmp.compress(Bitmap.CompressFormat.PNG, 100, stream);
-                byte[] byteArray = stream.toByteArray();
-
-                // convert byte array to Bitmap
-
-                Bitmap bitmap = BitmapFactory.decodeByteArray(byteArray, 0,
-                        byteArray.length);
-
-                cardImg.setImageBitmap(bitmap);
-               imageUri =  bitmapToUriConverter(bitmap);
-
-                inspect(imageUri);*/
-                //cardImg.setImageURI(imageUri);
 
                 if (imageUri != null) {
                     inspect(imageUri);
 
-                    cardImg.setImageBitmap(decodeSampledBitmapFromResource(getPath(imageUri), 200, 200));
+                    if (flag == 1) {
+                        cardImg.setImageBitmap(decodeSampledBitmapFromResource(getPath(imageUri), 200, 200));
+                        flag = 0;
+                    }else if (flag == 2) {
+
+                        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 500);
+                        backCardImg.setLayoutParams(layoutParams);
+                        backCardImg.setImageBitmap(decodeSampledBitmapFromResource(getPath(imageUri), 200, 200));
+                        flag = 0;
+                    }
                    // cardImg.setImageURI(imageUri);
                 }
 
@@ -1145,40 +1513,7 @@ public class CamFragment extends Fragment {
         return cursor.getString(idx);
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    /*public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-*/
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
