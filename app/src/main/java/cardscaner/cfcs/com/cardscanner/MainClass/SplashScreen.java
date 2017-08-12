@@ -9,11 +9,14 @@ import android.view.WindowManager;
 
 import cardscaner.cfcs.com.cardscanner.MainClass.LoginActivity;
 import cardscaner.cfcs.com.cardscanner.R;
+import cardscaner.cfcs.com.cardscanner.source.SharedPrefs;
+import cardscaner.cfcs.com.cardscanner.source.UtilsMethods;
 
 public class SplashScreen extends AppCompatActivity {
 
     public com.tuyenmonkey.mkloader.MKLoader progressBar;
     private static int SPLASH_TIME_OUT = 3000;
+    public String statusString = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +30,8 @@ public class SplashScreen extends AppCompatActivity {
             window.setStatusBarColor(this.getResources().getColor(R.color.status_color));
         }
 
+        statusString = UtilsMethods.getBlankIfStringNull(String.valueOf(SharedPrefs.getStatus(SplashScreen.this)));
+
         progressBar = (com.tuyenmonkey.mkloader.MKLoader)findViewById(R.id.animated_progress);
 
         new Handler().postDelayed(new Runnable() {
@@ -36,10 +41,18 @@ public class SplashScreen extends AppCompatActivity {
                 // Start your app main activity
 
 
-                Intent i = new Intent(getApplicationContext(),LoginActivity.class);
-                startActivity(i);
-                overridePendingTransition(R.anim.push_right_in, R.anim.push_left_out);
-                finish();
+                if (statusString.equalsIgnoreCase("1"))
+                {
+                    Intent i = new Intent(getApplicationContext(), HomeActivity.class);
+                    startActivity(i);
+                    overridePendingTransition(R.anim.push_right_in, R.anim.push_left_out);
+                    finish();
+                }else {
+                    Intent i = new Intent(getApplicationContext(), LoginActivity.class);
+                    startActivity(i);
+                    overridePendingTransition(R.anim.push_right_in, R.anim.push_left_out);
+                    finish();
+                }
 
 
             }

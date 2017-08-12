@@ -642,7 +642,17 @@
                             android:textSize="16sp"
                             android:padding="5dp"/>
 
+                        <TextView
+                            android:id="@+id/selecttheedittxt"
+                            android:layout_margin="10dp"
+                            android:padding="10dp"
+                            android:hint="Plese Select the Business Vertical"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/login_edittext"/>
+
                         <android.support.v7.widget.RecyclerView
+                            android:visibility="gone"
                             android:id="@+id/business_vertical_recycler"
                             android:padding="5dp"
                             android:layout_width="match_parent"
@@ -654,16 +664,27 @@
                             android:layout_marginTop="10dp"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Industry"
+                            android:text="Industry Segment"
                             android:textColor="@color/backround_color"
                             android:textSize="16sp"
                             android:padding="5dp"/>
 
-                        <android.support.v7.widget.RecyclerView
-                            android:id="@+id/industery_recycler"
-                            android:padding="5dp"
+                        <TextView
+                            android:id="@+id/selecttheinduserysegment"
+                            android:layout_margin="10dp"
+                            android:padding="10dp"
+                            android:hint="Please Select the Industry Segment"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/login_edittext"/>
+
+
+                        <android.support.v7.widget.RecyclerView
+                            android:visibility="gone"
+                            android:id="@+id/industery_recycler"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:padding="5dp">
 
                         </android.support.v7.widget.RecyclerView>
 
@@ -676,7 +697,19 @@
                             android:textSize="16sp"
                             android:padding="5dp"/>
 
+                        <TextView
+                            android:id="@+id/selecttheinduserytype"
+                            android:layout_margin="10dp"
+                            android:padding="10dp"
+                            android:hint="Please Select the Industry Type"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/login_edittext"/>
+
+
+
                         <RadioGroup
+                            android:visibility="gone"
                             android:orientation="horizontal"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content">
@@ -702,7 +735,18 @@
                             android:textSize="16sp"
                             android:padding="5dp"/>
 
+                        <TextView
+                            android:id="@+id/selecttheprincipletype"
+                            android:layout_margin="10dp"
+                            android:padding="10dp"
+                            android:hint="Please Select the Principle Type"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/login_edittext"/>
+
+
                         <android.support.v7.widget.RecyclerView
+                            android:visibility="gone"
                             android:id="@+id/principal_type_recycler"
                             android:padding="5dp"
                             android:layout_width="match_parent"

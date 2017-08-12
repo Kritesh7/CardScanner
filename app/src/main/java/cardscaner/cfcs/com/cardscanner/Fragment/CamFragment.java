@@ -3,6 +3,7 @@ package cardscaner.cfcs.com.cardscanner.Fragment;
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -11,10 +12,12 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -25,24 +28,43 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.StringRequest;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.text.TextBlock;
 import com.google.android.gms.vision.text.TextRecognizer;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -53,7 +75,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.StringTokenizer;
@@ -62,17 +86,34 @@ import java.util.regex.Pattern;
 
 import cardscaner.cfcs.com.cardscanner.Adapter.BusinessVerticalAdapter;
 import cardscaner.cfcs.com.cardscanner.Adapter.CardListAdapter;
+import cardscaner.cfcs.com.cardscanner.Adapter.DemoCustomeAdapter;
 import cardscaner.cfcs.com.cardscanner.Adapter.IndusteryAdapter;
 import cardscaner.cfcs.com.cardscanner.Adapter.PrincipalTypeAdapter;
+import cardscaner.cfcs.com.cardscanner.Database.BusinessVerticalMasterTable;
+import cardscaner.cfcs.com.cardscanner.Database.IndustrySegmentMasterTable;
+import cardscaner.cfcs.com.cardscanner.Database.IndustryTypeMasterTable;
+import cardscaner.cfcs.com.cardscanner.Database.MasterDatabase;
+import cardscaner.cfcs.com.cardscanner.Database.NumberTypeMasterTable;
+import cardscaner.cfcs.com.cardscanner.Database.PrincipleMasterTable;
+import cardscaner.cfcs.com.cardscanner.Interface.CustomerNameInterface;
+import cardscaner.cfcs.com.cardscanner.MainClass.ForgetPasswordActivity;
+import cardscaner.cfcs.com.cardscanner.MainClass.LoginActivity;
 import cardscaner.cfcs.com.cardscanner.Model.BusinessVerticalCheckList;
 import cardscaner.cfcs.com.cardscanner.Model.CardListModel;
+import cardscaner.cfcs.com.cardscanner.Model.CustomerDetailsModel;
 import cardscaner.cfcs.com.cardscanner.Model.IndustryModel;
 import cardscaner.cfcs.com.cardscanner.Model.PrincipalTypeModel;
 import cardscaner.cfcs.com.cardscanner.R;
+import cardscaner.cfcs.com.cardscanner.source.AppController;
+import cardscaner.cfcs.com.cardscanner.source.ConnectionDetector;
 import cardscaner.cfcs.com.cardscanner.source.EditTextMonitor;
 import cardscaner.cfcs.com.cardscanner.source.MultiTouchListener;
+import cardscaner.cfcs.com.cardscanner.source.SettingConstant;
+import cardscaner.cfcs.com.cardscanner.source.SharedPrefs;
+import cardscaner.cfcs.com.cardscanner.source.UtilsMethods;
 
 import static android.app.Activity.RESULT_OK;
+import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -82,7 +123,7 @@ import static android.app.Activity.RESULT_OK;
  * Use the {@link CamFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class CamFragment extends Fragment {
+public class CamFragment extends Fragment implements CustomerNameInterface{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -96,15 +137,22 @@ public class CamFragment extends Fragment {
     public android.support.design.widget.FloatingActionButton floatingActionButton;
     private static final int REQUEST_GALLERY = 0;
     private static final int REQUEST_CAMERA = 1;
+    public String userId = "",authCode = "";
+    public ConnectionDetector conn;
 
+    public PopupWindow popupWindow;
+    public EditText searchData;
+    public ListView serchListData;
     private static final String TAG = "Cam Scanner";
     private static final int REQUEST_WRITE_PERMISSION = 20;
+    public MasterDatabase masterDatabase;
 
     private Uri imageUri;
     int count = 0, addCnt = 0;
     private EditTextMonitor detectedTextView, emailTxt, phoneTxt, nameTxt,addresstxt,PostalCode,
             thirdTxt,designation, company_name,phoneNumberTxt,PhoneTxtthird,webUrlTxt,homeaddressFirst, homeaddressSecond
             , phoneNumerfour, phonenumerfivth;
+    public TextView selectEditTxt,selectIndustrySegemnttxt, industryTypeTxt, principleTypeTxt;
     public Spinner addressOneSpinner, addressSpinersecond, addressSpinnerThirs, addressSpinnerFourth
             ,phoneSpinner,phoneSecondSpinner, phoneThirdSpinner,phoneFourthSpinner,phoneFivthSpinner;
 
@@ -116,11 +164,13 @@ public class CamFragment extends Fragment {
     public BusinessVerticalAdapter adapter;
     public IndusteryAdapter industeryAdapter;
     public PrincipalTypeAdapter principalTypeAdapter;
-    public ArrayList<PrincipalTypeModel> principalTypeList = new ArrayList<>();
-    public ArrayList<IndustryModel> indstryList = new ArrayList<>();
-    public ArrayList<BusinessVerticalCheckList> list = new ArrayList<>();
+    public ArrayList<CustomerDetailsModel> principalTypeList = new ArrayList<>();
+    public ArrayList<CustomerDetailsModel> industryTypeList = new ArrayList<>();
+    public ArrayList<CustomerDetailsModel> industrySegMentList = new ArrayList<>();
+    public ArrayList<CustomerDetailsModel> listcust = new ArrayList<>();
     public ArrayList<String> adressList = new ArrayList<>();
     public ArrayList<String> phoneList = new ArrayList<>();
+    public String getDdlListUrl = SettingConstant.BASEURL_FOR_LOGIN + "DigiCardScannerService.asmx/AppddlList";
 
 
 
@@ -193,6 +243,49 @@ public class CamFragment extends Fragment {
         phoneFivthSpinner = (Spinner)rootView.findViewById(R.id.spinner_phone5);
         backCardBtn = (LinearLayout)rootView.findViewById(R.id.backcardbtn);
         backCardImg = (ImageView)rootView.findViewById(R.id.backcardImg);
+        selectEditTxt = (TextView) rootView.findViewById(R.id.selecttheedittxt);
+        selectIndustrySegemnttxt = (TextView)rootView.findViewById(R.id.selecttheinduserysegment);
+        industryTypeTxt = (TextView)rootView.findViewById(R.id.selecttheinduserytype);
+        principleTypeTxt = (TextView)rootView.findViewById(R.id.selecttheprincipletype);
+
+        masterDatabase = new MasterDatabase(getActivity());
+        conn = new ConnectionDetector(getActivity());
+        userId = UtilsMethods.getBlankIfStringNull(String.valueOf(SharedPrefs.getUserId(getActivity())));
+        authCode = UtilsMethods.getBlankIfStringNull(String.valueOf(SharedPrefs.getAuthCode(getActivity())));
+
+        selectIndustrySegemnttxt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                callPopup(industrySegMentList);
+            }
+        });
+
+        selectEditTxt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                callPopup(listcust);
+            }
+        });
+
+        industryTypeTxt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                callPopup(industryTypeList);
+            }
+        });
+
+        principleTypeTxt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                callPopup(principalTypeList);
+            }
+        });
+
+
 
 
         // address List
@@ -201,10 +294,10 @@ public class CamFragment extends Fragment {
             adressList.clear();
         }
         adressList.add("");
-        adressList.add("Home");
-        adressList.add("Office");
-        adressList.add("Plant");
-        adressList.add("Other");
+        adressList.add("Office Address");
+        adressList.add("Factory Address");
+        adressList.add("Residence Address");
+
 
         //spinner first address
         addressOneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
@@ -235,7 +328,7 @@ public class CamFragment extends Fragment {
         addressSpinnerFourth.setAdapter(adressFourthAdapter);
 
 
-        if (phoneList.size()>0)
+      /*  if (phoneList.size()>0)
         {
             phoneList.clear();
         }
@@ -248,7 +341,7 @@ public class CamFragment extends Fragment {
         phoneList.add("Home Fax");
         phoneList.add("Work Fax");
         phoneList.add("Extension");
-        phoneList.add("Other");
+        phoneList.add("Other");*/
 
         //spinner First Phone
         addressOneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
@@ -287,34 +380,34 @@ public class CamFragment extends Fragment {
 
 
 
-        // Business Vertical List
+       /* // Business Vertical List
         adapter = new BusinessVerticalAdapter(getActivity(),list);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
         businessVerticalRecycler.setLayoutManager(mLayoutManager);
         businessVerticalRecycler.setItemAnimator(new DefaultItemAnimator());
-        businessVerticalRecycler.setAdapter(adapter);
+        businessVerticalRecycler.setAdapter(adapter);*/
 
 
 
-        prepareMemberData();
+  //      prepareMemberData();
 
-        //Industery List
+       /* //Industery List
         industeryAdapter = new IndusteryAdapter(getActivity(),indstryList);
         RecyclerView.LayoutManager industerymLayoutManager = new LinearLayoutManager(getActivity());
         industeryRecycler.setLayoutManager(industerymLayoutManager);
         industeryRecycler.setItemAnimator(new DefaultItemAnimator());
-        industeryRecycler.setAdapter(industeryAdapter);
+        industeryRecycler.setAdapter(industeryAdapter);*/
 
-        prepareIndusteryData();
+     //   prepareIndusteryData();
 
         //principal List
-        principalTypeAdapter = new PrincipalTypeAdapter(getActivity(),principalTypeList);
+       /* principalTypeAdapter = new PrincipalTypeAdapter(getActivity(),principalTypeList);
         RecyclerView.LayoutManager principalmLayoutManager = new LinearLayoutManager(getActivity());
         principalTypeRecycler.setLayoutManager(principalmLayoutManager);
         principalTypeRecycler.setItemAnimator(new DefaultItemAnimator());
         principalTypeRecycler.setAdapter(principalTypeAdapter);
 
-        preparePrincipalData();
+        preparePrincipalData();*/
 
 
 
@@ -354,22 +447,329 @@ public class CamFragment extends Fragment {
             }
         });
 
+        //checking the BusinessVertical data is save In local database or not!------------
+        Cursor cursor = masterDatabase.getBusinessVerticalMasterTableData(userId);
+        if (cursor != null && cursor.getCount()>0)
+        {
+             if (listcust.size()>0)
+                    {
+                        listcust.clear();
+                    }
+            if (cursor.moveToFirst())
+            {
+                do{
+
+                    String businessVerticalId = cursor.getString(cursor.getColumnIndex(BusinessVerticalMasterTable.businessVerticalID));
+                    String businessVerticalType = cursor.getString(cursor.getColumnIndex(BusinessVerticalMasterTable.businessVertical));
+
+
+
+                    listcust.add(new CustomerDetailsModel(businessVerticalType,businessVerticalId));
+
+                  }while (cursor.moveToNext());
+            }
+
+        }else
+            {
+
+                if (conn.getConnectivityStatus()>0)
+                {
+
+                    getAppDdlList(authCode,userId);
+                }else
+                    {
+                        conn.showNoInternetAlret();
+                    }
+
+            }
+
+       //Industry Segment local database checking
+        Cursor industryCursor = masterDatabase.getIndustrySegmentMasterTable(userId);
+        if (industryCursor != null && industryCursor.getCount()>0)
+        {
+            if (industrySegMentList.size()>0)
+            {
+                industrySegMentList.clear();
+            }
+            if (industryCursor.moveToFirst())
+            {
+                do{
+
+                    String industrySegmentID = industryCursor.getString(industryCursor.getColumnIndex(IndustrySegmentMasterTable.industrySegmentID));
+                    String industrySegment = industryCursor.getString(industryCursor.getColumnIndex(IndustrySegmentMasterTable.industrySegment));
+
+                    industrySegMentList.add(new CustomerDetailsModel(industrySegment,industrySegmentID));
+
+                }while (industryCursor.moveToNext());
+            }
+
+        }else
+        {
+
+            if (conn.getConnectivityStatus()>0)
+            {
+
+                getAppDdlList(authCode,userId);
+            }else
+            {
+                conn.showNoInternetAlret();
+            }
+
+        }
+
+
+        //Industry Type chck database in local database
+        Cursor industryTypeCursor = masterDatabase.getIndustryTypeMasterTable(userId);
+        if (industryTypeCursor != null && industryTypeCursor.getCount()>0)
+        {
+            if (industryTypeList.size()>0)
+            {
+                industryTypeList.clear();
+            }
+            if (industryTypeCursor.moveToFirst())
+            {
+                do{
+
+                    String industryTypeID = industryTypeCursor.getString(industryTypeCursor.getColumnIndex(IndustryTypeMasterTable.industryTypeID));
+                    String industryType = industryTypeCursor.getString(industryTypeCursor.getColumnIndex(IndustryTypeMasterTable.industryType));
+
+                    industryTypeList.add(new CustomerDetailsModel(industryType,industryTypeID));
+
+                }while (industryTypeCursor.moveToNext());
+            }
+
+        }else
+        {
+
+            if (conn.getConnectivityStatus()>0)
+            {
+
+                getAppDdlList(authCode,userId);
+            }else
+            {
+                conn.showNoInternetAlret();
+            }
+
+        }
+
+        //Checked principle type data in my local database
+        Cursor principleTypeCursor = masterDatabase.getPrincipleMasterTable(userId);
+        if (principleTypeCursor != null && principleTypeCursor.getCount()>0)
+        {
+            if (principalTypeList.size()>0)
+            {
+                principalTypeList.clear();
+            }
+            if (principleTypeCursor.moveToFirst())
+            {
+                do{
+
+                    String principleTypeID = principleTypeCursor.getString(principleTypeCursor.getColumnIndex(PrincipleMasterTable.principleId));
+                    String principleType = principleTypeCursor.getString(principleTypeCursor.getColumnIndex(PrincipleMasterTable.principle));
+
+                    principalTypeList.add(new CustomerDetailsModel(principleType,principleTypeID));
+
+                }while (principleTypeCursor.moveToNext());
+            }
+
+        }else
+        {
+
+            if (conn.getConnectivityStatus()>0)
+            {
+
+                getAppDdlList(authCode,userId);
+            }else
+            {
+                conn.showNoInternetAlret();
+            }
+
+        }
+
+        //checking the phone list data is my local database
+        Cursor numberTypeCursor = masterDatabase.getNumberTypeMasterTable(userId);
+        if (numberTypeCursor != null && numberTypeCursor.getCount()>0)
+        {
+            if (phoneList.size()>0)
+            {
+                phoneList.clear();
+            }
+            if (numberTypeCursor.moveToFirst())
+            {
+                do{
+
+                    String numberType = numberTypeCursor.getString(numberTypeCursor.getColumnIndex(NumberTypeMasterTable.numberType));
+                    //String principleType = principleTypeCursor.getString(principleTypeCursor.getColumnIndex(PrincipleMasterTable.principle));
+
+                    phoneList.add(numberType);
+
+                }while (numberTypeCursor.moveToNext());
+            }
+
+        }else
+        {
+
+            if (conn.getConnectivityStatus()>0)
+            {
+
+                getAppDdlList(authCode,userId);
+            }else
+            {
+                conn.showNoInternetAlret();
+            }
+
+        }
+
+
         return rootView;
     }
 
-    private void prepareMemberData() {
-        BusinessVerticalCheckList model = new BusinessVerticalCheckList("First Check");
-        list.add(model);
+    //Api Work
+    public void getAppDdlList(final String authCode, final String userId ) {
+        final ProgressDialog pDialog = new ProgressDialog(getActivity(),R.style.AppCompatAlertDialogStyle);
+        pDialog.setMessage("Loading...");
+        pDialog.show();
 
-        model = new BusinessVerticalCheckList("Second Check");
-        list.add(model);
+        StringRequest historyInquiry = new StringRequest(
+                Request.Method.POST, getDdlListUrl, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
 
-        model = new BusinessVerticalCheckList("Third Check");
-        list.add(model);
-        adapter.notifyDataSetChanged();
+                try {
+                    Log.e("AppDdlList", response);
+                    JSONObject jsonObject = new JSONObject(response.substring(response.indexOf("{"),response.lastIndexOf("}") +1 ));
+
+                    JSONArray numberTypeMasterArray = jsonObject.getJSONArray("NumberTypeMaster");
+
+                    for (int i=0; i< numberTypeMasterArray.length(); i++ )
+                    {
+                        JSONObject numberTypeObject = numberTypeMasterArray.getJSONObject(i);
+                        String NumberType = numberTypeObject.getString("NumberType");
+
+                        //save on data in local database
+                        masterDatabase.setNumberTypeMasterTable(userId,NumberType);
+                        phoneList.add(NumberType);
+                    }
+
+                    JSONArray principleMasterArray = jsonObject.getJSONArray("PrincipleMaster");
+
+                    for (int j=0; j<principleMasterArray.length(); j++)
+                    {
+                        JSONObject principleMasterObject = principleMasterArray.getJSONObject(j);
+                        String PrincipleID = principleMasterObject.getString("PrincipleID");
+                        String Principle = principleMasterObject.getString("Principle");
+
+                        //save data on local databse
+                        masterDatabase.setPrincipleMasterTable(userId,PrincipleID,Principle);
+                        principalTypeList.add(new CustomerDetailsModel(Principle,PrincipleID));
+                    }
+
+                    JSONArray businessVerticalMasterArray = jsonObject.getJSONArray("BusinessVerticalMaster");
+
+                    for (int k = 0; k<businessVerticalMasterArray.length(); k++)
+                    {
+                        JSONObject businessVerticalObject = businessVerticalMasterArray.getJSONObject(k);
+                        String BusinessVerticalID = businessVerticalObject.getString("BusinessVerticalID");
+                        String BusinessVertical = businessVerticalObject.getString("BusinessVertical");
+
+                        //data save on locaal database
+                        masterDatabase.setBusinessVerticalMasterTableData(BusinessVerticalID,userId,BusinessVertical);
+                        listcust.add(new CustomerDetailsModel(BusinessVertical,BusinessVerticalID));
+                    }
+
+                    JSONArray industryTypeMasterArray = jsonObject.getJSONArray("IndustryTypeMaster");
+
+                    for (int l=0 ; l<industryTypeMasterArray.length(); l++)
+                    {
+                        JSONObject industeryTypeObject = industryTypeMasterArray.getJSONObject(l);
+                        String IndustryTypeID = industeryTypeObject.getString("IndustryTypeID");
+                        String IndustryType = industeryTypeObject.getString("IndustryType");
+
+                        //data save on local database
+                        masterDatabase.setIndustryTypeMasterTable(userId,IndustryTypeID,IndustryType);
+                        industryTypeList.add(new CustomerDetailsModel(IndustryType,IndustryTypeID));
+                    }
+
+                    JSONArray industrySegmentMasterArray = jsonObject.getJSONArray("IndustrySegmentMaster");
+
+                    for (int m=0; m<industrySegmentMasterArray.length(); m++)
+                    {
+
+                        JSONObject industerySegmentObject = industrySegmentMasterArray.getJSONObject(m);
+                        String IndustrySegmentID = industerySegmentObject.getString("IndustrySegmentID");
+                        String IndustrySegment = industerySegmentObject.getString("IndustrySegment");
+
+                        //data save on local database
+                        masterDatabase.setIndustrySegmentMasterTable(userId,IndustrySegmentID,IndustrySegment);
+                        industrySegMentList.add(new CustomerDetailsModel(IndustrySegment,IndustrySegmentID));
+                    }
+
+
+
+                   /* for (int i=0 ; i<jsonArray.length();i++)
+                    {*/
+                    // JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    // String status = jsonObject.getString("status");
+                    if (jsonObject.has("MsgNotification"))
+                    {
+                        String MsgNotification = jsonObject.getString("MsgNotification");
+                        Toast.makeText(getActivity(), MsgNotification, Toast.LENGTH_SHORT).show();
+
+                    }
+
+
+                    //}
+
+                    pDialog.dismiss();
+
+                } catch (JSONException e) {
+                    Log.e("checking json excption" , e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.d("Login", "Error: " + error.getMessage());
+                // Log.e("checking now ",error.getMessage());
+
+                Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_SHORT).show();
+                pDialog.dismiss();
+
+
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("AuthCode", authCode);
+                params.put("UserID", userId);
+
+                // Log.e("Parms", params.toString());
+                return params;
+            }
+
+        };
+        historyInquiry.setRetryPolicy(new DefaultRetryPolicy(SettingConstant.Retry_Time,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        AppController.getInstance().addToRequestQueue(historyInquiry, "AddDdlList");
+
     }
 
-    private void prepareIndusteryData() {
+   /* private void prepareMemberData() {
+        CustomerDetailsModel model = new CustomerDetailsModel("First Check","1");
+        listcust.add(model);
+
+        model = new CustomerDetailsModel("Second Check","1");
+        listcust.add(model);
+
+        model = new CustomerDetailsModel("Third Check","1");
+        listcust.add(model);
+        adapter.notifyDataSetChanged();
+    }*/
+
+   /* private void prepareIndusteryData() {
         IndustryModel model = new IndustryModel("Ind First Check");
         indstryList.add(model);
 
@@ -381,8 +781,8 @@ public class CamFragment extends Fragment {
 
         industeryAdapter.notifyDataSetChanged();
     }
-
-    private void preparePrincipalData() {
+*/
+   /* private void preparePrincipalData() {
         PrincipalTypeModel model = new PrincipalTypeModel("Ind Principal Check");
         principalTypeList.add(model);
 
@@ -393,7 +793,7 @@ public class CamFragment extends Fragment {
         principalTypeList.add(model);
 
         principalTypeAdapter.notifyDataSetChanged();
-    }
+    }*/
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -1268,7 +1668,9 @@ public class CamFragment extends Fragment {
 
                                                                     if (!designation.getText().toString().equalsIgnoreCase(firstLine)) {
                                                                        if (!detectedTextView.getText().toString().equalsIgnoreCase(firstLine)) {
+
                                                                            homeaddressFirst.setText(firstLine);
+
                                                                        }
                                                                    }
                                                                 }
@@ -1316,10 +1718,6 @@ public class CamFragment extends Fragment {
                             }
                         }
                     }
-
-
-
-
 
             }
 
@@ -1513,9 +1911,104 @@ public class CamFragment extends Fragment {
         return cursor.getString(idx);
     }
 
+    @Override
+    public void getCustomerName(String name) {
+
+    }
+
+    @Override
+    public void getCustomerId(String cusId) {
+
+    }
+
 
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
-}
+
+    // open the popup eindow method
+    //call popup
+    private void callPopup(final ArrayList<CustomerDetailsModel> list) {
+
+        LayoutInflater layoutInflater = (LayoutInflater) getActivity().getBaseContext()
+                .getSystemService(LAYOUT_INFLATER_SERVICE);
+        View popupView = layoutInflater.inflate(R.layout.popup_window_layout, null);
+        Button cancel, save;
+        popupWindow = new PopupWindow(popupView,
+                RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT,
+                true);
+        popupWindow.setTouchable(true);
+        popupWindow.setFocusable(true);
+        popupWindow.setAnimationStyle(R.style.animationName);
+        popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
+        save = (Button) popupView.findViewById(R.id.saveBtn);
+        cancel = (Button) popupView.findViewById(R.id.cancelbtutton);
+
+
+
+        save.setOnClickListener(new View.OnClickListener() {
+
+            public void onClick(View arg0) {
+
+                popupWindow.dismiss();
+
+            }
+
+        });
+
+
+        cancel.setOnClickListener(new View.OnClickListener() {
+
+            public void onClick(View arg0) {
+
+                popupWindow.dismiss();
+            }
+        });
+
+        searchData = (EditText) popupView.findViewById(R.id.editTextsearching);
+        serchListData = (ListView) popupView.findViewById(R.id.listview_customer_list);
+
+
+        final DemoCustomeAdapter demoCustomeAdapter = new DemoCustomeAdapter(getActivity(), list, this);
+        serchListData.setAdapter(demoCustomeAdapter);
+
+
+
+
+
+
+            serchListData.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                    for (int i = 0; i < serchListData.getChildCount(); i++) {
+                        if (position == i) {
+                            serchListData.getChildAt(i).setBackgroundColor(Color.parseColor("#e0e0e0"));
+                        } else {
+                            serchListData.getChildAt(i).setBackgroundColor(Color.parseColor("#ffffff"));
+                        }
+                    }
+                }
+            });
+
+            searchData.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                    demoCustomeAdapter.getFilter().filter(s.toString());
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    demoCustomeAdapter.getFilter().filter(s);
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+
+                }
+            });
+        }
+    }
+

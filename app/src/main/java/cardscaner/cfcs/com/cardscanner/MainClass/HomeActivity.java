@@ -20,6 +20,8 @@ import cardscaner.cfcs.com.cardscanner.Fragment.MessageFragment;
 import cardscaner.cfcs.com.cardscanner.Fragment.ProfileFragment;
 import cardscaner.cfcs.com.cardscanner.Fragment.SosFragment;
 import cardscaner.cfcs.com.cardscanner.R;
+import cardscaner.cfcs.com.cardscanner.source.SharedPrefs;
+import cardscaner.cfcs.com.cardscanner.source.UtilsMethods;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -141,7 +143,25 @@ public class HomeActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_logout) {
+            //item.setTitle("Date");
+
+            UtilsMethods.getBlankIfStringNull(String.valueOf(SharedPrefs.setStatus(HomeActivity.this,
+                    "")));
+
+            Intent i = new Intent(getApplicationContext(), LoginActivity.class);
+            startActivity(i);
+            overridePendingTransition(R.anim.push_left_in,
+                    R.anim.push_right_out);
+            finish();
             return true;
+        }
+
+        if (id == R.id.action_changepassword)
+        {
+            Intent i = new Intent(getApplicationContext(), ChangePasswordActivity.class);
+            startActivity(i);
+            overridePendingTransition(R.anim.push_left_in,
+                    R.anim.push_right_out);
         }
 
         return super.onOptionsItemSelected(item);
