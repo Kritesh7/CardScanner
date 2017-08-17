@@ -48,6 +48,10 @@
         <activity
             android:name=".MainClass.ChangePasswordActivity"
             android:label="@string/title_activity_change_password"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".MainClass.CustomerDetailsActivity"
+            android:label="@string/title_activity_customer_details"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 

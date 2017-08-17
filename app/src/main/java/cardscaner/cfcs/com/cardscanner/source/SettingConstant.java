@@ -7,7 +7,8 @@ package cardscaner.cfcs.com.cardscanner.source;
 public class SettingConstant {
 
       //server
-      public static final String BASEURL_FOR_LOGIN = "http://192.168.1.16:9090/webApi/";
+      public static final String BASEURL_FOR_LOGIN = "http://192.168.1.12:9090/webApi/";
+      public static final String ImageUrl= "http://192.168.1.12:9090/";
 
      // local
      //public static final String BASEURL = "http://192.168.1.17:94/WebApi/";

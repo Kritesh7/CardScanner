@@ -30,6 +30,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.SparseArray;
@@ -95,7 +96,12 @@ import cardscaner.cfcs.com.cardscanner.Database.IndustryTypeMasterTable;
 import cardscaner.cfcs.com.cardscanner.Database.MasterDatabase;
 import cardscaner.cfcs.com.cardscanner.Database.NumberTypeMasterTable;
 import cardscaner.cfcs.com.cardscanner.Database.PrincipleMasterTable;
+import cardscaner.cfcs.com.cardscanner.Database.ZoneMasterTable;
+import cardscaner.cfcs.com.cardscanner.Interface.BusinessVerticalInterface;
 import cardscaner.cfcs.com.cardscanner.Interface.CustomerNameInterface;
+import cardscaner.cfcs.com.cardscanner.Interface.IndustrySegmentInterface;
+import cardscaner.cfcs.com.cardscanner.Interface.IndustryTypeInterface;
+import cardscaner.cfcs.com.cardscanner.Interface.PrincipleTypeInterface;
 import cardscaner.cfcs.com.cardscanner.MainClass.ForgetPasswordActivity;
 import cardscaner.cfcs.com.cardscanner.MainClass.LoginActivity;
 import cardscaner.cfcs.com.cardscanner.Model.BusinessVerticalCheckList;
@@ -103,6 +109,7 @@ import cardscaner.cfcs.com.cardscanner.Model.CardListModel;
 import cardscaner.cfcs.com.cardscanner.Model.CustomerDetailsModel;
 import cardscaner.cfcs.com.cardscanner.Model.IndustryModel;
 import cardscaner.cfcs.com.cardscanner.Model.PrincipalTypeModel;
+import cardscaner.cfcs.com.cardscanner.Model.ZoneListModel;
 import cardscaner.cfcs.com.cardscanner.R;
 import cardscaner.cfcs.com.cardscanner.source.AppController;
 import cardscaner.cfcs.com.cardscanner.source.ConnectionDetector;
@@ -123,7 +130,8 @@ import static android.content.Context.LAYOUT_INFLATER_SERVICE;
  * Use the {@link CamFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class CamFragment extends Fragment implements CustomerNameInterface{
+public class CamFragment extends Fragment implements CustomerNameInterface,BusinessVerticalInterface,IndustrySegmentInterface,
+        IndustryTypeInterface,PrincipleTypeInterface{
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -139,6 +147,8 @@ public class CamFragment extends Fragment implements CustomerNameInterface{
     private static final int REQUEST_CAMERA = 1;
     public String userId = "",authCode = "";
     public ConnectionDetector conn;
+    public String backImageBase64 = "";
+    public String frountImageBase64 = "";
 
     public PopupWindow popupWindow;
     public EditText searchData;
@@ -160,6 +170,11 @@ public class CamFragment extends Fragment implements CustomerNameInterface{
     public LinearLayout backCardBtn;
     public RecyclerView businessVerticalRecycler, industeryRecycler,principalTypeRecycler ;
     public int flag = 0;
+    public Spinner zoneTypeSpinner;
+    public String zoneIdString = "",numberTypeOne = "", numbertyepTwo = "", numberTypeThree = "", numberTypeFour = "",
+            numberTypeFivth = "", adressStringFirst = "",adressStringSecond = "",adressStringThird = "",adressStringfourth = "",
+         businessVerticalTypeString = "", industrySegmentString = "", industryTypeString = "", principleTypeString = "";
+    public EditTextMonitor managmentLevelTxt, emailIdSecond, remarkTxt;
 
     public BusinessVerticalAdapter adapter;
     public IndusteryAdapter industeryAdapter;
@@ -170,7 +185,18 @@ public class CamFragment extends Fragment implements CustomerNameInterface{
     public ArrayList<CustomerDetailsModel> listcust = new ArrayList<>();
     public ArrayList<String> adressList = new ArrayList<>();
     public ArrayList<String> phoneList = new ArrayList<>();
+    public ArrayList<ZoneListModel> zoneList = new ArrayList<>();
+    public ArrayList<String> bussinessverticalidList = new ArrayList<>();
+    public ArrayList<String> bussinessverticalnameList = new ArrayList<>();
+    public ArrayList<String> industrySegmentIdList = new ArrayList<>();
+    public ArrayList<String> industrySegmentNameList = new ArrayList<>();
+    public ArrayList<String> industryTypeIdList = new ArrayList<>();
+    public ArrayList<String> industryTypeNameList = new ArrayList<>();
+    public ArrayList<String> principleTypeIdList = new ArrayList<>();
+    public ArrayList<String> principleTypeNameList = new ArrayList<>();
     public String getDdlListUrl = SettingConstant.BASEURL_FOR_LOGIN + "DigiCardScannerService.asmx/AppddlList";
+    public String insertDataUrl = SettingConstant.BASEURL_FOR_LOGIN + "DigiCardScannerService.asmx/AppCustomerInsUpdt";
+    public Button subButton;
 
 
 
@@ -247,6 +273,11 @@ public class CamFragment extends Fragment implements CustomerNameInterface{
         selectIndustrySegemnttxt = (TextView)rootView.findViewById(R.id.selecttheinduserysegment);
         industryTypeTxt = (TextView)rootView.findViewById(R.id.selecttheinduserytype);
         principleTypeTxt = (TextView)rootView.findViewById(R.id.selecttheprincipletype);
+        zoneTypeSpinner = (Spinner)rootView.findViewById(R.id.zonetypeid);
+        managmentLevelTxt = (EditTextMonitor)rootView.findViewById(R.id.managementlevel);
+        emailIdSecond = (EditTextMonitor)rootView.findViewById(R.id.emailidsecond_text);
+        subButton = (Button)rootView.findViewById(R.id.submitbtn);
+        remarkTxt = (EditTextMonitor)rootView.findViewById(R.id.remarks);
 
         masterDatabase = new MasterDatabase(getActivity());
         conn = new ConnectionDetector(getActivity());
@@ -257,7 +288,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface{
             @Override
             public void onClick(View view) {
 
-                callPopup(industrySegMentList);
+                callPopup(industrySegMentList,"2");
             }
         });
 
@@ -265,7 +296,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface{
             @Override
             public void onClick(View view) {
 
-                callPopup(listcust);
+                callPopup(listcust,"1");
             }
         });
 
@@ -273,7 +304,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface{
             @Override
             public void onClick(View view) {
 
-                callPopup(industryTypeList);
+                callPopup(industryTypeList,"3");
             }
         });
 
@@ -281,7 +312,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface{
             @Override
             public void onClick(View view) {
 
-                callPopup(principalTypeList);
+                callPopup(principalTypeList,"4");
             }
         });
 
@@ -306,12 +337,38 @@ public class CamFragment extends Fragment implements CustomerNameInterface{
         adressOneAdapter.setDropDownViewResource(R.layout.customizespinner);
         addressOneSpinner.setAdapter(adressOneAdapter);
 
+        addressOneSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+
+                adressStringFirst = adressList.get(i);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
         //spinner second address
         addressOneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
         ArrayAdapter<String> adressSecondAdapter = new ArrayAdapter<String>(getActivity(),R.layout.customizespinner,
                 adressList);
         adressSecondAdapter.setDropDownViewResource(R.layout.customizespinner);
         addressSpinersecond.setAdapter(adressSecondAdapter);
+
+        addressSpinersecond.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                adressStringSecond = adressList.get(i);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
 
         //spinner third address
         addressOneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
@@ -320,12 +377,36 @@ public class CamFragment extends Fragment implements CustomerNameInterface{
         adressThirdAdapter.setDropDownViewResource(R.layout.customizespinner);
         addressSpinnerThirs.setAdapter(adressThirdAdapter);
 
+        addressSpinnerThirs.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                adressStringThird = adressList.get(i);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
         //spinner fourth address
         addressOneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
         ArrayAdapter<String> adressFourthAdapter = new ArrayAdapter<String>(getActivity(),R.layout.customizespinner,
                 adressList);
         adressFourthAdapter.setDropDownViewResource(R.layout.customizespinner);
         addressSpinnerFourth.setAdapter(adressFourthAdapter);
+
+        addressSpinnerFourth.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                adressStringfourth = adressList.get(i);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
 
 
       /*  if (phoneList.size()>0)
@@ -350,12 +431,37 @@ public class CamFragment extends Fragment implements CustomerNameInterface{
         phoneFirstAdapter.setDropDownViewResource(R.layout.customizespinner);
         phoneSpinner.setAdapter(phoneFirstAdapter);
 
+        phoneSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                 numberTypeOne = phoneList.get(i);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
         //spinner Second Phone
         addressOneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
         ArrayAdapter<String> phoneSecondAdapter = new ArrayAdapter<String>(getActivity(),R.layout.customizespinner,
                 phoneList);
         phoneSecondAdapter.setDropDownViewResource(R.layout.customizespinner);
         phoneSecondSpinner.setAdapter(phoneSecondAdapter);
+
+        phoneSecondSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+
+                numbertyepTwo = phoneList.get(i);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
 
         //spinner Third Phone
         addressOneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
@@ -364,12 +470,38 @@ public class CamFragment extends Fragment implements CustomerNameInterface{
         phoneThirdAdapter.setDropDownViewResource(R.layout.customizespinner);
         phoneThirdSpinner.setAdapter(phoneThirdAdapter);
 
+        phoneThirdSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+
+                numberTypeThree = phoneList.get(i);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
         //spinner Fourth Phone
         addressOneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
         ArrayAdapter<String> phoneFourthAdapter = new ArrayAdapter<String>(getActivity(),R.layout.customizespinner,
                 phoneList);
         phoneFourthAdapter.setDropDownViewResource(R.layout.customizespinner);
         phoneFourthSpinner.setAdapter(phoneFourthAdapter);
+
+        phoneFourthSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+
+                numberTypeFour = phoneList.get(i);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
 
         //spinner Fivth Phone
         addressOneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
@@ -378,38 +510,42 @@ public class CamFragment extends Fragment implements CustomerNameInterface{
         phoneFivthAdapter.setDropDownViewResource(R.layout.customizespinner);
         phoneFivthSpinner.setAdapter(phoneFivthAdapter);
 
+        phoneFivthSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+
+                numberTypeFivth = phoneList.get(i);
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
 
 
-       /* // Business Vertical List
-        adapter = new BusinessVerticalAdapter(getActivity(),list);
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
-        businessVerticalRecycler.setLayoutManager(mLayoutManager);
-        businessVerticalRecycler.setItemAnimator(new DefaultItemAnimator());
-        businessVerticalRecycler.setAdapter(adapter);*/
+        //zone Type Spinner
+        zoneTypeSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
+        ArrayAdapter<ZoneListModel> zoneTypeAdapter = new ArrayAdapter<ZoneListModel>(getActivity(),R.layout.customizespinner,
+                zoneList);
+        zoneTypeAdapter.setDropDownViewResource(R.layout.customizespinner);
+        zoneTypeSpinner.setAdapter(zoneTypeAdapter);
 
 
+        zoneTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
 
-  //      prepareMemberData();
+                zoneIdString = zoneList.get(i).getZoneId();
+                Log.e("checking the zone id", zoneIdString);
+            }
 
-       /* //Industery List
-        industeryAdapter = new IndusteryAdapter(getActivity(),indstryList);
-        RecyclerView.LayoutManager industerymLayoutManager = new LinearLayoutManager(getActivity());
-        industeryRecycler.setLayoutManager(industerymLayoutManager);
-        industeryRecycler.setItemAnimator(new DefaultItemAnimator());
-        industeryRecycler.setAdapter(industeryAdapter);*/
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
 
-     //   prepareIndusteryData();
-
-        //principal List
-       /* principalTypeAdapter = new PrincipalTypeAdapter(getActivity(),principalTypeList);
-        RecyclerView.LayoutManager principalmLayoutManager = new LinearLayoutManager(getActivity());
-        principalTypeRecycler.setLayoutManager(principalmLayoutManager);
-        principalTypeRecycler.setItemAnimator(new DefaultItemAnimator());
-        principalTypeRecycler.setAdapter(principalTypeAdapter);
-
-        preparePrincipalData();*/
-
-
+            }
+        });
 
 
         // MultiTouchListener touchListener=new MultiTouchListener(getActivity());
@@ -480,16 +616,16 @@ public class CamFragment extends Fragment implements CustomerNameInterface{
                     {
                         conn.showNoInternetAlret();
                     }
-
             }
 
        //Industry Segment local database checking
         Cursor industryCursor = masterDatabase.getIndustrySegmentMasterTable(userId);
         if (industryCursor != null && industryCursor.getCount()>0)
         {
-            if (industrySegMentList.size()>0)
+            if (industrySegMentList.size()>0 )
             {
                 industrySegMentList.clear();
+
             }
             if (industryCursor.moveToFirst())
             {
@@ -501,18 +637,6 @@ public class CamFragment extends Fragment implements CustomerNameInterface{
                     industrySegMentList.add(new CustomerDetailsModel(industrySegment,industrySegmentID));
 
                 }while (industryCursor.moveToNext());
-            }
-
-        }else
-        {
-
-            if (conn.getConnectivityStatus()>0)
-            {
-
-                getAppDdlList(authCode,userId);
-            }else
-            {
-                conn.showNoInternetAlret();
             }
 
         }
@@ -541,14 +665,14 @@ public class CamFragment extends Fragment implements CustomerNameInterface{
         }else
         {
 
-            if (conn.getConnectivityStatus()>0)
+           /* if (conn.getConnectivityStatus()>0)
             {
 
                 getAppDdlList(authCode,userId);
             }else
             {
                 conn.showNoInternetAlret();
-            }
+            }*/
 
         }
 
@@ -575,14 +699,14 @@ public class CamFragment extends Fragment implements CustomerNameInterface{
         }else
         {
 
-            if (conn.getConnectivityStatus()>0)
+           /* if (conn.getConnectivityStatus()>0)
             {
 
                 getAppDdlList(authCode,userId);
             }else
             {
                 conn.showNoInternetAlret();
-            }
+            }*/
 
         }
 
@@ -609,16 +733,75 @@ public class CamFragment extends Fragment implements CustomerNameInterface{
         }else
         {
 
-            if (conn.getConnectivityStatus()>0)
+           /* if (conn.getConnectivityStatus()>0)
             {
 
                 getAppDdlList(authCode,userId);
             }else
             {
                 conn.showNoInternetAlret();
-            }
+            }*/
 
         }
+
+        //checking zone list also
+        Cursor zoneTypeCursor = masterDatabase.getZoneMasterTable(userId);
+        if (zoneTypeCursor != null && zoneTypeCursor.getCount()>0)
+        {
+            if (zoneList.size()>0)
+            {
+                zoneList.clear();
+            }
+            if (zoneTypeCursor.moveToFirst())
+            {
+                do{
+
+                    String zoneId = zoneTypeCursor.getString(zoneTypeCursor.getColumnIndex(ZoneMasterTable.zoneID));
+                    String zoneName = zoneTypeCursor.getString(zoneTypeCursor.getColumnIndex(ZoneMasterTable.zoneName));
+
+                    zoneList.add(new ZoneListModel(zoneId,zoneName));
+                    zoneTypeAdapter.notifyDataSetChanged();
+
+                }while (zoneTypeCursor.moveToNext());
+            }
+
+            zoneIdString = zoneList.get(0).getZoneId();
+
+
+        }else
+        {
+
+            /*if (conn.getConnectivityStatus()>0)
+            {
+
+                getAppDdlList(authCode,userId);
+            }else
+            {
+                conn.showNoInternetAlret();
+            }*/
+
+        }
+
+      //  Log.e("cheking the count of zone",masterDatabase.getPrincipleMasterTableCunt(userId)+" ");
+
+
+        //clcik on button and submite the data
+        subButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+               insertData(authCode,userId,"","",nameTxt.getText().toString(),"",designation.getText().toString(),
+                       detectedTextView.getText().toString(),webUrlTxt.getText().toString(),managmentLevelTxt.getText().toString(),
+                       zoneIdString,emailTxt.getText().toString(),emailIdSecond.getText().toString(),numberTypeOne,
+                       phoneTxt.getText().toString(),numbertyepTwo,phoneNumberTxt.getText().toString(),numberTypeThree,
+                       PhoneTxtthird.getText().toString(),numberTypeFour,phoneNumerfour.getText().toString(),numberTypeFivth,
+                       phonenumerfivth.getText().toString(),frountImageBase64,".jpeg",backImageBase64,".jpeg",
+                       remarkTxt.getText().toString(),thirdTxt.getText().toString(),"",addresstxt.getText().toString(),"",
+                       homeaddressFirst.getText().toString(),"",principleTypeString,businessVerticalTypeString,industrySegmentString,
+                       industryTypeString
+                       );
+            }
+        });
 
 
         return rootView;
@@ -640,7 +823,10 @@ public class CamFragment extends Fragment implements CustomerNameInterface{
                     JSONObject jsonObject = new JSONObject(response.substring(response.indexOf("{"),response.lastIndexOf("}") +1 ));
 
                     JSONArray numberTypeMasterArray = jsonObject.getJSONArray("NumberTypeMaster");
-
+                    if (phoneList.size()>0)
+                    {
+                        phoneList.clear();
+                    }
                     for (int i=0; i< numberTypeMasterArray.length(); i++ )
                     {
                         JSONObject numberTypeObject = numberTypeMasterArray.getJSONObject(i);
@@ -652,7 +838,10 @@ public class CamFragment extends Fragment implements CustomerNameInterface{
                     }
 
                     JSONArray principleMasterArray = jsonObject.getJSONArray("PrincipleMaster");
-
+                    if (principalTypeList.size()>0)
+                    {
+                        principalTypeList.clear();
+                    }
                     for (int j=0; j<principleMasterArray.length(); j++)
                     {
                         JSONObject principleMasterObject = principleMasterArray.getJSONObject(j);
@@ -665,7 +854,10 @@ public class CamFragment extends Fragment implements CustomerNameInterface{
                     }
 
                     JSONArray businessVerticalMasterArray = jsonObject.getJSONArray("BusinessVerticalMaster");
-
+                    if (listcust.size()>0)
+                    {
+                        listcust.clear();
+                    }
                     for (int k = 0; k<businessVerticalMasterArray.length(); k++)
                     {
                         JSONObject businessVerticalObject = businessVerticalMasterArray.getJSONObject(k);
@@ -678,7 +870,10 @@ public class CamFragment extends Fragment implements CustomerNameInterface{
                     }
 
                     JSONArray industryTypeMasterArray = jsonObject.getJSONArray("IndustryTypeMaster");
-
+                    if (industryTypeList.size()>0)
+                    {
+                        industryTypeList.clear();
+                    }
                     for (int l=0 ; l<industryTypeMasterArray.length(); l++)
                     {
                         JSONObject industeryTypeObject = industryTypeMasterArray.getJSONObject(l);
@@ -691,7 +886,10 @@ public class CamFragment extends Fragment implements CustomerNameInterface{
                     }
 
                     JSONArray industrySegmentMasterArray = jsonObject.getJSONArray("IndustrySegmentMaster");
-
+                    if (industrySegMentList.size()>0)
+                    {
+                        industrySegMentList.clear();
+                    }
                     for (int m=0; m<industrySegmentMasterArray.length(); m++)
                     {
 
@@ -703,6 +901,29 @@ public class CamFragment extends Fragment implements CustomerNameInterface{
                         masterDatabase.setIndustrySegmentMasterTable(userId,IndustrySegmentID,IndustrySegment);
                         industrySegMentList.add(new CustomerDetailsModel(IndustrySegment,IndustrySegmentID));
                     }
+
+                    JSONArray zoneMasterArray = jsonObject.getJSONArray("ZoneMaster");
+
+                    if (zoneList.size()>0)
+                    {
+                        zoneList.clear();
+                    }
+
+                    for (int n=0; n<zoneMasterArray.length(); n++)
+                    {
+
+                        JSONObject zoneMasterObject = zoneMasterArray.getJSONObject(n);
+                        String zoneID = zoneMasterObject.getString("ZoneID");
+                        String zoneName = zoneMasterObject.getString("ZoneName");
+
+                        //data save on local database
+                        masterDatabase.setZoneMasterTable(userId,zoneID,zoneName);
+                        zoneList.add(new ZoneListModel(zoneID,zoneName));
+                    }
+
+                    zoneIdString = zoneList.get(0).getZoneId();
+
+
 
 
 
@@ -757,43 +978,115 @@ public class CamFragment extends Fragment implements CustomerNameInterface{
 
     }
 
-   /* private void prepareMemberData() {
-        CustomerDetailsModel model = new CustomerDetailsModel("First Check","1");
-        listcust.add(model);
 
-        model = new CustomerDetailsModel("Second Check","1");
-        listcust.add(model);
+    //insert data to server
+    public void insertData(final String AuthCode, final String UserID,final String CustomerID,final String Title,
+                           final String CustomerName,final String DOB,final String Designation,final String CompanyName,
+                           final String Website, final String ManagementLevel,final String ZoneID,final String EmailID,
+                           final String EmailID2, final String NumberType1, final String Number1,final String NumberType2,
+                           final String Number2,final String NumberType3,final String Number3, final String NumberType4,
+                           final String Number4,final String NumberType5,final String Number5,final String CardFrontImageString,
+                           final String CardFrontImageExtension,final String CardBackImageString,final String CardBackImageExtension,
+                           final String Remark, final String OfficeAddress, final String OfficePin,final String FactoryAddress,
+                           final String FactoryPin,final String ResidenceAddress,final String ResidencePin,
+                           final String PrincipleList,final String BusinessVerticalList,final String IndustrySegmentList,
+                           final String IndustryTypeList) {
 
-        model = new CustomerDetailsModel("Third Check","1");
-        listcust.add(model);
-        adapter.notifyDataSetChanged();
-    }*/
+        final ProgressDialog pDialog = new ProgressDialog(getActivity(),R.style.AppCompatAlertDialogStyle);
+        pDialog.setMessage("Loading...");
+        pDialog.show();
 
-   /* private void prepareIndusteryData() {
-        IndustryModel model = new IndustryModel("Ind First Check");
-        indstryList.add(model);
+        StringRequest historyInquiry = new StringRequest(
+                Request.Method.POST, insertDataUrl, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
 
-        model = new IndustryModel("Ind First Check");
-        indstryList.add(model);
+                try {
+                    Log.e("insert Data", response);
+                    JSONObject jsonObject = new JSONObject(response.substring(response.indexOf("{"),response.lastIndexOf("}") +1 ));
 
-        model = new IndustryModel("Ind First Check");
-        indstryList.add(model);
+                   // Log.e("insert Data", response);
+                    String status = jsonObject.getString("status");
+                    String MsgNotification = jsonObject.getString("MsgNotification");
+                    Toast.makeText(getActivity(),MsgNotification, Toast.LENGTH_SHORT).show();
+                    if (status.equalsIgnoreCase("success"))
+                    {
 
-        industeryAdapter.notifyDataSetChanged();
+                    }
+
+
+                    pDialog.dismiss();
+
+                } catch (JSONException e) {
+                    Log.e("checking json excption" , e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.d("Login", "Error: " + error.getMessage());
+                // Log.e("checking now ",error.getMessage());
+
+                Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_SHORT).show();
+                pDialog.dismiss();
+
+
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("AuthCode", AuthCode);
+                params.put("UserID", UserID);
+                params.put("CustomerID", CustomerID);
+                params.put("Title", Title);
+                params.put("CustomerName", CustomerName);
+                params.put("DOB", DOB);
+                params.put("Designation", Designation);
+                params.put("CompanyName", CompanyName);
+                params.put("Website", Website);
+                params.put("ManagementLevel", ManagementLevel);
+                params.put("ZoneID", ZoneID);
+                params.put("EmailID", EmailID);
+                params.put("EmailID2", EmailID2);
+                params.put("NumberType1", NumberType1);
+                params.put("Number1", Number1);
+                params.put("NumberType2", NumberType2);
+                params.put("Number2", Number2);
+                params.put("NumberType3", NumberType3);
+                params.put("Number3", Number3);
+                params.put("NumberType4", NumberType4);
+                params.put("Number4", Number4);
+                params.put("NumberType5", NumberType5);
+                params.put("Number5", Number5);
+                params.put("CardFrontImageString", CardFrontImageString);
+                params.put("CardFrontImageExtension", CardFrontImageExtension);
+                params.put("CardBackImageString", CardBackImageString);
+                params.put("CardBackImageExtension", CardBackImageExtension);
+                params.put("Remark", Remark);
+                params.put("OfficeAddress", OfficeAddress);
+                params.put("OfficePin", OfficePin);
+                params.put("FactoryAddress", FactoryAddress);
+                params.put("FactoryPin", FactoryPin);
+                params.put("ResidenceAddress", ResidenceAddress);
+                params.put("ResidencePin", ResidencePin);
+                params.put("PrincipleList", PrincipleList);
+                params.put("BusinessVerticalList", BusinessVerticalList);
+                params.put("IndustrySegmentList", IndustrySegmentList);
+                params.put("IndustryTypeList", IndustryTypeList);
+
+                Log.e("Parms all", params.toString());
+                return params;
+            }
+
+        };
+        historyInquiry.setRetryPolicy(new DefaultRetryPolicy(SettingConstant.Retry_Time,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        AppController.getInstance().addToRequestQueue(historyInquiry, "Listing");
+
     }
-*/
-   /* private void preparePrincipalData() {
-        PrincipalTypeModel model = new PrincipalTypeModel("Ind Principal Check");
-        principalTypeList.add(model);
-
-        model = new PrincipalTypeModel("Ind Principal Check");
-        principalTypeList.add(model);
-
-        model = new PrincipalTypeModel("Ind Principal Check");
-        principalTypeList.add(model);
-
-        principalTypeAdapter.notifyDataSetChanged();
-    }*/
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -1063,7 +1356,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface{
                                                     if (!firstLine.contains(".com")  &&
                                                             !firstLine.contains("co.in")) {
                                                         if (detectedTextView.getText().toString().equalsIgnoreCase("")) {
-                                                            company_name.setText(firstLine);
+                                                            detectedTextView.setText(firstLine);
                                                         }
                                                     }
                                                     }
@@ -1547,10 +1840,6 @@ public class CamFragment extends Fragment implements CustomerNameInterface{
                                 }
                             }
                         }
-
-
-
-
                     }
 
 
@@ -1571,7 +1860,14 @@ public class CamFragment extends Fragment implements CustomerNameInterface{
                 while(matcher1.find()) {*/
 
                 if (firstLine.contains("@")) {
-                    emailTxt.setText(firstLine);
+
+                    if (emailIdSecond.getText().toString().equalsIgnoreCase(firstLine)) {
+
+                        emailTxt.setText(firstLine);
+                    }
+                    else  if (!emailTxt.getText().toString().equalsIgnoreCase(firstLine)) {
+                        emailIdSecond.setText(firstLine);
+                    }
                 }
 
                 //second type address getting
@@ -1854,13 +2150,42 @@ public class CamFragment extends Fragment implements CustomerNameInterface{
                     inspect(imageUri);
 
                     if (flag == 1) {
-                        cardImg.setImageBitmap(decodeSampledBitmapFromResource(getPath(imageUri), 200, 200));
+
+                        InputStream image_stream = null;
+                        try {
+                            image_stream = getActivity().getContentResolver().openInputStream(imageUri);
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                        Bitmap bitmap= BitmapFactory.decodeStream(image_stream );
+                        cardImg.setImageBitmap(bitmap);
+
+                        frountImageBase64 = getEncoded64ImageStringFromBitmap(bitmap);
+                        Log.e("checking the back 64",frountImageBase64);
+                        //convert base64
+
                         flag = 0;
                     }else if (flag == 2) {
 
                         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 500);
                         backCardImg.setLayoutParams(layoutParams);
-                        backCardImg.setImageBitmap(decodeSampledBitmapFromResource(getPath(imageUri), 200, 200));
+
+                        InputStream image_stream = null;
+                        try {
+                            image_stream = getActivity().getContentResolver().openInputStream(imageUri);
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                        Bitmap bitmap= BitmapFactory.decodeStream(image_stream );
+                        backCardImg.setImageBitmap(bitmap);
+
+
+                        backImageBase64 = getEncoded64ImageStringFromBitmap(bitmap);
+                        Log.e("checking the frount 64",backImageBase64);
+                        //convert base64
+
+
+                      //  backCardImg.setImageBitmap(decodeSampledBitmapFromResource(getPath(imageUri), 200, 200));
                         flag = 0;
                     }
                    // cardImg.setImageURI(imageUri);
@@ -1885,6 +2210,17 @@ public class CamFragment extends Fragment implements CustomerNameInterface{
             }
         }
         return inSampleSize;
+    }
+
+    //convert bitmap to base64
+    public String getEncoded64ImageStringFromBitmap(Bitmap bitmap) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, stream);
+        byte[] byteFormat = stream.toByteArray();
+        // get the base 64 string
+        String imgString = Base64.encodeToString(byteFormat, Base64.NO_WRAP);
+
+        return imgString;
     }
 
     public static Bitmap decodeSampledBitmapFromResource(String resId,
@@ -1921,6 +2257,42 @@ public class CamFragment extends Fragment implements CustomerNameInterface{
 
     }
 
+    @Override
+    public void getIndustryTypeId(String cusId,String name) {
+
+       // industryTypeString = cusId;
+        industryTypeIdList.add(cusId);
+        industryTypeNameList.add(name);
+        //Log.e("industryTypeString Cheking the tYpe",industryTypeString);
+    }
+
+    @Override
+    public void getPrincipleTypeId(String cusId, String name) {
+
+       // principleTypeString = cusId;
+        principleTypeIdList.add(cusId);
+        principleTypeNameList.add(name);
+       // Log.e("principleTypeString Cheking the tYpe",principleTypeString);
+    }
+
+    @Override
+    public void getIndustrySegmentId(String cusId,String name) {
+
+       // industrySegmentString = cusId;
+        industrySegmentIdList.add(cusId);
+        industrySegmentNameList.add(name);
+       // Log.e(" industrySegmentString Cheking the tYpe",industrySegmentString);
+    }
+
+    @Override
+    public void getBusinessVerticalId(String cusId, String name) {
+
+       // businessVerticalTypeString = cusId;
+        bussinessverticalidList.add(cusId);
+        bussinessverticalnameList.add(name);
+     //  Log.e("businessVerticalTypeString Cheking the tYpe",cusId);
+    }
+
 
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
@@ -1929,7 +2301,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface{
 
     // open the popup eindow method
     //call popup
-    private void callPopup(final ArrayList<CustomerDetailsModel> list) {
+    private void callPopup(final ArrayList<CustomerDetailsModel> list, final String checkingType) {
 
         LayoutInflater layoutInflater = (LayoutInflater) getActivity().getBaseContext()
                 .getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -1951,6 +2323,47 @@ public class CamFragment extends Fragment implements CustomerNameInterface{
 
             public void onClick(View arg0) {
 
+                if (checkingType.equalsIgnoreCase("1"))
+                {
+                    String idList = bussinessverticalidList.toString();
+                    String nameList = bussinessverticalnameList.toString();
+                    businessVerticalTypeString = idList.substring(1, idList.length() - 1).replace(", ", ",");
+
+                    selectEditTxt.setText(nameList.substring(1, nameList.length() - 1).replace(", ", ","));
+                    Log.e("Now this is final",businessVerticalTypeString);
+
+                }else if (checkingType.equalsIgnoreCase("2"))
+                {
+                    String idList = industrySegmentIdList.toString();
+                    String nameList = industrySegmentNameList.toString();
+                    industrySegmentString = idList.substring(1, idList.length() - 1).replace(", ", ",");
+
+                    selectIndustrySegemnttxt.setText(nameList.substring(1, nameList.length() - 1).replace(", ", ","));
+
+                    Log.e("Now this is final",industrySegmentString);
+
+                }else if (checkingType.equalsIgnoreCase("3"))
+                {
+
+                    String idList = industryTypeIdList.toString();
+                    String nameList = industryTypeNameList.toString();
+                    industryTypeString = idList.substring(1, idList.length() - 1).replace(", ", ",");
+
+                    industryTypeTxt.setText(nameList.substring(1, nameList.length() - 1).replace(", ", ","));
+
+                    Log.e("Now this is final",industryTypeString);
+
+                }else if (checkingType.equalsIgnoreCase("4"))
+                {
+                    String idList = principleTypeIdList.toString();
+                    String nameList = principleTypeNameList.toString();
+                    principleTypeString = idList.substring(1, idList.length() - 1).replace(", ", ",");
+
+                    principleTypeTxt.setText(nameList.substring(1, nameList.length() - 1).replace(", ", ","));
+
+                    Log.e("Now this is final",principleTypeString);
+                }
+
                 popupWindow.dismiss();
 
             }
@@ -1970,7 +2383,8 @@ public class CamFragment extends Fragment implements CustomerNameInterface{
         serchListData = (ListView) popupView.findViewById(R.id.listview_customer_list);
 
 
-        final DemoCustomeAdapter demoCustomeAdapter = new DemoCustomeAdapter(getActivity(), list, this);
+        final DemoCustomeAdapter demoCustomeAdapter = new DemoCustomeAdapter(getActivity(), list, this,checkingType,this,this,this,
+                this);
         serchListData.setAdapter(demoCustomeAdapter);
 
 

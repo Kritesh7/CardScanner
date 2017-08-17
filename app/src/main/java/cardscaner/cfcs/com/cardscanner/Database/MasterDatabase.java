@@ -40,7 +40,7 @@ public class MasterDatabase
         contentValues.put(businessVerticalMasterTable.userId,userId);
         contentValues.put(businessVerticalMasterTable.businessVertical,businessVertical);
 
-        sqLiteDatabase.insert(businessVerticalMasterTable.tableName,null,contentValues);
+        sqLiteDatabase.insertWithOnConflict(businessVerticalMasterTable.tableName,null,contentValues,SQLiteDatabase.CONFLICT_REPLACE);
     }
 
     public Cursor getBusinessVerticalMasterTableData(String userId)
@@ -72,7 +72,7 @@ public class MasterDatabase
         contentValues.put(numberTypeMasterTable.userId,userId);
         contentValues.put(numberTypeMasterTable.numberType,numberType);
 
-        sqLiteDatabase.insert(numberTypeMasterTable.tableName,null,contentValues);
+        sqLiteDatabase.insertWithOnConflict(numberTypeMasterTable.tableName,null,contentValues,SQLiteDatabase.CONFLICT_REPLACE);
     }
 
     public Cursor getNumberTypeMasterTable(String userId)
@@ -105,7 +105,7 @@ public class MasterDatabase
         contentValues.put(principleMasterTable.principleId,principleId);
         contentValues.put(principleMasterTable.principle,principle);
 
-        sqLiteDatabase.insert(principleMasterTable.tableName,null,contentValues);
+        sqLiteDatabase.insertWithOnConflict(principleMasterTable.tableName,null,contentValues,SQLiteDatabase.CONFLICT_REPLACE);
     }
 
     public Cursor getPrincipleMasterTable(String userId)
@@ -138,7 +138,7 @@ public class MasterDatabase
         contentValues.put(industryTypeMasterTable.industryTypeID,industryTypeID);
         contentValues.put(industryTypeMasterTable.industryType,industryType);
 
-        sqLiteDatabase.insert(industryTypeMasterTable.tableName,null,contentValues);
+        sqLiteDatabase.insertWithOnConflict(industryTypeMasterTable.tableName,null,contentValues,SQLiteDatabase.CONFLICT_REPLACE);
     }
 
     public Cursor getIndustryTypeMasterTable(String userId)
@@ -171,7 +171,7 @@ public class MasterDatabase
         contentValues.put(industrySegmentMasterTable.industrySegmentID,industrySegmentID);
         contentValues.put(industrySegmentMasterTable.industrySegment,industrySegment);
 
-        sqLiteDatabase.insert(industrySegmentMasterTable.tableName,null,contentValues);
+        sqLiteDatabase.insertWithOnConflict(industrySegmentMasterTable.tableName,null,contentValues,SQLiteDatabase.CONFLICT_REPLACE);
     }
 
     public Cursor getIndustrySegmentMasterTable(String userId)
@@ -187,6 +187,40 @@ public class MasterDatabase
     {
 
         String countQuery = "SELECT  * FROM " + industrySegmentMasterTable.tableName + " WHERE " + industrySegmentMasterTable.userId + "=" + userId;
+        SQLiteDatabase db = dataBaseHelper.getReadableDatabase();
+        Cursor cursor = db.rawQuery(countQuery, null);
+        int cnt = cursor.getCount();
+        cursor.close();
+        return cnt;
+    }
+
+    //zonemaster Table
+    //get and set IndustrySegmentMasterTable
+    public void setZoneMasterTable(String userId,String zoneID, String zoneName)
+    {
+        sqLiteDatabase = dataBaseHelper.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+
+        contentValues.put(ZoneMasterTable.userId,userId);
+        contentValues.put(ZoneMasterTable.zoneID,zoneID);
+        contentValues.put(ZoneMasterTable.zoneName,zoneName);
+
+        sqLiteDatabase.insertWithOnConflict(ZoneMasterTable.tableName,null,contentValues,SQLiteDatabase.CONFLICT_REPLACE);
+    }
+
+    public Cursor getZoneMasterTable(String userId)
+    {
+        sqLiteDatabase=dataBaseHelper.getReadableDatabase();
+        Cursor cursor=null;
+        cursor = sqLiteDatabase.rawQuery("SELECT " + ZoneMasterTable.zoneID + ", " + ZoneMasterTable.zoneName +
+                " FROM " + ZoneMasterTable.tableName + " WHERE " + ZoneMasterTable.userId + "=?", new String[]
+                {userId});
+        return cursor;
+    }
+    public int getZoneMasterTableCunt(String userId)
+    {
+
+        String countQuery = "SELECT  * FROM " + ZoneMasterTable.tableName + " WHERE " + ZoneMasterTable.userId + "=" + userId;
         SQLiteDatabase db = dataBaseHelper.getReadableDatabase();
         Cursor cursor = db.rawQuery(countQuery, null);
         int cnt = cursor.getCount();

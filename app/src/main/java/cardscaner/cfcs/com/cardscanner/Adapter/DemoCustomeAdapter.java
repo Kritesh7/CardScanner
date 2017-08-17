@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.LinearLayout;
@@ -13,7 +14,11 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import cardscaner.cfcs.com.cardscanner.Interface.BusinessVerticalInterface;
 import cardscaner.cfcs.com.cardscanner.Interface.CustomerNameInterface;
+import cardscaner.cfcs.com.cardscanner.Interface.IndustrySegmentInterface;
+import cardscaner.cfcs.com.cardscanner.Interface.IndustryTypeInterface;
+import cardscaner.cfcs.com.cardscanner.Interface.PrincipleTypeInterface;
 import cardscaner.cfcs.com.cardscanner.Model.BusinessVerticalCheckList;
 import cardscaner.cfcs.com.cardscanner.Model.CustomerDetailsModel;
 import cardscaner.cfcs.com.cardscanner.R;
@@ -30,6 +35,11 @@ public class DemoCustomeAdapter extends BaseAdapter implements Filterable {
     LayoutInflater inflater;
     public CustomerNameInterface anInterface;
     public boolean flag = true;
+    public String chekingTypes = "";
+    public BusinessVerticalInterface businessVerticalInterface;
+    public IndustrySegmentInterface industrySegmentInterface;
+    public IndustryTypeInterface industryTypeInterface;
+    public PrincipleTypeInterface principleTypeInterface;
    /* private static final int NOT_SELECTED = -1;
     private int selectedPos = NOT_SELECTED;
 
@@ -43,10 +53,18 @@ public class DemoCustomeAdapter extends BaseAdapter implements Filterable {
         notifyDataSetChanged();
     }*/
 
-    public DemoCustomeAdapter(Context context, ArrayList<CustomerDetailsModel> mProductArrayList , CustomerNameInterface anInterface) {
+    public DemoCustomeAdapter(Context context, ArrayList<CustomerDetailsModel> mProductArrayList ,
+                              CustomerNameInterface anInterface,String checkingTypes,BusinessVerticalInterface businessVerticalInterface,
+                              IndustrySegmentInterface industrySegmentInterface,IndustryTypeInterface industryTypeInterface,
+                              PrincipleTypeInterface principleTypeInterface) {
         this.mOriginalValues = mProductArrayList;
         this.mDisplayedValues = mProductArrayList;
         this.anInterface = anInterface;
+        this.chekingTypes = checkingTypes;
+        this.businessVerticalInterface = businessVerticalInterface;
+        this.industrySegmentInterface = industrySegmentInterface;
+        this.industryTypeInterface = industryTypeInterface;
+        this.principleTypeInterface = principleTypeInterface;
         inflater = LayoutInflater.from(context);
     }
 
@@ -130,6 +148,34 @@ public class DemoCustomeAdapter extends BaseAdapter implements Filterable {
             holder = new ViewHolder();
             convertView = inflater.inflate(R.layout.businessvertical_list_item, null);
             holder.tvName = (CheckBox) convertView.findViewById(R.id.vertical_checkbox);
+            holder.tvName.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+
+                    if (b)
+                    {
+                        if (chekingTypes.equalsIgnoreCase("1"))
+                        {
+                            businessVerticalInterface.getBusinessVerticalId(mDisplayedValues.get(position).getCustomerId(),
+                                    mDisplayedValues.get(position).getCustomerName());
+                        }else if (chekingTypes.equalsIgnoreCase("2"))
+                        {
+                            industrySegmentInterface.getIndustrySegmentId(mDisplayedValues.get(position).getCustomerId(),
+                                    mDisplayedValues.get(position).getCustomerName());
+
+                        }else if (chekingTypes.equalsIgnoreCase("3"))
+                        {
+                            industryTypeInterface.getIndustryTypeId(mDisplayedValues.get(position).getCustomerId(),
+                                    mDisplayedValues.get(position).getCustomerName());
+
+                        }else if (chekingTypes.equalsIgnoreCase("4"))
+                        {
+                            principleTypeInterface.getPrincipleTypeId(mDisplayedValues.get(position).getCustomerId(),
+                                    mDisplayedValues.get(position).getCustomerName());
+                        }
+                    }
+                }
+            });
             convertView.setTag(holder);
         } else {
             holder = (ViewHolder) convertView.getTag();
