@@ -19,6 +19,7 @@ import cardscaner.cfcs.com.cardscanner.R;
 
 public class BusinessVerticalAdapter extends RecyclerView.Adapter<BusinessVerticalAdapter.ViewHolder>
 {
+    //
 
     public Context context;
     public ArrayList<BusinessVerticalCheckList> lists = new ArrayList<>();
