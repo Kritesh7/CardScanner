@@ -6,12 +6,15 @@ package cardscaner.cfcs.com.cardscanner.source;
 
 public class SettingConstant {
 
-      //server
-      public static final String BASEURL_FOR_LOGIN = "http://192.168.1.12:9090/webApi/";
-      public static final String ImageUrl= "http://192.168.1.12:9090/";
 
-     // local
-     //public static final String BASEURL = "http://192.168.1.17:94/WebApi/";
+    //Server
+       public static final String BASEURL_FOR_LOGIN = "http://card.nmtronics.in/webApi/";
+       public static final String ImageUrl= "http://card.nmtronics.in/webApi/";
+      //Local
+    //  public static final String BASEURL_FOR_LOGIN = "http://192.168.1.12:9090/webApi/";
+     // public static final String ImageUrl= "http://192.168.1.12:9090/";
+
+
 
     public static final int Retry_Time = 15000;
     protected static final String SP_NAME = "myPref";

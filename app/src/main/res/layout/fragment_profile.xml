@@ -15,7 +15,6 @@
 
         <android.support.design.widget.TextInputLayout
             android:layout_marginTop="10dp"
-
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:nextFocusLeft="@id/autotext"
@@ -24,7 +23,11 @@
             app:hintTextAppearance="@style/TextAppearenceWith.App.TextInputLayout">
 
             <EditText
-
+                android:id="@+id/pronametxt"
+                android:clickable="false"
+                android:cursorVisible="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
                 android:inputType="textPersonName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -51,7 +54,11 @@
             app:hintTextAppearance="@style/TextAppearenceWith.App.TextInputLayout">
 
             <EditText
-
+                android:id="@+id/prodesgtxt"
+                android:clickable="false"
+                android:cursorVisible="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
                 android:inputType="textPersonName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -67,7 +74,7 @@
                 android:theme="@style/MyEditText" />
         </android.support.design.widget.TextInputLayout>
 
-        <android.support.design.widget.TextInputLayout
+       <!-- <android.support.design.widget.TextInputLayout
             android:layout_marginTop="10dp"
 
             android:layout_width="match_parent"
@@ -92,7 +99,7 @@
                 android:textColorHint="@color/edit_below_line"
                 android:textSize="16dp"
                 android:theme="@style/MyEditText" />
-        </android.support.design.widget.TextInputLayout>
+        </android.support.design.widget.TextInputLayout>-->
 
         <android.support.design.widget.TextInputLayout
             android:layout_marginTop="10dp"
@@ -105,7 +112,12 @@
             app:hintTextAppearance="@style/TextAppearenceWith.App.TextInputLayout">
 
             <EditText
-                android:id="@+id/name_txt"
+
+                android:clickable="false"
+                android:cursorVisible="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:id="@+id/prophonetxt"
                 android:inputType="textPersonName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -132,7 +144,11 @@
             app:hintTextAppearance="@style/TextAppearenceWith.App.TextInputLayout">
 
             <EditText
-
+                android:id="@+id/proemailtxt"
+                android:clickable="false"
+                android:cursorVisible="false"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
                 android:inputType="textPersonName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

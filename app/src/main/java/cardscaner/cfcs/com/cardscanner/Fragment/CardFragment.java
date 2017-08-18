@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.DefaultRetryPolicy;
@@ -61,6 +62,7 @@ public class CardFragment extends Fragment {
     public CardListAdapter adapter;
     public String getCustomerListUrl = SettingConstant.BASEURL_FOR_LOGIN + "DigiCardScannerService.asmx/AppCustomerList";
     public String userId = "",authCode = "";
+    public TextView cardTxt;
 
     private OnFragmentInteractionListener mListener;
 
@@ -93,6 +95,7 @@ public class CardFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_card, container, false);
 
         cardRecycler = (RecyclerView)rootView.findViewById(R.id.card_recyceler);
+        cardTxt = (TextView)rootView.findViewById(R.id.no_customer);
         userId = UtilsMethods.getBlankIfStringNull(String.valueOf(SharedPrefs.getUserId(getActivity())));
         authCode = UtilsMethods.getBlankIfStringNull(String.valueOf(SharedPrefs.getAuthCode(getActivity())));
 
@@ -143,6 +146,16 @@ public class CardFragment extends Fragment {
                         for (int i=0; i<jsonArray.length(); i++)
                         {
                             JSONObject object = jsonArray.getJSONObject(i);
+                            if (object.has("status")) {
+                                String status = object.getString("status");
+                                if (status.equalsIgnoreCase("failed"))
+                                {
+                                    String MsgNotification = object.getString("MsgNotification");
+
+                                    Toast.makeText(getActivity(), MsgNotification, Toast.LENGTH_SHORT).show();
+                                    pDialog.dismiss();
+                                }
+                            }
                             String Name =object.getString("Name");
                             String Designation = object.getString("Designation");
                             String Company = object.getString("Company");
@@ -157,6 +170,17 @@ public class CardFragment extends Fragment {
                     } catch (StringIndexOutOfBoundsException e) {
                         e.printStackTrace();
                     }
+
+                    if (list.size() == 0)
+                    {
+                        cardTxt.setVisibility(View.VISIBLE);
+                        cardRecycler.setVisibility(View.GONE);
+
+                    }else
+                        {
+                            cardTxt.setVisibility(View.GONE);
+                            cardRecycler.setVisibility(View.VISIBLE);
+                        }
 
 
 

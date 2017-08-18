@@ -177,127 +177,7 @@
 
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_marginTop="10dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_weight="4.5"
-                android:layout_height="wrap_content"
-                android:textColor="@color/status_color"
-                android:textSize="16sp"
-                android:text="Business Vertical Name"/>
-            <TextView
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:textColor="@color/status_color"
-                android:textSize="16sp"
-                android:text=":"/>
-            <TextView
-                android:id="@+id/businessverticaltxt"
-                android:textColor="@color/backround_color"
-                android:textSize="16sp"
-                android:layout_width="0dp"
-                android:layout_weight="4.5"
-                android:layout_height="wrap_content"
-                android:text="Name"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_marginTop="10dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_weight="4.5"
-                android:layout_height="wrap_content"
-                android:textColor="@color/status_color"
-                android:textSize="16sp"
-                android:text="Industry Type Name"/>
-            <TextView
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:textColor="@color/status_color"
-                android:textSize="16sp"
-                android:text=":"/>
-            <TextView
-                android:id="@+id/induserytypenametxt"
-                android:textColor="@color/backround_color"
-                android:textSize="16sp"
-                android:layout_width="0dp"
-                android:layout_weight="4.5"
-                android:layout_height="wrap_content"
-                android:text="Name"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_marginTop="10dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_weight="4.5"
-                android:layout_height="wrap_content"
-                android:textColor="@color/status_color"
-                android:textSize="16sp"
-                android:text="Principle Name"/>
-            <TextView
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:textColor="@color/status_color"
-                android:textSize="16sp"
-                android:text=":"/>
-            <TextView
-                android:id="@+id/principletxt"
-                android:textColor="@color/backround_color"
-                android:textSize="16sp"
-                android:layout_width="0dp"
-                android:layout_weight="4.5"
-                android:layout_height="wrap_content"
-                android:text="Name"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_marginTop="10dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_weight="4.5"
-                android:layout_height="wrap_content"
-                android:textColor="@color/status_color"
-                android:textSize="16sp"
-                android:text="Industry Segment Name"/>
-            <TextView
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:textColor="@color/status_color"
-                android:textSize="16sp"
-                android:text=":"/>
-            <TextView
-                android:id="@+id/industrysegmetnttxt"
-                android:textColor="@color/backround_color"
-                android:textSize="16sp"
-                android:layout_width="0dp"
-                android:layout_weight="4.5"
-                android:layout_height="wrap_content"
-                android:text="Name"/>
-
-        </LinearLayout>
-
-        <LinearLayout
+            <LinearLayout
             android:layout_marginTop="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -328,11 +208,13 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/phnlay"
             android:layout_marginTop="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <TextView
+                android:id="@+id/type1"
                 android:layout_width="0dp"
                 android:layout_weight="4.5"
                 android:layout_height="wrap_content"
@@ -356,6 +238,220 @@
                 android:text="Name"/>
 
         </LinearLayout>
+            <LinearLayout
+                android:id="@+id/phnlay2"
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/type2"
+                    android:layout_width="0dp"
+                    android:layout_weight="4.5"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/status_color"
+                    android:textSize="16sp"
+                    android:text="Phone Number"/>
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/status_color"
+                    android:textSize="16sp"
+                    android:text=":"/>
+                <TextView
+                    android:id="@+id/phonetxt2"
+                    android:textColor="@color/backround_color"
+                    android:textSize="16sp"
+                    android:layout_width="0dp"
+                    android:layout_weight="4.5"
+                    android:layout_height="wrap_content"
+                    android:text="Name"/>
+
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/phnlay3"
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/type3"
+                    android:layout_width="0dp"
+                    android:layout_weight="4.5"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/status_color"
+                    android:textSize="16sp"
+                    android:text="Phone Number"/>
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/status_color"
+                    android:textSize="16sp"
+                    android:text=":"/>
+                <TextView
+                    android:id="@+id/phonetxt3"
+                    android:textColor="@color/backround_color"
+                    android:textSize="16sp"
+                    android:layout_width="0dp"
+                    android:layout_weight="4.5"
+                    android:layout_height="wrap_content"
+                    android:text="Name"/>
+
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/phnlay4"
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/type4"
+                    android:layout_width="0dp"
+                    android:layout_weight="4.5"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/status_color"
+                    android:textSize="16sp"
+                    android:text="Phone Number"/>
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/status_color"
+                    android:textSize="16sp"
+                    android:text=":"/>
+                <TextView
+                    android:id="@+id/phonetxt4"
+                    android:textColor="@color/backround_color"
+                    android:textSize="16sp"
+                    android:layout_width="0dp"
+                    android:layout_weight="4.5"
+                    android:layout_height="wrap_content"
+                    android:text="Name"/>
+
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/phnlay5"
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/type5"
+                    android:layout_width="0dp"
+                    android:layout_weight="4.5"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/status_color"
+                    android:textSize="16sp"
+                    android:text="Phone Number"/>
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/status_color"
+                    android:textSize="16sp"
+                    android:text=":"/>
+                <TextView
+                    android:id="@+id/phonetxt5"
+                    android:textColor="@color/backround_color"
+                    android:textSize="16sp"
+                    android:layout_width="0dp"
+                    android:layout_weight="4.5"
+                    android:layout_height="wrap_content"
+                    android:text="Name"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="4.5"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/status_color"
+                    android:textSize="16sp"
+                    android:text="Office Address"/>
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/status_color"
+                    android:textSize="16sp"
+                    android:text=":"/>
+                <TextView
+                    android:id="@+id/officeadresstxt"
+                    android:textColor="@color/backround_color"
+                    android:textSize="16sp"
+                    android:layout_width="0dp"
+                    android:layout_weight="4.5"
+                    android:layout_height="wrap_content"
+                    android:text="Name"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="4.5"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/status_color"
+                    android:textSize="16sp"
+                    android:text="Factory Address"/>
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/status_color"
+                    android:textSize="16sp"
+                    android:text=":"/>
+                <TextView
+                    android:id="@+id/adresstxt"
+                    android:textColor="@color/backround_color"
+                    android:textSize="16sp"
+                    android:layout_width="0dp"
+                    android:layout_weight="4.5"
+                    android:layout_height="wrap_content"
+                    android:text="Name"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="4.5"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/status_color"
+                    android:textSize="16sp"
+                    android:text="Residential Address"/>
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/status_color"
+                    android:textSize="16sp"
+                    android:text=":"/>
+                <TextView
+                    android:id="@+id/resaddadresstxt"
+                    android:textColor="@color/backround_color"
+                    android:textSize="16sp"
+                    android:layout_width="0dp"
+                    android:layout_weight="4.5"
+                    android:layout_height="wrap_content"
+                    android:text="Name"/>
+
+            </LinearLayout>
 
         <LinearLayout
             android:layout_marginTop="10dp"
@@ -386,6 +482,141 @@
                 android:text="Name"/>
 
         </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/buslay"
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="4.5"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/status_color"
+                    android:textSize="16sp"
+                    android:text="Business Vertical Name"/>
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/status_color"
+                    android:textSize="16sp"
+                    android:text=":"/>
+                <TextView
+                    android:id="@+id/businessverticaltxt"
+                    android:textColor="@color/backround_color"
+                    android:textSize="16sp"
+                    android:layout_width="0dp"
+                    android:layout_weight="4.5"
+                    android:layout_height="wrap_content"
+                    android:text="Name"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/indlay"
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="4.5"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/status_color"
+                    android:textSize="16sp"
+                    android:text="Industry Type Name"/>
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/status_color"
+                    android:textSize="16sp"
+                    android:text=":"/>
+                <TextView
+                    android:id="@+id/induserytypenametxt"
+                    android:textColor="@color/backround_color"
+                    android:textSize="16sp"
+                    android:layout_width="0dp"
+                    android:layout_weight="4.5"
+                    android:layout_height="wrap_content"
+                    android:text="Name"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/prnlay"
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="4.5"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/status_color"
+                    android:textSize="16sp"
+                    android:text="Principle Name"/>
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/status_color"
+                    android:textSize="16sp"
+                    android:text=":"/>
+                <TextView
+                    android:id="@+id/principletxt"
+                    android:textColor="@color/backround_color"
+                    android:textSize="16sp"
+                    android:layout_width="0dp"
+                    android:layout_weight="4.5"
+                    android:layout_height="wrap_content"
+                    android:text="Name"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/indseglay"
+                android:layout_marginTop="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="4.5"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/status_color"
+                    android:textSize="16sp"
+                    android:text="Industry Segment Name"/>
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/status_color"
+                    android:textSize="16sp"
+                    android:text=":"/>
+                <TextView
+                    android:id="@+id/industrysegmetnttxt"
+                    android:textColor="@color/backround_color"
+                    android:textSize="16sp"
+                    android:layout_width="0dp"
+                    android:layout_weight="4.5"
+                    android:layout_height="wrap_content"
+                    android:text="Name"/>
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/editbtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@color/backround_color"
+                android:textColor="@color/white"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:padding="10dp"
+                android:text="Edit Details"/>
 
         </LinearLayout>
         </ScrollView>

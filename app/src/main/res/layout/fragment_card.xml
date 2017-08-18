@@ -25,7 +25,7 @@
             android:textColor="@color/status_color"
             android:textSize="18dp"
             android:gravity="center"
-            android:text="No Customer Available"
+            android:text="No Card Available"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
