@@ -36,6 +36,7 @@ import cardscaner.cfcs.com.cardscanner.Model.CustomerDetailsModel;
 import cardscaner.cfcs.com.cardscanner.Model.ZoneListModel;
 import cardscaner.cfcs.com.cardscanner.R;
 import cardscaner.cfcs.com.cardscanner.source.AppController;
+import cardscaner.cfcs.com.cardscanner.source.LinearLayoutManagerWithSmoothScroller;
 import cardscaner.cfcs.com.cardscanner.source.SettingConstant;
 import cardscaner.cfcs.com.cardscanner.source.SharedPrefs;
 import cardscaner.cfcs.com.cardscanner.source.UtilsMethods;
@@ -100,9 +101,11 @@ public class CardFragment extends Fragment {
         authCode = UtilsMethods.getBlankIfStringNull(String.valueOf(SharedPrefs.getAuthCode(getActivity())));
 
         adapter = new CardListAdapter(getActivity(),list,getActivity());
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
+        cardRecycler.setLayoutManager(new LinearLayoutManagerWithSmoothScroller(getActivity()));
+        cardRecycler.smoothScrollToPosition(5);
+        /*RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
         cardRecycler.setLayoutManager(mLayoutManager);
-        cardRecycler.setItemAnimator(new DefaultItemAnimator());
+        cardRecycler.setItemAnimator(new DefaultItemAnimator());*/
         cardRecycler.setAdapter(adapter);
 
        // prepareMemberData();

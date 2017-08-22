@@ -17,6 +17,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public PrincipleMasterTable principleMasterTable = new PrincipleMasterTable();
     public TitleMasterTable titleMasterTable = new TitleMasterTable();
     public ZoneMasterTable zoneMasterTable = new ZoneMasterTable();
+    public ManagementTypeMasterTable managementTypeMasterTable = new ManagementTypeMasterTable();
+    public ContactTypeMasterTable contactTypeMasterTable = new ContactTypeMasterTable();
 
     public DataBaseHelper(Context context, String databaseName, SQLiteDatabase.CursorFactory cursorFactory, int dataBaseVersion)
     {
@@ -32,6 +34,8 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL(principleMasterTable.PrincipleMasterTableData);
         sqLiteDatabase.execSQL(titleMasterTable.TitleMasterTableData);
         sqLiteDatabase.execSQL(zoneMasterTable.ZoneMasterTableData);
+        sqLiteDatabase.execSQL(managementTypeMasterTable.ManagementTypeMasterTableData);
+        sqLiteDatabase.execSQL(contactTypeMasterTable.ContactTypeMasterTableData);
     }
 
     @Override
@@ -44,5 +48,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + principleMasterTable.tableName);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + titleMasterTable.tableName);
         sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + zoneMasterTable.tableName);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + managementTypeMasterTable.tableName);
+        sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + contactTypeMasterTable.tableName);
     }
 }

@@ -558,7 +558,6 @@
 
 
                     </android.support.design.widget.TextInputLayout>-->
-
                     <android.support.design.widget.TextInputLayout
                         android:layout_marginTop="10dp"
                         android:layout_width="match_parent"
@@ -569,7 +568,7 @@
                         app:hintTextAppearance="@style/TextAppearenceWith.App.TextInputLayout">
 
                         <cardscaner.cfcs.com.cardscanner.source.EditTextMonitor
-                            android:id="@+id/email_text"
+                            android:id="@+id/emailidsecond_text"
                             android:inputType="textPersonName"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -595,14 +594,14 @@
                         app:hintTextAppearance="@style/TextAppearenceWith.App.TextInputLayout">
 
                         <cardscaner.cfcs.com.cardscanner.source.EditTextMonitor
-                            android:id="@+id/emailidsecond_text"
+                            android:id="@+id/email_text"
                             android:inputType="textPersonName"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
                             android:background="@drawable/linebelowedittext"
                             android:backgroundTint="@color/edit_below_line"
-                            android:hint="Email Id2"
+                            android:hint="Email Id 2"
                             android:paddingBottom="10dp"
                             android:paddingTop="10dp"
                             android:textColor="@color/text_color"
@@ -610,6 +609,7 @@
                             android:textSize="16dp"
                             android:theme="@style/MyEditText" />
                     </android.support.design.widget.TextInputLayout>
+
 
 
                     <android.support.design.widget.TextInputLayout
@@ -782,6 +782,7 @@
                         </android.support.v7.widget.RecyclerView>
 
                         <LinearLayout
+                            android:layout_marginTop="10dp"
                             android:orientation="vertical"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content">
@@ -801,7 +802,51 @@
                             </Spinner>
 
                         </LinearLayout>
-                        <android.support.design.widget.TextInputLayout
+                        <LinearLayout
+                            android:layout_marginTop="10dp"
+                            android:orientation="vertical"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <TextView
+                                android:textColor="@color/status_color"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Management Type"/>
+
+                            <Spinner
+                                android:layout_marginTop="5dp"
+                                android:id="@+id/managementtypeid"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content">
+
+                            </Spinner>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_marginTop="10dp"
+                            android:orientation="vertical"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <TextView
+                                android:textColor="@color/status_color"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Contact Type"/>
+
+                            <Spinner
+                                android:layout_marginTop="5dp"
+                                android:id="@+id/contacttypeid"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content">
+
+                            </Spinner>
+
+                        </LinearLayout>
+                       <!-- <android.support.design.widget.TextInputLayout
+
                             android:layout_marginTop="10dp"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -825,7 +870,7 @@
                                 android:textColorHint="@color/edit_below_line"
                                 android:textSize="16dp"
                                 android:theme="@style/MyEditText" />
-                        </android.support.design.widget.TextInputLayout>
+                        </android.support.design.widget.TextInputLayout>-->
                         <android.support.design.widget.TextInputLayout
                             android:layout_marginTop="10dp"
                             android:layout_width="match_parent"

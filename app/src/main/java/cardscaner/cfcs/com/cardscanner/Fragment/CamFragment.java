@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -12,11 +13,16 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.graphics.PorterDuff;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -33,6 +39,7 @@ import android.text.TextWatcher;
 import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.Patterns;
 import android.util.SparseArray;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -78,10 +85,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Random;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -92,8 +101,10 @@ import cardscaner.cfcs.com.cardscanner.Adapter.DemoCustomeAdapter;
 import cardscaner.cfcs.com.cardscanner.Adapter.IndusteryAdapter;
 import cardscaner.cfcs.com.cardscanner.Adapter.PrincipalTypeAdapter;
 import cardscaner.cfcs.com.cardscanner.Database.BusinessVerticalMasterTable;
+import cardscaner.cfcs.com.cardscanner.Database.ContactTypeMasterTable;
 import cardscaner.cfcs.com.cardscanner.Database.IndustrySegmentMasterTable;
 import cardscaner.cfcs.com.cardscanner.Database.IndustryTypeMasterTable;
+import cardscaner.cfcs.com.cardscanner.Database.ManagementTypeMasterTable;
 import cardscaner.cfcs.com.cardscanner.Database.MasterDatabase;
 import cardscaner.cfcs.com.cardscanner.Database.NumberTypeMasterTable;
 import cardscaner.cfcs.com.cardscanner.Database.PrincipleMasterTable;
@@ -107,8 +118,10 @@ import cardscaner.cfcs.com.cardscanner.MainClass.ForgetPasswordActivity;
 import cardscaner.cfcs.com.cardscanner.MainClass.LoginActivity;
 import cardscaner.cfcs.com.cardscanner.Model.BusinessVerticalCheckList;
 import cardscaner.cfcs.com.cardscanner.Model.CardListModel;
+import cardscaner.cfcs.com.cardscanner.Model.ContactTypeListModel;
 import cardscaner.cfcs.com.cardscanner.Model.CustomerDetailsModel;
 import cardscaner.cfcs.com.cardscanner.Model.IndustryModel;
+import cardscaner.cfcs.com.cardscanner.Model.ManagmentTypeListModel;
 import cardscaner.cfcs.com.cardscanner.Model.PrincipalTypeModel;
 import cardscaner.cfcs.com.cardscanner.Model.ZoneListModel;
 import cardscaner.cfcs.com.cardscanner.R;
@@ -132,7 +145,7 @@ import static android.content.Context.LAYOUT_INFLATER_SERVICE;
  * create an instance of this fragment.
  */
 public class CamFragment extends Fragment implements CustomerNameInterface,BusinessVerticalInterface,IndustrySegmentInterface,
-        IndustryTypeInterface,PrincipleTypeInterface{
+        IndustryTypeInterface,PrincipleTypeInterface {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -146,7 +159,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
     public android.support.design.widget.FloatingActionButton floatingActionButton;
     private static final int REQUEST_GALLERY = 0;
     private static final int REQUEST_CAMERA = 1;
-    public String userId = "",authCode = "";
+    public String userId = "", authCode = "";
     public ConnectionDetector conn;
     public String backImageBase64 = "";
     public String frountImageBase64 = "";
@@ -160,23 +173,21 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
     private Uri imageUri;
     int count = 0, addCnt = 0;
-    private EditTextMonitor detectedTextView, emailTxt, phoneTxt, nameTxt,addresstxt,PostalCode,
-            thirdTxt,designation, company_name,phoneNumberTxt,PhoneTxtthird,webUrlTxt,homeaddressFirst, homeaddressSecond
-            , phoneNumerfour, phonenumerfivth;
-    public TextView selectEditTxt,selectIndustrySegemnttxt, industryTypeTxt, principleTypeTxt;
-    public Spinner addressOneSpinner, addressSpinersecond, addressSpinnerThirs, addressSpinnerFourth
-            ,phoneSpinner,phoneSecondSpinner, phoneThirdSpinner,phoneFourthSpinner,phoneFivthSpinner;
+    private EditTextMonitor detectedTextView, emailTxt, phoneTxt, nameTxt, addresstxt, PostalCode,
+            thirdTxt, designation, company_name, phoneNumberTxt, PhoneTxtthird, webUrlTxt, homeaddressFirst, homeaddressSecond, phoneNumerfour, phonenumerfivth;
+    public TextView selectEditTxt, selectIndustrySegemnttxt, industryTypeTxt, principleTypeTxt;
+    public Spinner addressOneSpinner, addressSpinersecond, addressSpinnerThirs, addressSpinnerFourth, phoneSpinner, phoneSecondSpinner, phoneThirdSpinner, phoneFourthSpinner, phoneFivthSpinner;
 
     public ImageView cardImg, backCardImg;
     public LinearLayout backCardBtn;
-    public RecyclerView businessVerticalRecycler, industeryRecycler,principalTypeRecycler ;
+    public RecyclerView businessVerticalRecycler, industeryRecycler, principalTypeRecycler;
     public int flag = 0;
-    public Spinner zoneTypeSpinner;
-    public String zoneIdString = "",numberTypeOne = "", numbertyepTwo = "", numberTypeThree = "", numberTypeFour = "",
-            numberTypeFivth = "", adressStringFirst = "",adressStringSecond = "",adressStringThird = "",adressStringfourth = "",
-         businessVerticalTypeString = "", industrySegmentString = "", industryTypeString = "", principleTypeString = "",
-            UserActionMode = "";
-    public EditTextMonitor managmentLevelTxt, emailIdSecond, remarkTxt;
+    public Spinner zoneTypeSpinner, managmentTypeSpinner, contactTypeSpinner;
+    public String zoneIdString = "", numberTypeOne = "", numbertyepTwo = "", numberTypeThree = "", numberTypeFour = "",
+            numberTypeFivth = "", adressStringFirst = "", adressStringSecond = "", adressStringThird = "", adressStringfourth = "",
+            businessVerticalTypeString = "", industrySegmentString = "", industryTypeString = "", principleTypeString = "",
+            UserActionMode = "", managementTypeIdString = "", contactTypeIdString = "";
+    public EditTextMonitor emailIdSecond, remarkTxt;
 
     public BusinessVerticalAdapter adapter;
     public IndusteryAdapter industeryAdapter;
@@ -188,6 +199,8 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
     public ArrayList<String> adressList = new ArrayList<>();
     public ArrayList<String> phoneList = new ArrayList<>();
     public ArrayList<ZoneListModel> zoneList = new ArrayList<>();
+    public ArrayList<ManagmentTypeListModel> managementTypeList = new ArrayList<>();
+    public ArrayList<ContactTypeListModel> contactTypeList = new ArrayList<>();
     public ArrayList<String> bussinessverticalidList = new ArrayList<>();
     public ArrayList<String> bussinessverticalnameList = new ArrayList<>();
     public ArrayList<String> industrySegmentIdList = new ArrayList<>();
@@ -195,16 +208,21 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
     public ArrayList<String> industryTypeIdList = new ArrayList<>();
     public ArrayList<String> industryTypeNameList = new ArrayList<>();
     public ArrayList<String> principleTypeIdList = new ArrayList<>();
+    public ArrayList<String> principleTypeIdgList = new ArrayList<>();
     public ArrayList<String> principleTypeNameList = new ArrayList<>();
+    public ArrayList sendBussinesList = new ArrayList();
+    public ArrayList sendindustryTypeList = new ArrayList();
+    public ArrayList sendSegmentList = new ArrayList();
+    public ArrayList sendPrincipleList = new ArrayList();
     public String getDdlListUrl = SettingConstant.BASEURL_FOR_LOGIN + "DigiCardScannerService.asmx/AppddlList";
     public String insertDataUrl = SettingConstant.BASEURL_FOR_LOGIN + "DigiCardScannerService.asmx/AppCustomerInsUpdt";
     public Button subButton;
-    public String Name = "",Designation ="",Company="",ZoneName = "",EmailID = "",OfficeAddress = "",PrincipleName = "",
-            BusinessVerticalName="",IndustryTypeName="",IndustrySegmentName="",Website="",ManagementLevel="",FactoryAddress="",
-            ResidenceAddress = "",EmailID2 = "",NumberType = "", NumberType2 = "",NumberType3="",NumberType4="",
-            NumberType5 = "",Number = "",Number2="",Number3="",Number4="",Number5 = "", customerIdGet = "",ZoneID = "",
-            CardFrontImage = "",CardBackImage = "";
-
+    public String Name = "", Designation = "", Company = "", ZoneName = "", zoneNameSend = "", EmailID = "", OfficeAddress = "", PrincipleName = "",
+            BusinessVerticalName = "", IndustryTypeName = "", IndustrySegmentName = "", Website = "", ManagementLevel = "", FactoryAddress = "",
+            ResidenceAddress = "", EmailID2 = "", NumberType = "", NumberType2 = "", NumberType3 = "", NumberType4 = "",
+            NumberType5 = "", Number = "", Number2 = "", Number3 = "", Number4 = "", Number5 = "", customerIdGet = "", ZoneIDSend = "",
+            CardFrontImage = "", CardBackImage = "", PrincipleNameId = "",
+            BusinessVerticalNameId = "", IndustryTypeNameId = "", IndustrySegmentNameId = "";
 
 
     public CamFragment() {
@@ -244,58 +262,60 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_cam, container, false);
 
-        floatingActionButton = (android.support.design.widget.FloatingActionButton)rootView.findViewById(R.id.fab);
-        phoneTxt = (EditTextMonitor)rootView.findViewById(R.id.phone_number);
-        emailTxt = (EditTextMonitor)rootView.findViewById(R.id.email_text);
-        nameTxt = (EditTextMonitor)rootView.findViewById(R.id.name_txt);
-        addresstxt = (EditTextMonitor)rootView.findViewById(R.id.address_txt);
-        PostalCode = (EditTextMonitor)rootView.findViewById(R.id.second_name_txt);
-        thirdTxt = (EditTextMonitor)rootView.findViewById(R.id.third_name_txt);
-        designation = (EditTextMonitor)rootView.findViewById(R.id.designation_txt);
-        cardImg = (ImageView)rootView.findViewById(R.id.cardImg);
-        company_name = (EditTextMonitor)rootView.findViewById(R.id.comapnyname_text);
-        detectedTextView = (EditTextMonitor)rootView.findViewById(R.id.detected_text);
-        phoneNumberTxt = (EditTextMonitor)rootView.findViewById(R.id.phone_number2);
-        PhoneTxtthird = (EditTextMonitor)rootView.findViewById(R.id.phone_number3);
-        webUrlTxt = (EditTextMonitor)rootView.findViewById(R.id.web_url);
-        businessVerticalRecycler = (RecyclerView)rootView.findViewById(R.id.business_vertical_recycler);
-        industeryRecycler = (RecyclerView)rootView.findViewById(R.id.industery_recycler);
-        principalTypeRecycler = (RecyclerView)rootView.findViewById(R.id.principal_type_recycler);
-        homeaddressFirst = (EditTextMonitor)rootView.findViewById(R.id.home_address_txt1);
-        homeaddressSecond = (EditTextMonitor)rootView.findViewById(R.id.home_address_txt2);
-        phoneNumerfour = (EditTextMonitor)rootView.findViewById(R.id.phone_number4);
-        phonenumerfivth = (EditTextMonitor)rootView.findViewById(R.id.phone_number5);
-        addressOneSpinner = (Spinner)rootView.findViewById(R.id.spinner_address);
-        addressSpinersecond = (Spinner)rootView.findViewById(R.id.spinner_address2);
-        addressSpinnerThirs = (Spinner)rootView.findViewById(R.id.spinner_address3);
-        addressSpinnerFourth = (Spinner)rootView.findViewById(R.id.spinner_address4);
-        phoneSpinner = (Spinner)rootView.findViewById(R.id.spinner_phone);
-        phoneSecondSpinner = (Spinner)rootView.findViewById(R.id.spinner_phone2);
-        phoneThirdSpinner = (Spinner)rootView.findViewById(R.id.spinner_phone3);
-        phoneFourthSpinner = (Spinner)rootView.findViewById(R.id.spinner_phone4);
-        phoneFivthSpinner = (Spinner)rootView.findViewById(R.id.spinner_phone5);
-        backCardBtn = (LinearLayout)rootView.findViewById(R.id.backcardbtn);
-        backCardImg = (ImageView)rootView.findViewById(R.id.backcardImg);
+        floatingActionButton = (android.support.design.widget.FloatingActionButton) rootView.findViewById(R.id.fab);
+        phoneTxt = (EditTextMonitor) rootView.findViewById(R.id.phone_number);
+        emailTxt = (EditTextMonitor) rootView.findViewById(R.id.email_text);
+        nameTxt = (EditTextMonitor) rootView.findViewById(R.id.name_txt);
+        addresstxt = (EditTextMonitor) rootView.findViewById(R.id.address_txt);
+        PostalCode = (EditTextMonitor) rootView.findViewById(R.id.second_name_txt);
+        thirdTxt = (EditTextMonitor) rootView.findViewById(R.id.third_name_txt);
+        designation = (EditTextMonitor) rootView.findViewById(R.id.designation_txt);
+        cardImg = (ImageView) rootView.findViewById(R.id.cardImg);
+        company_name = (EditTextMonitor) rootView.findViewById(R.id.comapnyname_text);
+        detectedTextView = (EditTextMonitor) rootView.findViewById(R.id.detected_text);
+        phoneNumberTxt = (EditTextMonitor) rootView.findViewById(R.id.phone_number2);
+        PhoneTxtthird = (EditTextMonitor) rootView.findViewById(R.id.phone_number3);
+        webUrlTxt = (EditTextMonitor) rootView.findViewById(R.id.web_url);
+        businessVerticalRecycler = (RecyclerView) rootView.findViewById(R.id.business_vertical_recycler);
+        industeryRecycler = (RecyclerView) rootView.findViewById(R.id.industery_recycler);
+        principalTypeRecycler = (RecyclerView) rootView.findViewById(R.id.principal_type_recycler);
+        homeaddressFirst = (EditTextMonitor) rootView.findViewById(R.id.home_address_txt1);
+        homeaddressSecond = (EditTextMonitor) rootView.findViewById(R.id.home_address_txt2);
+        phoneNumerfour = (EditTextMonitor) rootView.findViewById(R.id.phone_number4);
+        phonenumerfivth = (EditTextMonitor) rootView.findViewById(R.id.phone_number5);
+        addressOneSpinner = (Spinner) rootView.findViewById(R.id.spinner_address);
+        addressSpinersecond = (Spinner) rootView.findViewById(R.id.spinner_address2);
+        addressSpinnerThirs = (Spinner) rootView.findViewById(R.id.spinner_address3);
+        addressSpinnerFourth = (Spinner) rootView.findViewById(R.id.spinner_address4);
+        phoneSpinner = (Spinner) rootView.findViewById(R.id.spinner_phone);
+        phoneSecondSpinner = (Spinner) rootView.findViewById(R.id.spinner_phone2);
+        phoneThirdSpinner = (Spinner) rootView.findViewById(R.id.spinner_phone3);
+        phoneFourthSpinner = (Spinner) rootView.findViewById(R.id.spinner_phone4);
+        phoneFivthSpinner = (Spinner) rootView.findViewById(R.id.spinner_phone5);
+        backCardBtn = (LinearLayout) rootView.findViewById(R.id.backcardbtn);
+        backCardImg = (ImageView) rootView.findViewById(R.id.backcardImg);
         selectEditTxt = (TextView) rootView.findViewById(R.id.selecttheedittxt);
-        selectIndustrySegemnttxt = (TextView)rootView.findViewById(R.id.selecttheinduserysegment);
-        industryTypeTxt = (TextView)rootView.findViewById(R.id.selecttheinduserytype);
-        principleTypeTxt = (TextView)rootView.findViewById(R.id.selecttheprincipletype);
-        zoneTypeSpinner = (Spinner)rootView.findViewById(R.id.zonetypeid);
-        managmentLevelTxt = (EditTextMonitor)rootView.findViewById(R.id.managementlevel);
-        emailIdSecond = (EditTextMonitor)rootView.findViewById(R.id.emailidsecond_text);
-        subButton = (Button)rootView.findViewById(R.id.submitbtn);
-        remarkTxt = (EditTextMonitor)rootView.findViewById(R.id.remarks);
+        selectIndustrySegemnttxt = (TextView) rootView.findViewById(R.id.selecttheinduserysegment);
+        industryTypeTxt = (TextView) rootView.findViewById(R.id.selecttheinduserytype);
+        principleTypeTxt = (TextView) rootView.findViewById(R.id.selecttheprincipletype);
+        zoneTypeSpinner = (Spinner) rootView.findViewById(R.id.zonetypeid);
+        managmentTypeSpinner = (Spinner) rootView.findViewById(R.id.managementtypeid);
+        contactTypeSpinner = (Spinner) rootView.findViewById(R.id.contacttypeid);
+        emailIdSecond = (EditTextMonitor) rootView.findViewById(R.id.emailidsecond_text);
+        subButton = (Button) rootView.findViewById(R.id.submitbtn);
+        remarkTxt = (EditTextMonitor) rootView.findViewById(R.id.remarks);
 
         masterDatabase = new MasterDatabase(getActivity());
         conn = new ConnectionDetector(getActivity());
         userId = UtilsMethods.getBlankIfStringNull(String.valueOf(SharedPrefs.getUserId(getActivity())));
         authCode = UtilsMethods.getBlankIfStringNull(String.valueOf(SharedPrefs.getAuthCode(getActivity())));
 
+
         selectIndustrySegemnttxt.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                callPopup(industrySegMentList,"2");
+                callPopup(industrySegMentList, "2");
             }
         });
 
@@ -303,7 +323,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
             @Override
             public void onClick(View view) {
 
-                callPopup(listcust,"1");
+                callPopup(listcust, "1");
             }
         });
 
@@ -311,7 +331,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
             @Override
             public void onClick(View view) {
 
-                callPopup(industryTypeList,"3");
+                callPopup(industryTypeList, "3");
             }
         });
 
@@ -319,16 +339,13 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
             @Override
             public void onClick(View view) {
 
-                callPopup(principalTypeList,"4");
+                callPopup(principalTypeList, "4");
             }
         });
 
 
-
-
         // address List
-        if (adressList.size()>0)
-        {
+        if (adressList.size() > 0) {
             adressList.clear();
         }
         adressList.add("Select");
@@ -339,7 +356,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
         //spinner first address
         addressOneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
-        ArrayAdapter<String> adressOneAdapter = new ArrayAdapter<String>(getActivity(),R.layout.customizespinner,
+        ArrayAdapter<String> adressOneAdapter = new ArrayAdapter<String>(getActivity(), R.layout.customizespinner,
                 adressList);
         adressOneAdapter.setDropDownViewResource(R.layout.customizespinner);
         addressOneSpinner.setAdapter(adressOneAdapter);
@@ -359,7 +376,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
         //spinner second address
         addressOneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
-        ArrayAdapter<String> adressSecondAdapter = new ArrayAdapter<String>(getActivity(),R.layout.customizespinner,
+        ArrayAdapter<String> adressSecondAdapter = new ArrayAdapter<String>(getActivity(), R.layout.customizespinner,
                 adressList);
         adressSecondAdapter.setDropDownViewResource(R.layout.customizespinner);
         addressSpinersecond.setAdapter(adressSecondAdapter);
@@ -379,7 +396,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
         //spinner third address
         addressOneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
-        ArrayAdapter<String> adressThirdAdapter = new ArrayAdapter<String>(getActivity(),R.layout.customizespinner,
+        ArrayAdapter<String> adressThirdAdapter = new ArrayAdapter<String>(getActivity(), R.layout.customizespinner,
                 adressList);
         adressThirdAdapter.setDropDownViewResource(R.layout.customizespinner);
         addressSpinnerThirs.setAdapter(adressThirdAdapter);
@@ -398,7 +415,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
         //spinner fourth address
         addressOneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
-        ArrayAdapter<String> adressFourthAdapter = new ArrayAdapter<String>(getActivity(),R.layout.customizespinner,
+        ArrayAdapter<String> adressFourthAdapter = new ArrayAdapter<String>(getActivity(), R.layout.customizespinner,
                 adressList);
         adressFourthAdapter.setDropDownViewResource(R.layout.customizespinner);
         addressSpinnerFourth.setAdapter(adressFourthAdapter);
@@ -417,7 +434,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
         //spinner First Phone
         addressOneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
-        ArrayAdapter<String> phoneFirstAdapter = new ArrayAdapter<String>(getActivity(),R.layout.customizespinner,
+        ArrayAdapter<String> phoneFirstAdapter = new ArrayAdapter<String>(getActivity(), R.layout.customizespinner,
                 phoneList);
         phoneFirstAdapter.setDropDownViewResource(R.layout.customizespinner);
         phoneSpinner.setAdapter(phoneFirstAdapter);
@@ -425,7 +442,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
         phoneSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                 numberTypeOne = phoneList.get(i);
+                numberTypeOne = phoneList.get(i);
             }
 
             @Override
@@ -436,7 +453,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
         //spinner Second Phone
         addressOneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
-        ArrayAdapter<String> phoneSecondAdapter = new ArrayAdapter<String>(getActivity(),R.layout.customizespinner,
+        ArrayAdapter<String> phoneSecondAdapter = new ArrayAdapter<String>(getActivity(), R.layout.customizespinner,
                 phoneList);
         phoneSecondAdapter.setDropDownViewResource(R.layout.customizespinner);
         phoneSecondSpinner.setAdapter(phoneSecondAdapter);
@@ -456,7 +473,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
         //spinner Third Phone
         addressOneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
-        ArrayAdapter<String> phoneThirdAdapter = new ArrayAdapter<String>(getActivity(),R.layout.customizespinner,
+        ArrayAdapter<String> phoneThirdAdapter = new ArrayAdapter<String>(getActivity(), R.layout.customizespinner,
                 phoneList);
         phoneThirdAdapter.setDropDownViewResource(R.layout.customizespinner);
         phoneThirdSpinner.setAdapter(phoneThirdAdapter);
@@ -476,7 +493,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
         //spinner Fourth Phone
         addressOneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
-        ArrayAdapter<String> phoneFourthAdapter = new ArrayAdapter<String>(getActivity(),R.layout.customizespinner,
+        ArrayAdapter<String> phoneFourthAdapter = new ArrayAdapter<String>(getActivity(), R.layout.customizespinner,
                 phoneList);
         phoneFourthAdapter.setDropDownViewResource(R.layout.customizespinner);
         phoneFourthSpinner.setAdapter(phoneFourthAdapter);
@@ -496,7 +513,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
         //spinner Fivth Phone
         addressOneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
-        ArrayAdapter<String> phoneFivthAdapter = new ArrayAdapter<String>(getActivity(),R.layout.customizespinner,
+        ArrayAdapter<String> phoneFivthAdapter = new ArrayAdapter<String>(getActivity(), R.layout.customizespinner,
                 phoneList);
         phoneFivthAdapter.setDropDownViewResource(R.layout.customizespinner);
         phoneFivthSpinner.setAdapter(phoneFivthAdapter);
@@ -518,7 +535,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
         //zone Type Spinner
         zoneTypeSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
-        ArrayAdapter<ZoneListModel> zoneTypeAdapter = new ArrayAdapter<ZoneListModel>(getActivity(),R.layout.customizespinner,
+        ArrayAdapter<ZoneListModel> zoneTypeAdapter = new ArrayAdapter<ZoneListModel>(getActivity(), R.layout.customizespinner,
                 zoneList);
         zoneTypeAdapter.setDropDownViewResource(R.layout.customizespinner);
         zoneTypeSpinner.setAdapter(zoneTypeAdapter);
@@ -528,8 +545,52 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
 
-                zoneIdString = zoneList.get(i).getZoneId();
+                zoneIdString = zoneList.get(i).getZoneId().toString();
                 Log.e("checking the zone id", zoneIdString);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        //Mangement Type Spinner
+        managmentTypeSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
+        ArrayAdapter<ManagmentTypeListModel> managementTypeAdapter = new ArrayAdapter<ManagmentTypeListModel>(getActivity(), R.layout.customizespinner,
+                managementTypeList);
+        managementTypeAdapter.setDropDownViewResource(R.layout.customizespinner);
+        managmentTypeSpinner.setAdapter(managementTypeAdapter);
+
+
+        managmentTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+
+                managementTypeIdString = managementTypeList.get(i).getManagemnetTypeId().toString();
+               // Log.e("checking the ManagementTypeId id", zoneIdString);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        //contactType Spinner
+        contactTypeSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
+        ArrayAdapter<ContactTypeListModel> contactTypeAdapter = new ArrayAdapter<ContactTypeListModel>(getActivity(), R.layout.customizespinner,
+                contactTypeList);
+        contactTypeAdapter.setDropDownViewResource(R.layout.customizespinner);
+        contactTypeSpinner.setAdapter(contactTypeAdapter);
+
+
+        contactTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+
+                contactTypeIdString = contactTypeList.get(i).getContactTypeId().toString();
+                //Log.e("checking the ContgactType", contactTypeList);
             }
 
             @Override
@@ -546,7 +607,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
             public void onClick(View view) {
 
                 flag = 1;
-                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.CAMERA}, REQUEST_WRITE_PERMISSION);
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA}, REQUEST_WRITE_PERMISSION);
 
 
             }
@@ -558,8 +619,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
             Log.e("onCreate", "Google Play Services not available. Ending Test case.");
             //getActivity().finish();
-        }
-        else {
+        } else {
             Log.e("onCreate", "Google Play Services available. Continuing.");
         }
 
@@ -569,65 +629,55 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
             public void onClick(View view) {
 
                 flag = 2;
-                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.CAMERA}, REQUEST_WRITE_PERMISSION);
+                requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA}, REQUEST_WRITE_PERMISSION);
 
             }
         });
 
         //checking the BusinessVertical data is save In local database or not!------------
         Cursor cursor = masterDatabase.getBusinessVerticalMasterTableData(userId);
-        if (cursor != null && cursor.getCount()>0)
-        {
-             if (listcust.size()>0)
-                    {
-                        listcust.clear();
-                    }
-            if (cursor.moveToFirst())
-            {
-                do{
+        if (cursor != null && cursor.getCount() > 0) {
+            if (listcust.size() > 0) {
+                listcust.clear();
+            }
+            if (cursor.moveToFirst()) {
+                do {
 
                     String businessVerticalId = cursor.getString(cursor.getColumnIndex(BusinessVerticalMasterTable.businessVerticalID));
                     String businessVerticalType = cursor.getString(cursor.getColumnIndex(BusinessVerticalMasterTable.businessVertical));
 
 
+                    listcust.add(new CustomerDetailsModel(businessVerticalType, businessVerticalId));
 
-                    listcust.add(new CustomerDetailsModel(businessVerticalType,businessVerticalId));
-
-                  }while (cursor.moveToNext());
+                } while (cursor.moveToNext());
             }
 
-        }else
-            {
+        } else {
 
-                if (conn.getConnectivityStatus()>0)
-                {
+            if (conn.getConnectivityStatus() > 0) {
 
-                    getAppDdlList(authCode,userId);
-                }else
-                    {
-                        conn.showNoInternetAlret();
-                    }
+                getAppDdlList(authCode, userId);
+            } else {
+                conn.showNoInternetAlret();
             }
+        }
 
-       //Industry Segment local database checking
+        //Industry Segment local database checking
         Cursor industryCursor = masterDatabase.getIndustrySegmentMasterTable(userId);
-        if (industryCursor != null && industryCursor.getCount()>0)
-        {
-            if (industrySegMentList.size()>0 )
-            {
+        if (industryCursor != null && industryCursor.getCount() > 0) {
+            if (industrySegMentList.size() > 0) {
                 industrySegMentList.clear();
 
             }
-            if (industryCursor.moveToFirst())
-            {
-                do{
+            if (industryCursor.moveToFirst()) {
+                do {
 
                     String industrySegmentID = industryCursor.getString(industryCursor.getColumnIndex(IndustrySegmentMasterTable.industrySegmentID));
                     String industrySegment = industryCursor.getString(industryCursor.getColumnIndex(IndustrySegmentMasterTable.industrySegment));
 
-                    industrySegMentList.add(new CustomerDetailsModel(industrySegment,industrySegmentID));
+                    industrySegMentList.add(new CustomerDetailsModel(industrySegment, industrySegmentID));
 
-                }while (industryCursor.moveToNext());
+                } while (industryCursor.moveToNext());
             }
 
         }
@@ -635,84 +685,51 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
         //Industry Type chck database in local database
         Cursor industryTypeCursor = masterDatabase.getIndustryTypeMasterTable(userId);
-        if (industryTypeCursor != null && industryTypeCursor.getCount()>0)
-        {
-            if (industryTypeList.size()>0)
-            {
+        if (industryTypeCursor != null && industryTypeCursor.getCount() > 0) {
+            if (industryTypeList.size() > 0) {
                 industryTypeList.clear();
             }
-            if (industryTypeCursor.moveToFirst())
-            {
-                do{
+            if (industryTypeCursor.moveToFirst()) {
+                do {
 
                     String industryTypeID = industryTypeCursor.getString(industryTypeCursor.getColumnIndex(IndustryTypeMasterTable.industryTypeID));
                     String industryType = industryTypeCursor.getString(industryTypeCursor.getColumnIndex(IndustryTypeMasterTable.industryType));
 
-                    industryTypeList.add(new CustomerDetailsModel(industryType,industryTypeID));
+                    industryTypeList.add(new CustomerDetailsModel(industryType, industryTypeID));
 
-                }while (industryTypeCursor.moveToNext());
+                } while (industryTypeCursor.moveToNext());
             }
-
-        }else
-        {
-
-           /* if (conn.getConnectivityStatus()>0)
-            {
-
-                getAppDdlList(authCode,userId);
-            }else
-            {
-                conn.showNoInternetAlret();
-            }*/
 
         }
 
         //Checked principle type data in my local database
         Cursor principleTypeCursor = masterDatabase.getPrincipleMasterTable(userId);
-        if (principleTypeCursor != null && principleTypeCursor.getCount()>0)
-        {
-            if (principalTypeList.size()>0)
-            {
+        if (principleTypeCursor != null && principleTypeCursor.getCount() > 0) {
+            if (principalTypeList.size() > 0) {
                 principalTypeList.clear();
             }
-            if (principleTypeCursor.moveToFirst())
-            {
-                do{
+            if (principleTypeCursor.moveToFirst()) {
+                do {
 
                     String principleTypeID = principleTypeCursor.getString(principleTypeCursor.getColumnIndex(PrincipleMasterTable.principleId));
                     String principleType = principleTypeCursor.getString(principleTypeCursor.getColumnIndex(PrincipleMasterTable.principle));
 
-                    principalTypeList.add(new CustomerDetailsModel(principleType,principleTypeID));
+                    principalTypeList.add(new CustomerDetailsModel(principleType, principleTypeID));
 
-                }while (principleTypeCursor.moveToNext());
+                } while (principleTypeCursor.moveToNext());
             }
-
-        }else
-        {
-
-           /* if (conn.getConnectivityStatus()>0)
-            {
-
-                getAppDdlList(authCode,userId);
-            }else
-            {
-                conn.showNoInternetAlret();
-            }*/
 
         }
 
         //checking the phone list data is my local database
         Cursor numberTypeCursor = masterDatabase.getNumberTypeMasterTable(userId);
-        if (numberTypeCursor != null && numberTypeCursor.getCount()>0)
-        {
-            if (phoneList.size()>0)
-            {
+        if (numberTypeCursor != null && numberTypeCursor.getCount() > 0) {
+            if (phoneList.size() > 0) {
                 phoneList.clear();
             }
             phoneList.add("");
-            if (numberTypeCursor.moveToFirst())
-            {
-                do{
+            if (numberTypeCursor.moveToFirst()) {
+                do {
 
                     String numberType = numberTypeCursor.getString(numberTypeCursor.getColumnIndex(NumberTypeMasterTable.numberType));
                     //String principleType = principleTypeCursor.getString(principleTypeCursor.getColumnIndex(PrincipleMasterTable.principle));
@@ -726,545 +743,470 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                     phoneFirstAdapter.notifyDataSetChanged();
 
 
-                }while (numberTypeCursor.moveToNext());
+                } while (numberTypeCursor.moveToNext());
             }
-
-        }else
-        {
-
-           /* if (conn.getConnectivityStatus()>0)
-            {
-
-                getAppDdlList(authCode,userId);
-            }else
-            {
-                conn.showNoInternetAlret();
-            }*/
 
         }
 
         //checking zone list also
         Cursor zoneTypeCursor = masterDatabase.getZoneMasterTable(userId);
-        if (zoneTypeCursor != null && zoneTypeCursor.getCount()>0)
-        {
-            if (zoneList.size()>0)
-            {
+        if (zoneTypeCursor != null && zoneTypeCursor.getCount() > 0) {
+            if (zoneList.size() > 0) {
                 zoneList.clear();
             }
-            if (zoneTypeCursor.moveToFirst())
-            {
-                do{
+            if (zoneTypeCursor.moveToFirst()) {
+                do {
 
                     String zoneId = zoneTypeCursor.getString(zoneTypeCursor.getColumnIndex(ZoneMasterTable.zoneID));
                     String zoneName = zoneTypeCursor.getString(zoneTypeCursor.getColumnIndex(ZoneMasterTable.zoneName));
 
-                    zoneList.add(new ZoneListModel(zoneId,zoneName));
+                    zoneList.add(new ZoneListModel(zoneId, zoneName));
                     zoneTypeAdapter.notifyDataSetChanged();
 
-                }while (zoneTypeCursor.moveToNext());
+                } while (zoneTypeCursor.moveToNext());
             }
 
-            zoneIdString = zoneList.get(0).getZoneId();
-
-
-        }else
-        {
-
+            //   zoneIdString = zoneList.get(0).getZoneId();
 
 
         }
 
-      //  Log.e("cheking the count of zone",masterDatabase.getPrincipleMasterTableCunt(userId)+" ");
 
+        //MangementType List Checked Localy
+        Cursor managementTypeCursor = masterDatabase.getManagementTypeTable(userId);
+        if (managementTypeCursor != null && managementTypeCursor.getCount() > 0) {
+            if (managementTypeList.size() > 0) {
+                managementTypeList.clear();
+            }
+            managementTypeList.add(new ManagmentTypeListModel("0", "Please Select Management Type"));
+            if (managementTypeCursor.moveToFirst()) {
+                do {
 
-        //editing mode
-        Bundle bundle = this.getArguments();
-        if (bundle != null) {
+                    String managementTypeId = managementTypeCursor.getString(managementTypeCursor.getColumnIndex(ManagementTypeMasterTable.managementTypeID));
+                    String managementName = managementTypeCursor.getString(managementTypeCursor.getColumnIndex(ManagementTypeMasterTable.managementType));
 
-            Name = bundle.getString("Name");
-            Designation = bundle.getString("Designation");
-            Company = bundle.getString("Company");
-            ZoneID = bundle.getString("ZoneID");
-            EmailID = bundle.getString("EmailID");
-            OfficeAddress = bundle.getString("OfficeAddress");
-            PrincipleName = bundle.getString("PrincipleName");
-            BusinessVerticalName = bundle.getString("BusinessVerticalName");
-            IndustryTypeName = bundle.getString("IndustryTypeName");
-            IndustrySegmentName = bundle.getString("IndustrySegmentName");
-            Website = bundle.getString("Website");
-            ManagementLevel = bundle.getString("ManagementLevel");
-            FactoryAddress = bundle.getString("FactoryAddress");
-            ResidenceAddress = bundle.getString("ResidenceAddress");
-            EmailID2 = bundle.getString("EmailID2");
-            NumberType = bundle.getString("NumberType");
-            NumberType2 = bundle.getString("NumberType2");
-            NumberType3 = bundle.getString("NumberType3");
-            NumberType4 = bundle.getString("NumberType4");
-            NumberType5 = bundle.getString("NumberType5");
-            Number = bundle.getString("Number");
-            Number2 = bundle.getString("Number2");
-            Number3 = bundle.getString("Number3");
-            Number4 = bundle.getString("Number4");
-            Number5 = bundle.getString("Number5");
-            customerIdGet = bundle.getString("customerIdGet");
-            CardFrontImage = bundle.getString("CardFrontImage");
-            CardBackImage = bundle.getString("CardBackImage");
-            UserActionMode = bundle.getString("UserActionMode");
-        }
+                    managementTypeList.add(new ManagmentTypeListModel(managementTypeId, managementName));
+                    managementTypeAdapter.notifyDataSetChanged();
 
-        try {
-
-
-            if (!OfficeAddress.equalsIgnoreCase("") && OfficeAddress !=null)
-            {
-                thirdTxt.setText(OfficeAddress);
-
-                addressOneSpinner.setSelection(1);
+                } while (managementTypeCursor.moveToNext());
             }
 
-            if (!FactoryAddress.equalsIgnoreCase("") && FactoryAddress != null)
-            {
-                addresstxt.setText(FactoryAddress);
-                addressSpinersecond.setSelection(2);
-            }
-
-            if (!ResidenceAddress.equalsIgnoreCase("") && ResidenceAddress != null)
-            {
-                homeaddressFirst.setText(ResidenceAddress);
-                addressSpinnerThirs.setSelection(3);
-            }
-            //Checked edit mode and hit the api
-            if (!Name.equalsIgnoreCase("") && Name != null )
-            {
-                nameTxt.setText(Name);
-            }
-
-            if (!Designation.equalsIgnoreCase("") && Designation != null)
-            {
-                designation.setText(Designation);
-            }
-
-            if (!Company.equalsIgnoreCase("") && Company != null)
-            {
-                detectedTextView.setText(Company);
-            }
-
-            if (!EmailID.equalsIgnoreCase("") && EmailID != null)
-            {
-                emailTxt.setText(EmailID);
-            }
-
-          /*  if (!OfficeAddress.equalsIgnoreCase("") && OfficeAddress != null)
-            {
-                thirdTxt.setText(OfficeAddress);
-            }*/
-
-            if (!PrincipleName.equalsIgnoreCase("") && PrincipleName != null)
-            {
-                principleTypeTxt.setText(PrincipleName);
-            }
-
-            if (!BusinessVerticalName.equalsIgnoreCase("") && BusinessVerticalName != null)
-            {
-                selectEditTxt.setText(BusinessVerticalName);
-            }
-
-            if (!IndustryTypeName.equalsIgnoreCase("") && IndustryTypeName != null)
-            {
-                industryTypeTxt.setText(IndustryTypeName);
-            }
-
-            if (!IndustrySegmentName.equalsIgnoreCase("") && IndustrySegmentName != null)
-            {
-                selectIndustrySegemnttxt.setText(IndustrySegmentName);
-            }
-
-            if (!Website.equalsIgnoreCase("") && Website != null)
-            {
-                webUrlTxt.setText(Website);
-            }
-
-            if (!ManagementLevel.equalsIgnoreCase("") && ManagementLevel != null)
-            {
-                managmentLevelTxt.setText(ManagementLevel);
-            }
-
-            if (!EmailID2.equalsIgnoreCase("") && EmailID2 != null)
-            {
-                emailIdSecond.setText(EmailID2);
-            }
-
-            if (!Number.equalsIgnoreCase("") && Number != null)
-            {
-                phoneTxt.setText(Number);
-            }
-
-            if (!Number2.equalsIgnoreCase("") && Number2 != null)
-            {
-                phoneNumberTxt.setText(Number2);
-            }
-
-            if (!Number3.equalsIgnoreCase("") && Number3 != null)
-            {
-                PhoneTxtthird.setText(Number3);
-            }
-
-            if (!Number4.equalsIgnoreCase("") && Number4 != null)
-            {
-                phoneNumerfour.setText(Number4);
-            }
-
-            //phone number seletion mode
-            for (int i=0; i<phoneList.size(); i++)
-            {
-
-                if (NumberType.equalsIgnoreCase(phoneList.get(i)))
-                {
-                    phoneSpinner.setSelection(i+1);
+            //ContactType is localy
+            Cursor contactTypeCursor = masterDatabase.getContactTypeMasterTable(userId);
+            if (contactTypeCursor != null && contactTypeCursor.getCount() > 0) {
+                if (contactTypeList.size() > 0) {
+                    contactTypeList.clear();
                 }
-                if (NumberType2.equalsIgnoreCase(phoneList.get(i)))
-                {
-                    phoneSecondSpinner.setSelection(i+1);
-                }
+                contactTypeList.add(new ContactTypeListModel("0", "Please Select Contact Type"));
+                if (contactTypeCursor.moveToFirst()) {
+                    do {
 
-                if (NumberType3.equalsIgnoreCase(phoneList.get(i)))
-                {
-                    phoneThirdSpinner.setSelection(i+1);
-                }
+                        String contactTypeId = contactTypeCursor.getString(contactTypeCursor.getColumnIndex(ContactTypeMasterTable.contactTypeID));
+                        String contactName = contactTypeCursor.getString(contactTypeCursor.getColumnIndex(ContactTypeMasterTable.contactType));
 
-                if (NumberType4.equalsIgnoreCase(phoneList.get(i)))
-                {
-                    phoneFourthSpinner.setSelection(i+1);
-                }
+                        contactTypeList.add(new ContactTypeListModel(contactTypeId, contactName));
+                        contactTypeAdapter.notifyDataSetChanged();
 
-                /*if (NumberType5.equalsIgnoreCase(phoneList.get(i)))
-                {
-                    phoneFivthSpinner.setSelection(i+1);
-                }*/
+                    } while (contactTypeCursor.moveToNext());
+                }
             }
-
-            //imageUrl showing the Image
-            if (UserActionMode.equalsIgnoreCase("EditMode")) {
-                Picasso.with(getActivity()).load(SettingConstant.ImageUrl + CardBackImage).error(R.drawable.card).into(backCardImg);
-
-                Picasso.with(getActivity()).load(SettingConstant.ImageUrl + CardFrontImage).error(R.drawable.placeholder).into(cardImg);
-            }
-        } catch (NullPointerException e) {
-            e.printStackTrace();
-            customerIdGet = "";
-            UserActionMode = "";
-            IndustryTypeName = "";
-            IndustrySegmentName = "";
-            BusinessVerticalName = "";
-            PrincipleName = "";
-
         }
 
 
-        //clcik on button and submite the data
-        subButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+            //  Log.e("cheking the count of zone",masterDatabase.getPrincipleMasterTableCunt(userId)+" ");
 
-                if (detectedTextView.getText().toString().equalsIgnoreCase(""))
-                {
-                    if (conn.getConnectivityStatus()>0) {
-                        String FirstAddress = "",secondAddress = "",thirdaddress = "";
-                       //checked the firstadress choosing
-                        if (adressStringFirst.equalsIgnoreCase("Office Address"))
-                        {
-                            FirstAddress = thirdTxt.getText().toString() + ", ";
-                        }else if (adressStringFirst.equalsIgnoreCase("Factory Address"))
-                        {
-                            secondAddress =thirdTxt.getText().toString() + ", ";
-                        }else if (adressStringFirst.equalsIgnoreCase("Residence Address"))
-                        {
-                            thirdaddress =thirdTxt.getText().toString() + ", ";
-                        }
 
-                        //checking the second addressline
-                        if (adressStringSecond.equalsIgnoreCase("Office Address"))
-                        {
-                            FirstAddress = addresstxt.getText().toString() + ", ";
+            //editing mode
+            Bundle bundle = this.getArguments();
+            if (bundle != null) {
 
-                        }else if (adressStringSecond.equalsIgnoreCase("Factory Address"))
-                        {
-                            secondAddress = addresstxt.getText().toString() + ", ";
+                Name = bundle.getString("Name");
+                Designation = bundle.getString("Designation");
+                Company = bundle.getString("Company");
+                ZoneIDSend = bundle.getString("ZoneID");
+                EmailID = bundle.getString("EmailID");
+                OfficeAddress = bundle.getString("OfficeAddress");
+                PrincipleName = bundle.getString("PrincipleName");
+                BusinessVerticalName = bundle.getString("BusinessVerticalName");
+                IndustryTypeName = bundle.getString("IndustryTypeName");
+                IndustrySegmentName = bundle.getString("IndustrySegmentName");
+                Website = bundle.getString("Website");
+                ManagementLevel = bundle.getString("ManagementLevel");
+                FactoryAddress = bundle.getString("FactoryAddress");
+                ResidenceAddress = bundle.getString("ResidenceAddress");
+                EmailID2 = bundle.getString("EmailID2");
+                NumberType = bundle.getString("NumberType");
+                NumberType2 = bundle.getString("NumberType2");
+                NumberType3 = bundle.getString("NumberType3");
+                NumberType4 = bundle.getString("NumberType4");
+                NumberType5 = bundle.getString("NumberType5");
+                Number = bundle.getString("Number");
+                Number2 = bundle.getString("Number2");
+                Number3 = bundle.getString("Number3");
+                Number4 = bundle.getString("Number4");
+                Number5 = bundle.getString("Number5");
+                customerIdGet = bundle.getString("customerIdGet");
+                CardFrontImage = bundle.getString("CardFrontImage");
+                CardBackImage = bundle.getString("CardBackImage");
+                UserActionMode = bundle.getString("UserActionMode");
+                zoneNameSend = bundle.getString("ZoneName");
+                sendBussinesList = getArguments().getStringArrayList("BusinessList");
+                sendSegmentList = getArguments().getStringArrayList("IndustrySegmentList");
+                sendindustryTypeList = getArguments().getStringArrayList("IndustryTypeList");
+                sendPrincipleList = getArguments().getStringArrayList("PrincipleList");
+            }
 
-                        }else if (adressStringSecond.equalsIgnoreCase("Residence Address"))
-                        {
-                            thirdaddress = addresstxt.getText().toString() + ", ";
-                        }
+            try {
 
-                        //checking the third address
-                        if (adressStringThird.equalsIgnoreCase("Office Address"))
-                        {
-                            FirstAddress = homeaddressFirst.getText().toString() ;
 
-                        }else if (adressStringThird.equalsIgnoreCase("Factory Address"))
-                        {
-                            secondAddress = homeaddressFirst.getText().toString() ;
+                if (!OfficeAddress.equalsIgnoreCase("") && OfficeAddress != null) {
+                    thirdTxt.setText(OfficeAddress);
 
-                        }else if (adressStringThird.equalsIgnoreCase("Residence Address"))
-                        {
-                            thirdaddress = homeaddressFirst.getText().toString() ;
-                        }
+                    addressOneSpinner.setSelection(1);
+                }
 
-                        //insert the data
-                        if (UserActionMode.equalsIgnoreCase("EditMode"))
-                        {
+                if (!FactoryAddress.equalsIgnoreCase("") && FactoryAddress != null) {
+                    addresstxt.setText(FactoryAddress);
+                    addressSpinersecond.setSelection(2);
+                }
 
-                            userId = UtilsMethods.getBlankIfStringNull(String.valueOf(SharedPrefs.getUserId(getActivity())));
+                if (!ResidenceAddress.equalsIgnoreCase("") && ResidenceAddress != null) {
+                    homeaddressFirst.setText(ResidenceAddress);
+                    addressSpinnerThirs.setSelection(3);
+                }
+                //Checked edit mode and hit the api
+                if (!Name.equalsIgnoreCase("") && Name != null) {
+                    nameTxt.setText(Name);
+                }
 
-                            insertData(authCode, userId, customerIdGet, "", nameTxt.getText().toString(), "", designation.getText().toString(),
-                                    company_name.getText().toString(), webUrlTxt.getText().toString(), managmentLevelTxt.getText().toString(),
-                                    zoneIdString, emailTxt.getText().toString(), emailIdSecond.getText().toString(), numberTypeOne,
-                                    phoneTxt.getText().toString(), numbertyepTwo, phoneNumberTxt.getText().toString(), numberTypeThree,
-                                    PhoneTxtthird.getText().toString(), numberTypeFour, phoneNumerfour.getText().toString(), numberTypeFivth,
-                                    phonenumerfivth.getText().toString(), frountImageBase64, ".jpeg", backImageBase64, ".jpeg",
-                                    remarkTxt.getText().toString(), OfficeAddress+" ,"+FirstAddress, "", FactoryAddress+", "+secondAddress, "",
-                                    ResidenceAddress+", " +thirdaddress, "",PrincipleName+", "+principleTypeString,
-                                    BusinessVerticalName+", "+businessVerticalTypeString,
-                                    IndustrySegmentName+", "+industrySegmentString, IndustryTypeName+", "+industryTypeString
-                            );
+                if (!Designation.equalsIgnoreCase("") && Designation != null) {
+                    designation.setText(Designation);
+                }
 
-                        }else
-                            {
-                                insertData(authCode, userId, customerIdGet, "", nameTxt.getText().toString(), "", designation.getText().toString(),
-                                        company_name.getText().toString(), webUrlTxt.getText().toString(), managmentLevelTxt.getText().toString(),
-                                        zoneIdString, emailTxt.getText().toString(), emailIdSecond.getText().toString(), numberTypeOne,
-                                        phoneTxt.getText().toString(), numbertyepTwo, phoneNumberTxt.getText().toString(), numberTypeThree,
-                                        PhoneTxtthird.getText().toString(), numberTypeFour, phoneNumerfour.getText().toString(), numberTypeFivth,
-                                        phonenumerfivth.getText().toString(), frountImageBase64, ".jpeg", backImageBase64, ".jpeg",
-                                        remarkTxt.getText().toString(), FirstAddress, "", secondAddress, "",
-                                        thirdaddress, "", principleTypeString, businessVerticalTypeString, industrySegmentString,
-                                        industryTypeString
-                                );
+                if (!Company.equalsIgnoreCase("") && Company != null) {
+                    detectedTextView.setText(Company);
+                }
+
+                if (!EmailID.equalsIgnoreCase("") && EmailID != null) {
+                    emailTxt.setText(EmailID);
+                }
+                if (!PrincipleName.equalsIgnoreCase("") && PrincipleName != null) {
+                    principleTypeTxt.setText(PrincipleName);
+                }
+
+                if (!BusinessVerticalName.equalsIgnoreCase("") && BusinessVerticalName != null) {
+                    selectEditTxt.setText(BusinessVerticalName);
+                }
+
+                if (!IndustryTypeName.equalsIgnoreCase("") && IndustryTypeName != null) {
+                    industryTypeTxt.setText(IndustryTypeName);
+                }
+
+                if (!IndustrySegmentName.equalsIgnoreCase("") && IndustrySegmentName != null) {
+                    selectIndustrySegemnttxt.setText(IndustrySegmentName);
+                }
+
+                if (!Website.equalsIgnoreCase("") && Website != null) {
+                    webUrlTxt.setText(Website);
+                }
+
+                if (!ManagementLevel.equalsIgnoreCase("") && ManagementLevel != null) {
+                    //  managmentLevelTxt.setText(ManagementLevel);
+                }
+
+                if (!EmailID2.equalsIgnoreCase("") && EmailID2 != null) {
+                    emailIdSecond.setText(EmailID2);
+                }
+
+                if (!Number.equalsIgnoreCase("") && Number != null) {
+                    phoneTxt.setText(Number);
+                }
+
+                if (!Number2.equalsIgnoreCase("") && Number2 != null) {
+                    phoneNumberTxt.setText(Number2);
+                }
+
+                if (!Number3.equalsIgnoreCase("") && Number3 != null) {
+                    PhoneTxtthird.setText(Number3);
+                }
+
+                if (!Number4.equalsIgnoreCase("") && Number4 != null) {
+                    phoneNumerfour.setText(Number4);
+                }
+
+                //phone number seletion mode
+                for (int i = 0; i < phoneList.size(); i++) {
+
+                    if (NumberType.equalsIgnoreCase(phoneList.get(i))) {
+                        phoneSpinner.setSelection(i + 1);
+                    }
+                    if (NumberType2.equalsIgnoreCase(phoneList.get(i))) {
+                        phoneSecondSpinner.setSelection(i + 1);
+                    }
+
+                    if (NumberType3.equalsIgnoreCase(phoneList.get(i))) {
+                        phoneThirdSpinner.setSelection(i + 1);
+                    }
+
+                    if (NumberType4.equalsIgnoreCase(phoneList.get(i))) {
+                        phoneFourthSpinner.setSelection(i + 1);
+                    }
+
+                }
+
+                //zoneList
+                for (int n = 0; n < zoneList.size(); n++) {
+                    if (ZoneIDSend.equalsIgnoreCase(zoneList.get(n).getZoneId().toString())) {
+                        zoneTypeSpinner.setSelection(n + 1);
+                    }
+                }
+
+                //imageUrl showing the Image
+                if (UserActionMode.equalsIgnoreCase("EditMode")) {
+                    Picasso.with(getActivity()).load(SettingConstant.ImageUrl + CardBackImage).error(R.drawable.card).into(backCardImg);
+
+                    Picasso.with(getActivity()).load(SettingConstant.ImageUrl + CardFrontImage).error(R.drawable.placeholder).into(cardImg);
+                }
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+                customerIdGet = "";
+                UserActionMode = "";
+                IndustryTypeName = "";
+                IndustrySegmentName = "";
+                BusinessVerticalName = "";
+                PrincipleName = "";
+
+            }
+
+
+            //clcik on button and submite the data
+            subButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    if (detectedTextView.getText().toString().equalsIgnoreCase("")) {
+                        if (conn.getConnectivityStatus() > 0) {
+                            String FirstAddress = "", secondAddress = "", thirdaddress = "";
+                            //checked the firstadress choosing
+                            if (adressStringFirst.equalsIgnoreCase("Office Address")) {
+                                FirstAddress = thirdTxt.getText().toString() + ", ";
+                            } else if (adressStringFirst.equalsIgnoreCase("Factory Address")) {
+                                secondAddress = thirdTxt.getText().toString() + ", ";
+                            } else if (adressStringFirst.equalsIgnoreCase("Residence Address")) {
+                                thirdaddress = thirdTxt.getText().toString() + ", ";
                             }
 
-                        /*if (adressStringFirst.equalsIgnoreCase("Office Address") || adressStringSecond.equalsIgnoreCase("Office Address")
-                                || adressStringThird.equalsIgnoreCase("Office Address") )
-                        {
-                            String address = thirdTxt.getText().toString() + ", " +addresstxt.getText().toString() + ", " +
-                                    homeaddressFirst.getText().toString();
+                            //checking the second addressline
+                            if (adressStringSecond.equalsIgnoreCase("Office Address")) {
+                                FirstAddress = addresstxt.getText().toString() + ", ";
 
-                            insertData(authCode, userId, customerIdGet, "", nameTxt.getText().toString(), "", designation.getText().toString(),
-                                    company_name.getText().toString(), webUrlTxt.getText().toString(), managmentLevelTxt.getText().toString(),
-                                    zoneIdString, emailTxt.getText().toString(), emailIdSecond.getText().toString(), numberTypeOne,
-                                    phoneTxt.getText().toString(), numbertyepTwo, phoneNumberTxt.getText().toString(), numberTypeThree,
-                                    PhoneTxtthird.getText().toString(), numberTypeFour, phoneNumerfour.getText().toString(), numberTypeFivth,
-                                    phonenumerfivth.getText().toString(), frountImageBase64, ".jpeg", backImageBase64, ".jpeg",
-                                    remarkTxt.getText().toString(), address, "", "", "",
-                                    "", "", principleTypeString, businessVerticalTypeString, industrySegmentString,
-                                    industryTypeString
-                            );
-                        }else if (adressStringFirst.equalsIgnoreCase("Factory Address") || adressStringSecond.equalsIgnoreCase("Factory Address")
-                                || adressStringThird.equalsIgnoreCase("Factory Address"))
-                        {
-                            String address = thirdTxt.getText().toString() + ", " +addresstxt.getText().toString() + ", " +
-                                    homeaddressFirst.getText().toString();
+                            } else if (adressStringSecond.equalsIgnoreCase("Factory Address")) {
+                                secondAddress = addresstxt.getText().toString() + ", ";
 
-                            insertData(authCode, userId,customerIdGet, "", nameTxt.getText().toString(), "", designation.getText().toString(),
-                                    company_name.getText().toString(), webUrlTxt.getText().toString(), managmentLevelTxt.getText().toString(),
-                                    zoneIdString, emailTxt.getText().toString(), emailIdSecond.getText().toString(), numberTypeOne,
-                                    phoneTxt.getText().toString(), numbertyepTwo, phoneNumberTxt.getText().toString(), numberTypeThree,
-                                    PhoneTxtthird.getText().toString(), numberTypeFour, phoneNumerfour.getText().toString(), numberTypeFivth,
-                                    phonenumerfivth.getText().toString(), frountImageBase64, ".jpeg", backImageBase64, ".jpeg",
-                                    remarkTxt.getText().toString(), "", "", address, "",
-                                    "", "", principleTypeString, businessVerticalTypeString, industrySegmentString,
-                                    industryTypeString
-                            );
-                        }else if (adressStringFirst.equalsIgnoreCase("Residence Address") || adressStringSecond.equalsIgnoreCase("Residence Address")
-                                || adressStringThird.equalsIgnoreCase("Residence Address"))
-                        {
+                            } else if (adressStringSecond.equalsIgnoreCase("Residence Address")) {
+                                thirdaddress = addresstxt.getText().toString() + ", ";
+                            }
 
-                            String address = thirdTxt.getText().toString() + ", " +addresstxt.getText().toString() + ", " +
-                                    homeaddressFirst.getText().toString();
+                            //checking the third address
+                            if (adressStringThird.equalsIgnoreCase("Office Address")) {
+                                FirstAddress = homeaddressFirst.getText().toString();
 
-                            insertData(authCode, userId, customerIdGet, "", nameTxt.getText().toString(), "", designation.getText().toString(),
-                                    company_name.getText().toString(), webUrlTxt.getText().toString(), managmentLevelTxt.getText().toString(),
-                                    zoneIdString, emailTxt.getText().toString(), emailIdSecond.getText().toString(), numberTypeOne,
-                                    phoneTxt.getText().toString(), numbertyepTwo, phoneNumberTxt.getText().toString(), numberTypeThree,
-                                    PhoneTxtthird.getText().toString(), numberTypeFour, phoneNumerfour.getText().toString(), numberTypeFivth,
-                                    phonenumerfivth.getText().toString(), frountImageBase64, ".jpeg", backImageBase64, ".jpeg",
-                                    remarkTxt.getText().toString(), "", "", "", "",
-                                    address, "", principleTypeString, businessVerticalTypeString, industrySegmentString,
-                                    industryTypeString
-                            );
-                        }else
-                        {
-                            String address = thirdTxt.getText().toString() + ", " +addresstxt.getText().toString() + ", " +
-                                    homeaddressFirst.getText().toString();
+                            } else if (adressStringThird.equalsIgnoreCase("Factory Address")) {
+                                secondAddress = homeaddressFirst.getText().toString();
 
-                            insertData(authCode, userId, customerIdGet, "", nameTxt.getText().toString(), "", designation.getText().toString(),
-                                    company_name.getText().toString(), webUrlTxt.getText().toString(), managmentLevelTxt.getText().toString(),
-                                    zoneIdString, emailTxt.getText().toString(), emailIdSecond.getText().toString(), numberTypeOne,
-                                    phoneTxt.getText().toString(), numbertyepTwo, phoneNumberTxt.getText().toString(), numberTypeThree,
-                                    PhoneTxtthird.getText().toString(), numberTypeFour, phoneNumerfour.getText().toString(), numberTypeFivth,
-                                    phonenumerfivth.getText().toString(), frountImageBase64, ".jpeg", backImageBase64, ".jpeg",
-                                    remarkTxt.getText().toString(), "", "", "", "",
-                                    address, "", principleTypeString, businessVerticalTypeString, industrySegmentString,
-                                    industryTypeString);
-                        }*/
+                            } else if (adressStringThird.equalsIgnoreCase("Residence Address")) {
+                                thirdaddress = homeaddressFirst.getText().toString();
+                            }
 
+                            //insert the data
+                            if (UserActionMode.equalsIgnoreCase("EditMode")) {
 
-                    }else
-                        {
-                            conn.showNoInternetAlret();
-                        }
+                                String idList = sendPrincipleList.toString();
+                                PrincipleNameId = idList.substring(1, idList.length() - 1).replace(", ", ",");
 
-                }else {
+                                //bussinesvertcal id
+                                String bussinessidList = sendBussinesList.toString();
+                                BusinessVerticalNameId = bussinessidList.substring(1, bussinessidList.length() - 1).replace(", ", ",");
 
-                    if (conn.getConnectivityStatus()>0) {
+                                //industrySegementType Id
+                                String industrySegmentidList = sendSegmentList.toString();
+                                IndustrySegmentNameId = industrySegmentidList.substring(1, industrySegmentidList.length() - 1).replace(", ", ",");
 
-                        String FirstAddress = "",secondAddress = "",thirdaddress = "";
-                        //checked the firstadress choosing
-                        if (adressStringFirst.equalsIgnoreCase("Office Address"))
-                        {
-                            FirstAddress = thirdTxt.getText().toString() + ", ";
-                        }else if (adressStringFirst.equalsIgnoreCase("Factory Address"))
-                        {
-                            secondAddress =thirdTxt.getText().toString() + ", ";
-                        }else if (adressStringFirst.equalsIgnoreCase("Residence Address"))
-                        {
-                            thirdaddress =thirdTxt.getText().toString() + ", ";
-                        }
+                                //Industry Type
+                                String industryTypeidList = sendindustryTypeList.toString();
+                                IndustryTypeNameId = industryTypeidList.substring(1, industryTypeidList.length() - 1).replace(", ", ",");
 
-                        //checking the second addressline
-                        if (adressStringSecond.equalsIgnoreCase("Office Address"))
-                        {
-                            FirstAddress = addresstxt.getText().toString() + ", ";
+                                //for address
+                                if (ResidenceAddress.equalsIgnoreCase(homeaddressFirst.getText().toString())) {
+                                    thirdaddress = "";
+                                }
 
-                        }else if (adressStringSecond.equalsIgnoreCase("Factory Address"))
-                        {
-                            secondAddress = addresstxt.getText().toString() + ", ";
+                                if (FactoryAddress.equalsIgnoreCase(addresstxt.getText().toString())) {
+                                    secondAddress = "";
+                                }
+                                if (OfficeAddress.equalsIgnoreCase(thirdTxt.getText().toString())) {
+                                    FirstAddress = "";
+                                }
 
-                        }else if (adressStringSecond.equalsIgnoreCase("Residence Address"))
-                        {
-                            thirdaddress = addresstxt.getText().toString() + ", ";
-                        }
-
-                        //checking the third address
-                        if (adressStringThird.equalsIgnoreCase("Office Address"))
-                        {
-                            FirstAddress = homeaddressFirst.getText().toString() ;
-
-                        }else if (adressStringThird.equalsIgnoreCase("Factory Address"))
-                        {
-                            secondAddress = homeaddressFirst.getText().toString() ;
-
-                        }else if (adressStringThird.equalsIgnoreCase("Residence Address"))
-                        {
-                            thirdaddress = homeaddressFirst.getText().toString() ;
-                        }
-
-                        //insert the data
-                        if (UserActionMode.equalsIgnoreCase("EditMode"))
-                        {
-
-                            userId = UtilsMethods.getBlankIfStringNull(String.valueOf(SharedPrefs.getUserId(getActivity())));
-
-                            insertData(authCode, userId, customerIdGet, "", nameTxt.getText().toString(), "", designation.getText().toString(),
-                                    company_name.getText().toString(), webUrlTxt.getText().toString(), managmentLevelTxt.getText().toString(),
-                                    zoneIdString, emailTxt.getText().toString(), emailIdSecond.getText().toString(), numberTypeOne,
-                                    phoneTxt.getText().toString(), numbertyepTwo, phoneNumberTxt.getText().toString(), numberTypeThree,
-                                    PhoneTxtthird.getText().toString(), numberTypeFour, phoneNumerfour.getText().toString(), numberTypeFivth,
-                                    phonenumerfivth.getText().toString(), frountImageBase64, ".jpeg", backImageBase64, ".jpeg",
-                                    remarkTxt.getText().toString(), OfficeAddress+" ,"+FirstAddress, "", FactoryAddress+", "+secondAddress, "",
-                                    ResidenceAddress+", " +thirdaddress, "",PrincipleName+", "+principleTypeString,
-                                    BusinessVerticalName+", "+businessVerticalTypeString,
-                                    IndustrySegmentName+", "+industrySegmentString, IndustryTypeName+", "+industryTypeString
-                            );
-
-                        }else
-                        {
-                            insertData(authCode, userId, customerIdGet, "", nameTxt.getText().toString(), "", designation.getText().toString(),
-                                    company_name.getText().toString(), webUrlTxt.getText().toString(), managmentLevelTxt.getText().toString(),
-                                    zoneIdString, emailTxt.getText().toString(), emailIdSecond.getText().toString(), numberTypeOne,
-                                    phoneTxt.getText().toString(), numbertyepTwo, phoneNumberTxt.getText().toString(), numberTypeThree,
-                                    PhoneTxtthird.getText().toString(), numberTypeFour, phoneNumerfour.getText().toString(), numberTypeFivth,
-                                    phonenumerfivth.getText().toString(), frountImageBase64, ".jpeg", backImageBase64, ".jpeg",
-                                    remarkTxt.getText().toString(), FirstAddress, "", secondAddress, "",
-                                    thirdaddress, "", principleTypeString, businessVerticalTypeString, industrySegmentString,
-                                    industryTypeString
-                            );
-                        }
-
-                       /* if (adressStringFirst.equalsIgnoreCase("Office Address") || adressStringSecond.equalsIgnoreCase("Office Address")
-                                || adressStringThird.equalsIgnoreCase("Office Address") )
-                        {
-                            String address = thirdTxt.getText().toString() + ", " +addresstxt.getText().toString() + ", " +
-                                    homeaddressFirst.getText().toString();
-
-                            insertData(authCode, userId, customerIdGet, "", nameTxt.getText().toString(), "", designation.getText().toString(),
-                                    company_name.getText().toString(), webUrlTxt.getText().toString(), managmentLevelTxt.getText().toString(),
-                                    zoneIdString, emailTxt.getText().toString(), emailIdSecond.getText().toString(), numberTypeOne,
-                                    phoneTxt.getText().toString(), numbertyepTwo, phoneNumberTxt.getText().toString(), numberTypeThree,
-                                    PhoneTxtthird.getText().toString(), numberTypeFour, phoneNumerfour.getText().toString(), numberTypeFivth,
-                                    phonenumerfivth.getText().toString(), frountImageBase64, ".jpeg", backImageBase64, ".jpeg",
-                                    remarkTxt.getText().toString(), address, "", "", "",
-                                    "", "", principleTypeString, businessVerticalTypeString, industrySegmentString,
-                                    industryTypeString
-                            );
-                        }else if (adressStringFirst.equalsIgnoreCase("Factory Address") || adressStringSecond.equalsIgnoreCase("Factory Address")
-                                || adressStringThird.equalsIgnoreCase("Factory Address"))
-                        {
-                            String address = thirdTxt.getText().toString() + ", " +addresstxt.getText().toString() + ", " +
-                                    homeaddressFirst.getText().toString();
-
-                            insertData(authCode, userId, customerIdGet, "", nameTxt.getText().toString(), "", designation.getText().toString(),
-                                    company_name.getText().toString(), webUrlTxt.getText().toString(), managmentLevelTxt.getText().toString(),
-                                    zoneIdString, emailTxt.getText().toString(), emailIdSecond.getText().toString(), numberTypeOne,
-                                    phoneTxt.getText().toString(), numbertyepTwo, phoneNumberTxt.getText().toString(), numberTypeThree,
-                                    PhoneTxtthird.getText().toString(), numberTypeFour, phoneNumerfour.getText().toString(), numberTypeFivth,
-                                    phonenumerfivth.getText().toString(), frountImageBase64, ".jpeg", backImageBase64, ".jpeg",
-                                    remarkTxt.getText().toString(), "", "", address, "",
-                                    "", "", principleTypeString, businessVerticalTypeString, industrySegmentString,
-                                    industryTypeString
-                            );
-                        }else if (adressStringFirst.equalsIgnoreCase("Residence Address") || adressStringSecond.equalsIgnoreCase("Residence Address")
-                                || adressStringThird.equalsIgnoreCase("Residence Address"))
-                        {
-
-                            String address = thirdTxt.getText().toString() + ", " +addresstxt.getText().toString() + ", " +
-                                    homeaddressFirst.getText().toString();
-
-                            insertData(authCode, userId, customerIdGet, "", nameTxt.getText().toString(), "", designation.getText().toString(),
-                                    company_name.getText().toString(), webUrlTxt.getText().toString(), managmentLevelTxt.getText().toString(),
-                                    zoneIdString, emailTxt.getText().toString(), emailIdSecond.getText().toString(), numberTypeOne,
-                                    phoneTxt.getText().toString(), numbertyepTwo, phoneNumberTxt.getText().toString(), numberTypeThree,
-                                    PhoneTxtthird.getText().toString(), numberTypeFour, phoneNumerfour.getText().toString(), numberTypeFivth,
-                                    phonenumerfivth.getText().toString(), frountImageBase64, ".jpeg", backImageBase64, ".jpeg",
-                                    remarkTxt.getText().toString(), "", "", "", "",
-                                    address, "", principleTypeString, businessVerticalTypeString, industrySegmentString,
-                                    industryTypeString
-                            );
-                        }else
-                            {
-                                String address = thirdTxt.getText().toString() + ", " +addresstxt.getText().toString() + ", " +
-                                        homeaddressFirst.getText().toString();
+                                userId = UtilsMethods.getBlankIfStringNull(String.valueOf(SharedPrefs.getUserId(getActivity())));
 
                                 insertData(authCode, userId, customerIdGet, "", nameTxt.getText().toString(), "", designation.getText().toString(),
-                                        company_name.getText().toString(), webUrlTxt.getText().toString(), managmentLevelTxt.getText().toString(),
+                                        company_name.getText().toString(), webUrlTxt.getText().toString(), managementTypeIdString,
                                         zoneIdString, emailTxt.getText().toString(), emailIdSecond.getText().toString(), numberTypeOne,
                                         phoneTxt.getText().toString(), numbertyepTwo, phoneNumberTxt.getText().toString(), numberTypeThree,
                                         PhoneTxtthird.getText().toString(), numberTypeFour, phoneNumerfour.getText().toString(), numberTypeFivth,
                                         phonenumerfivth.getText().toString(), frountImageBase64, ".jpeg", backImageBase64, ".jpeg",
-                                        remarkTxt.getText().toString(), "", "", "", "",
-                                        address, "", principleTypeString, businessVerticalTypeString, industrySegmentString,
-                                        industryTypeString);
-                            }*/
-                    }else
-                        {
+                                        remarkTxt.getText().toString(), OfficeAddress + " ," + FirstAddress, "", FactoryAddress + ", " + secondAddress, "",
+                                        ResidenceAddress + ", " + thirdaddress, "", PrincipleNameId + ", " + principleTypeString,
+                                        BusinessVerticalNameId + ", " + businessVerticalTypeString,
+                                        IndustrySegmentNameId + ", " + industrySegmentString, IndustryTypeNameId + ", " + industryTypeString, contactTypeIdString
+                                );
+
+                            } else {
+
+                                if (emailTxt.getText().toString().equalsIgnoreCase(""))
+                                {
+                                    emailTxt.setError("Please Enter Valid EmailId");
+
+                                }else if (managementTypeIdString.equalsIgnoreCase("0"))
+                                {
+                                    Toast.makeText(getActivity(), "Please Select Management Type", Toast.LENGTH_SHORT).show();
+                                }else if (contactTypeIdString.equalsIgnoreCase("0"))
+                                {
+                                    Toast.makeText(getActivity(), "Please Select Contact Type", Toast.LENGTH_SHORT).show();
+                                }else {
+                                    insertData(authCode, userId, customerIdGet, "", nameTxt.getText().toString(), "", designation.getText().toString(),
+                                            company_name.getText().toString(), webUrlTxt.getText().toString(), managementTypeIdString,
+                                            zoneIdString, emailTxt.getText().toString(), emailIdSecond.getText().toString(), numberTypeOne,
+                                            phoneTxt.getText().toString(), numbertyepTwo, phoneNumberTxt.getText().toString(), numberTypeThree,
+                                            PhoneTxtthird.getText().toString(), numberTypeFour, phoneNumerfour.getText().toString(), numberTypeFivth,
+                                            phonenumerfivth.getText().toString(), frountImageBase64, ".jpeg", backImageBase64, ".jpeg",
+                                            remarkTxt.getText().toString(), FirstAddress, "", secondAddress, "",
+                                            thirdaddress, "", principleTypeString, businessVerticalTypeString, industrySegmentString,
+                                            industryTypeString, contactTypeIdString
+                                    );
+                                }
+                            }
+
+                        } else {
                             conn.showNoInternetAlret();
                         }
+
+                    } else {
+
+                        if (conn.getConnectivityStatus() > 0) {
+
+                            String FirstAddress = "", secondAddress = "", thirdaddress = "";
+                            //checked the firstadress choosing
+                            if (adressStringFirst.equalsIgnoreCase("Office Address")) {
+                                FirstAddress = thirdTxt.getText().toString() + ", ";
+                            } else if (adressStringFirst.equalsIgnoreCase("Factory Address")) {
+                                secondAddress = thirdTxt.getText().toString() + ", ";
+                            } else if (adressStringFirst.equalsIgnoreCase("Residence Address")) {
+                                thirdaddress = thirdTxt.getText().toString() + ", ";
+                            }
+
+                            //checking the second addressline
+                            if (adressStringSecond.equalsIgnoreCase("Office Address")) {
+                                FirstAddress = addresstxt.getText().toString() + ", ";
+
+                            } else if (adressStringSecond.equalsIgnoreCase("Factory Address")) {
+                                secondAddress = addresstxt.getText().toString() + ", ";
+
+                            } else if (adressStringSecond.equalsIgnoreCase("Residence Address")) {
+                                thirdaddress = addresstxt.getText().toString() + ", ";
+                            }
+
+                            //checking the third address
+                            if (adressStringThird.equalsIgnoreCase("Office Address")) {
+                                FirstAddress = homeaddressFirst.getText().toString();
+
+                            } else if (adressStringThird.equalsIgnoreCase("Factory Address")) {
+                                secondAddress = homeaddressFirst.getText().toString();
+
+                            } else if (adressStringThird.equalsIgnoreCase("Residence Address")) {
+                                thirdaddress = homeaddressFirst.getText().toString();
+                            }
+
+                            //insert the data
+                            if (UserActionMode.equalsIgnoreCase("EditMode")) {
+
+                                String idList = sendPrincipleList.toString();
+                                PrincipleNameId = idList.substring(1, idList.length() - 1).replace(", ", ",");
+
+                                //bussinesvertcal id
+                                String bussinessidList = sendBussinesList.toString();
+                                BusinessVerticalNameId = bussinessidList.substring(1, bussinessidList.length() - 1).replace(", ", ",");
+
+                                //industrySegementType Id
+                                String industrySegmentidList = sendSegmentList.toString();
+                                IndustrySegmentNameId = industrySegmentidList.substring(1, industrySegmentidList.length() - 1).replace(", ", ",");
+
+                                //Industry Type
+                                String industryTypeidList = sendindustryTypeList.toString();
+                                IndustryTypeNameId = industryTypeidList.substring(1, industryTypeidList.length() - 1).replace(", ", ",");
+
+                                userId = UtilsMethods.getBlankIfStringNull(String.valueOf(SharedPrefs.getUserId(getActivity())));
+
+                                //for address
+                                if (ResidenceAddress.equalsIgnoreCase(homeaddressFirst.getText().toString())) {
+                                    thirdaddress = "";
+                                }
+
+                                if (FactoryAddress.equalsIgnoreCase(addresstxt.getText().toString())) {
+                                    secondAddress = "";
+                                }
+                                if (OfficeAddress.equalsIgnoreCase(thirdTxt.getText().toString())) {
+                                    FirstAddress = "";
+                                }
+
+                                insertData(authCode, userId, customerIdGet, "", nameTxt.getText().toString(), "", designation.getText().toString(),
+                                        detectedTextView.getText().toString(), webUrlTxt.getText().toString(), managementTypeIdString,
+                                        zoneIdString, emailTxt.getText().toString(), emailIdSecond.getText().toString(), numberTypeOne,
+                                        phoneTxt.getText().toString(), numbertyepTwo, phoneNumberTxt.getText().toString(), numberTypeThree,
+                                        PhoneTxtthird.getText().toString(), numberTypeFour, phoneNumerfour.getText().toString(), numberTypeFivth,
+                                        phonenumerfivth.getText().toString(), frountImageBase64, ".jpeg", backImageBase64, ".jpeg",
+                                        remarkTxt.getText().toString(), OfficeAddress + " ," + FirstAddress, "", FactoryAddress + ", " + secondAddress, "",
+                                        ResidenceAddress + ", " + thirdaddress, "", PrincipleNameId + ", " + principleTypeString,
+                                        BusinessVerticalNameId + ", " + businessVerticalTypeString,
+                                        IndustrySegmentNameId + ", " + industrySegmentString, IndustryTypeNameId + ", " + industryTypeString,
+                                        contactTypeIdString
+                                );
+
+                            } else {
+                                if (emailIdSecond.getText().toString().equalsIgnoreCase(""))
+                                {
+                                    emailIdSecond.setError("Please Enter Valid EmailId");
+                                }else if (managementTypeIdString.equalsIgnoreCase("0"))
+                                {
+                                    Toast.makeText(getActivity(), "Please Select Management Type", Toast.LENGTH_SHORT).show();
+                                }else if (contactTypeIdString.equalsIgnoreCase("0"))
+                                {
+                                    Toast.makeText(getActivity(), "Please Select Contact Type", Toast.LENGTH_SHORT).show();
+                                }else {
+                                    insertData(authCode, userId, customerIdGet, "", nameTxt.getText().toString(), "", designation.getText().toString(),
+                                            detectedTextView.getText().toString(), webUrlTxt.getText().toString(), managementTypeIdString,
+                                            zoneIdString, emailTxt.getText().toString(), emailIdSecond.getText().toString(), numberTypeOne,
+                                            phoneTxt.getText().toString(), numbertyepTwo, phoneNumberTxt.getText().toString(), numberTypeThree,
+                                            PhoneTxtthird.getText().toString(), numberTypeFour, phoneNumerfour.getText().toString(), numberTypeFivth,
+                                            phonenumerfivth.getText().toString(), frountImageBase64, ".jpeg", backImageBase64, ".jpeg",
+                                            remarkTxt.getText().toString(), FirstAddress, "", secondAddress, "",
+                                            thirdaddress, "", principleTypeString, businessVerticalTypeString, industrySegmentString,
+                                            industryTypeString, contactTypeIdString
+                                    );
+                                }
+                            }
+                        } else {
+                            conn.showNoInternetAlret();
+                        }
+                    }
                 }
-            }
-        });
+            });
 
 
-        return rootView;
-    }
+            return rootView;
+        }
+
 
     //Api Work
     public void getAppDdlList(final String authCode, final String userId ) {
@@ -1384,23 +1326,50 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
                     zoneIdString = zoneList.get(0).getZoneId();
 
+                    // managementType
+                    JSONArray managementTypeArray = jsonObject.getJSONArray("ManagementTypeMaster");
+                    if (managementTypeList.size()>0)
+                    {
+                        managementTypeList.clear();
+                    }
+                    managementTypeList.add(new ManagmentTypeListModel("0", "Please Select Management Type"));
+                    for (int o=0; o<managementTypeArray.length();o++)
+                    {
+                        JSONObject object = managementTypeArray.getJSONObject(o);
 
+                        String ManagementTypeID = object.getString("ManagementTypeID");
+                        String ManagementType = object.getString("ManagementType");
 
+                        managementTypeList.add(new ManagmentTypeListModel(ManagementTypeID,ManagementType));
 
+                        masterDatabase.setManageMentTypeTable(userId,ManagementTypeID,ManagementType);
+                    }
 
-                   /* for (int i=0 ; i<jsonArray.length();i++)
-                    {*/
-                    // JSONObject jsonObject = jsonArray.getJSONObject(i);
-                    // String status = jsonObject.getString("status");
+                    //Contact Type
+                    JSONArray contactTypeArray = jsonObject.getJSONArray("ContactTypeMaster");
+
+                    if (contactTypeList.size()>0)
+                    {
+                        contactTypeList.clear();
+                    }
+                    contactTypeList.add(new ContactTypeListModel("0", "Please Select Contact Type"));
+                    for (int p=0; p<contactTypeArray.length(); p++)
+                    {
+                        JSONObject object = contactTypeArray.getJSONObject(p);
+                        String ContactTypeID = object.getString("ContactTypeID");
+                        String ContactType = object.getString("ContactType");
+
+                        contactTypeList.add(new ContactTypeListModel(ContactTypeID,ContactType));
+
+                        masterDatabase.setContactTypeTable(userId,ContactTypeID,ContactType);
+                    }
+
                     if (jsonObject.has("MsgNotification"))
                     {
                         String MsgNotification = jsonObject.getString("MsgNotification");
                         Toast.makeText(getActivity(), MsgNotification, Toast.LENGTH_SHORT).show();
 
                     }
-
-
-                    //}
 
                     pDialog.dismiss();
 
@@ -1426,8 +1395,6 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("AuthCode", authCode);
                 params.put("UserID", userId);
-
-                // Log.e("Parms", params.toString());
                 return params;
             }
 
@@ -1443,7 +1410,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
     //insert data to server
     public void insertData(final String AuthCode, final String UserID,final String CustomerID,final String Title,
                            final String CustomerName,final String DOB,final String Designation,final String CompanyName,
-                           final String Website, final String ManagementLevel,final String ZoneID,final String EmailID,
+                           final String Website, final String ManagementTypeId,final String ZoneID,final String EmailID,
                            final String EmailID2, final String NumberType1, final String Number1,final String NumberType2,
                            final String Number2,final String NumberType3,final String Number3, final String NumberType4,
                            final String Number4,final String NumberType5,final String Number5,final String CardFrontImageString,
@@ -1451,7 +1418,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                            final String Remark, final String OfficeAddress, final String OfficePin,final String FactoryAddress,
                            final String FactoryPin,final String ResidenceAddress,final String ResidencePin,
                            final String PrincipleList,final String BusinessVerticalList,final String IndustrySegmentList,
-                           final String IndustryTypeList) {
+                           final String IndustryTypeList,final String contactTypeId) {
 
         final ProgressDialog pDialog = new ProgressDialog(getActivity(),R.style.AppCompatAlertDialogStyle);
         pDialog.setMessage("Loading...");
@@ -1464,6 +1431,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
                 try {
                     Log.e("insert Data", response);
+                    Log.e("checking zone id", ZoneID);
                     JSONObject jsonObject = new JSONObject(response.substring(response.indexOf("{"),response.lastIndexOf("}") +1 ));
 
                    // Log.e("insert Data", response);
@@ -1507,7 +1475,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                 params.put("Designation", Designation);
                 params.put("CompanyName", CompanyName);
                 params.put("Website", Website);
-                params.put("ManagementLevel", ManagementLevel);
+                params.put("ManagementTypeID", ManagementTypeId);
                 params.put("ZoneID", ZoneID);
                 params.put("EmailID", EmailID);
                 params.put("EmailID2", EmailID2);
@@ -1536,6 +1504,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                 params.put("BusinessVerticalList", BusinessVerticalList);
                 params.put("IndustrySegmentList", IndustrySegmentList);
                 params.put("IndustryTypeList", IndustryTypeList);
+                params.put("ContactTypeID", contactTypeId);
 
                 Log.e("Parms all", params.toString());
                 return params;
@@ -1817,6 +1786,8 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                                     if (!firstLine.contains(".com")  &&
                                                             !firstLine.contains("co.in")) {
                                                         if (detectedTextView.getText().toString().equalsIgnoreCase("")) {
+
+                                                            if (!firstLine.equalsIgnoreCase(".com"))
                                                             company_name.setText(firstLine);
                                                         }
                                                     }
@@ -1925,7 +1896,10 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                         if (!b) {
                                             if (Pattern.matches(".*[a-zA-Z]+.*[a-zA-Z]", firstLine)) {
 
-                                                designation.setText(lines[i + 1]);
+                                             //   if (!firstLine.equalsIgnoreCase(lines[i + 1])) {
+
+                                                    designation.setText(lines[i + 1]);
+                                             //   }
                                             }
                                         }
                                     } catch (ArrayIndexOutOfBoundsException e) {
@@ -1937,7 +1911,11 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                         }
                     }
 
-                    if (community.contains("PVT.")) {
+                    if (community.contains("PVT.") || community.contains("LTD.") || community.contains("LTD") ||
+                            community.contains("S.r.l.") || community.contains("eurl") || community.contains("GbR") ||
+                            community.contains("GmbH") || community.contains("Inc") || community.contains("LLC") ||
+                            community.contains("LLP") || community.contains("Ltd") || community.contains("Srl")||
+                            community.contains("Corp")) {
                         detectedTextView.setText(firstLine);
                     }
 
@@ -1971,13 +1949,23 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                                 String[] splitString = firstLine.split(",");
                                                 if (splitString.length>0) {
 
-                                                    phoneTxt.setText(splitString[0]);
+                                                   /* Matcher m = Pattern.compile("(\\d{3})-(\\d{3})-(\\d{4})").matcher();
+                                                    while (m.find()) {*/
+                                                        String   str = splitString[0].replaceAll(".*[a-zA-Z]+.*[a-zA-Z].*[:]", "");
+                                                        phoneTxt.setText(str);
+                                                  //  }
                                                     try {
-                                                        phoneNumberTxt.setText(splitString[1]);
-                                                        PhoneTxtthird.setText(splitString[2]);
-                                                        phoneNumerfour.setText(splitString[3]);
+                                                        String   str1 = splitString[1].replaceAll(".*[a-zA-Z]+.*[a-zA-Z].*[:]", "");
+                                                        phoneNumberTxt.setText(str1);
+                                                        String   str2 = splitString[2].replaceAll(".*[a-zA-Z]+.*[a-zA-Z].*[:]", "");
+                                                        PhoneTxtthird.setText(str2);
+
+                                                        String  str3 = splitString[3].replaceAll(".*[a-zA-Z]+.*[a-zA-Z].*[:]", "");
+                                                        phoneNumerfour.setText(str3);
                                                         if (!detectedTextView.getText().toString().equalsIgnoreCase(splitString[4])) {
-                                                            phonenumerfivth.setText(splitString[4]);
+
+                                                            String  str4 = splitString[4].replaceAll(".*[a-zA-Z]+.*[a-zA-Z].*[:]", "");
+                                                            phonenumerfivth.setText(str4);
                                                         }
 
                                                     } catch (ArrayIndexOutOfBoundsException e) {
@@ -1985,8 +1973,12 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                                     }
                                                 }else
                                                     {
+                                                        /*Matcher m = Pattern.compile("(\\d{3})-(\\d{3})-(\\d{4})").matcher(firstLine);
+                                                        while (m.find()) {*/
+                                                        String   str = firstLine.replaceAll(".*[a-zA-Z]+.*[a-zA-Z].*[:]", "");
+                                                            phoneTxt.setText(str);
 
-                                                        phoneTxt.setText(firstLine);
+                                                     //   }
                                                     }
                                             }else
                                             {
@@ -2038,21 +2030,29 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                                                  //   phoneTxt.setText(splitString[0]);
                                                                     try {
                                                                         if (phoneNumberTxt.getText().toString().equalsIgnoreCase("")) {
-                                                                            phoneNumberTxt.setText(splitString[0]);
+
+                                                                            String   str1 = splitString[0].replaceAll(".*[a-zA-Z]+.*[a-zA-Z].*[:]", "");
+                                                                            phoneNumberTxt.setText(str1);
                                                                         }
 
                                                                         if (PhoneTxtthird.getText().toString().equalsIgnoreCase("")) {
-                                                                            PhoneTxtthird.setText(splitString[1]);
+
+                                                                            String   str2 = splitString[1].replaceAll(".*[a-zA-Z]+.*[a-zA-Z].*[:]", "");
+                                                                            PhoneTxtthird.setText(str2);
                                                                         }
 
                                                                         if (phoneNumerfour.getText().toString().equalsIgnoreCase("")) {
-                                                                            phoneNumerfour.setText(splitString[2]);
+
+                                                                            String  str3 = splitString[2].replaceAll(".*[a-zA-Z]+.*[a-zA-Z].*[:]", "");
+                                                                            phoneNumerfour.setText(str3);
                                                                         }
 
                                                                         if (phonenumerfivth.getText().toString().equalsIgnoreCase("")) {
                                                                             if (!phoneNumerfour.getText().toString().equalsIgnoreCase(splitString[3])) {
                                                                                 if (!detectedTextView.getText().toString().equalsIgnoreCase(splitString[3])) {
-                                                                                    phonenumerfivth.setText(splitString[3]);
+
+                                                                                    String  str4 = splitString[3].replaceAll(".*[a-zA-Z]+.*[a-zA-Z].*[:]", "");
+                                                                                    phonenumerfivth.setText(str4);
                                                                                 }
                                                                             }
                                                                         }
@@ -2064,7 +2064,10 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                                                 }else
                                                                 {
                                                                     if (phoneNumberTxt.getText().toString().equalsIgnoreCase("")) {
-                                                                        phoneNumberTxt.setText(lines[i - 1]);
+
+                                                                        String   str1 = lines[i - 1].replaceAll(".*[a-zA-Z]+.*[a-zA-Z].*[:]", "");
+
+                                                                        phoneNumberTxt.setText(str1);
                                                                     }
                                                                 }
 
@@ -2120,7 +2123,9 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
                                                         if (num>=10) {
                                                             if (PhoneTxtthird.getText().toString().equalsIgnoreCase("")) {
-                                                                PhoneTxtthird.setText(lines[i - 2]);
+
+                                                                String   str2 = lines[i - 2].replaceAll(".*[a-zA-Z]+.*[a-zA-Z].*[:]", "");
+                                                                PhoneTxtthird.setText(str2);
                                                             }
                                                         }else
                                                             {
@@ -2161,7 +2166,9 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
                                                         if (num >= 10) {
                                                             if (phoneNumerfour.getText().toString().equalsIgnoreCase("")) {
-                                                                phoneNumerfour.setText(lines[i - 3]);
+
+                                                                String  str3 = lines[i - 3].replaceAll(".*[a-zA-Z]+.*[a-zA-Z].*[:]", "");
+                                                                phoneNumerfour.setText(str3);
                                                             }
                                                         }
                                                     }
@@ -2196,7 +2203,9 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                                                 if (phonenumerfivth.getText().toString().equalsIgnoreCase("")) {
                                                                     if (!phoneNumerfour.getText().toString().equalsIgnoreCase(lines[i - 3])) {
                                                                         if (!detectedTextView.getText().toString().equalsIgnoreCase(lines[i - 3])) {
-                                                                            phonenumerfivth.setText(lines[i - 3]);
+
+                                                                            String  str4 = lines[i - 3].replaceAll(".*[a-zA-Z]+.*[a-zA-Z].*[:]", "");
+                                                                            phonenumerfivth.setText(str4);
                                                                         }
                                                                     }
                                                                 }
@@ -2277,12 +2286,11 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
 
                                                                 //if (thirdTxt.getText().toString().equalsIgnoreCase("")) {
-                                                                  //  if (addCnt == 0) {
-                                                                        thirdTxt.setText(firstLine);
-                                                                    //    addCnt++;
-                                                                     //   break;
-                                                                 //   }
-                                                              //  }
+                                                                //  if (addCnt == 0) {
+                                                                if (!firstLine.contains("Mobile") || !firstLine.contains("Phone"))
+                                                                {
+                                                                    thirdTxt.setText(firstLine);
+                                                               }
                                                             }else
                                                                 {
                                                                     if (num1>=1 ) {
@@ -2309,10 +2317,16 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                 }
 
                 //Web Url ---
-                if (firstLine.contains(".com") && !firstLine.contains("@") || firstLine.contains("w.") || firstLine.contains("co.in")) {
+              //  if (firstLine.contains(".com") && !firstLine.contains("@") || firstLine.contains("w.") || firstLine.contains("co.")) {
 
-                    webUrlTxt.setText(firstLine);
-                }
+                   // if (firstLine.contains("W")) {
+                    Matcher url = Patterns.WEB_URL.matcher(firstLine);
+                    while (url.find()) {
+                        webUrlTxt.setText(url.group());
+
+                    }
+                   // }
+              //  }
 
                 //email
                 /*Pattern pe = Pattern.compile("\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b",
@@ -2320,14 +2334,33 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                 Matcher matcher1 = pe.matcher(firstLine);
                 while(matcher1.find()) {*/
 
+
+
                 if (firstLine.contains("@")) {
 
                     if (emailIdSecond.getText().toString().equalsIgnoreCase(firstLine)) {
 
-                        emailTxt.setText(firstLine);
+
+
+
+
+                        Matcher m = Pattern.compile("\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b").matcher(firstLine);
+                        while (m.find()) {
+                           // System.out.println();
+                            emailTxt.setText(m.group());
+                        }
+
+                        if (emailTxt.getText().toString().equalsIgnoreCase(""))
+                        {
+                            emailTxt.setText(firstLine);
+                        }
+
                     }
                     else  if (!emailTxt.getText().toString().equalsIgnoreCase(firstLine)) {
-                        emailIdSecond.setText(firstLine);
+                        Matcher m = Pattern.compile("[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\\.[a-zA-Z0-9-.]+").matcher(firstLine);
+                        while (m.find()) {
+                            emailIdSecond.setText(m.group());
+                        }
                     }
                 }
 
@@ -2367,7 +2400,12 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                             if (!nameTxt.getText().toString().equalsIgnoreCase(firstLine)) {
                                                 if (!detectedTextView.getText().toString().equalsIgnoreCase(firstLine)) {
                                                     if (!company_name.getText().toString().equalsIgnoreCase(firstLine)) {
-                                                        homeaddressFirst.setText(firstLine);
+                                                        if (!firstLine.contains("co.")) {
+                                                            if (num1<10 ) {
+                                                                homeaddressFirst.setText(firstLine);
+                                                            }
+
+                                                        }
                                                     }
                                                 }
                                             }
@@ -2392,7 +2430,11 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                                 if (!nameTxt.getText().toString().equalsIgnoreCase(firstLine)) {
                                                     if (!detectedTextView.getText().toString().equalsIgnoreCase(firstLine)) {
                                                         if (!company_name.getText().toString().equalsIgnoreCase(firstLine)) {
-                                                            homeaddressSecond.setText(firstLine);
+                                                            if (!firstLine.contains("co.")) {
+                                                                if (num1<10 ) {
+                                                                    homeaddressSecond.setText(firstLine);
+                                                                }
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -2416,8 +2458,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                         if (!phoneTxt.getText().toString().equalsIgnoreCase(firstLine)) {
                                             if (!phoneNumberTxt.getText().toString().equalsIgnoreCase(firstLine)) {
                                                 if (!firstLine.contains(".com")) {
-                                                    if (!firstLine.contains(".co.in") ||
-                                                            !firstLine.contains("Ltd")) {
+                                                    if (!firstLine.contains("co.")) {
                                                         if (!company_name.getText().toString().equalsIgnoreCase(firstLine) ) {
 
                                                             if (!nameTxt.getText().toString().equalsIgnoreCase(firstLine)) {
@@ -2426,7 +2467,10 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                                                     if (!designation.getText().toString().equalsIgnoreCase(firstLine)) {
                                                                        if (!detectedTextView.getText().toString().equalsIgnoreCase(firstLine)) {
 
-                                                                           homeaddressFirst.setText(firstLine);
+                                                                           if (num1<10 ) {
+                                                                               homeaddressFirst.setText(firstLine);
+                                                                           }
+
 
                                                                        }
                                                                    }
@@ -2453,13 +2497,15 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                         if (!phoneTxt.getText().toString().equalsIgnoreCase(firstLine)) {
                                             if (!phoneNumberTxt.getText().toString().equalsIgnoreCase(firstLine)) {
                                                 if (!firstLine.contains(".com")) {
-                                                    if (!firstLine.contains(".co.in")) {
+                                                    if (!firstLine.contains("co.")) {
                                                         if (!company_name.getText().toString().equalsIgnoreCase(firstLine)) {
                                                             if (!nameTxt.getText().toString().equalsIgnoreCase(firstLine)) {
                                                                 if (!firstLine.contains("@")) {
                                                                     if (!designation.getText().toString().equalsIgnoreCase(firstLine)) {
                                                                         if (!detectedTextView.getText().toString().equalsIgnoreCase(firstLine)) {
-                                                                            homeaddressSecond.setText(firstLine);
+                                                                            if (num1<10 ) {
+                                                                                homeaddressSecond.setText(firstLine);
+                                                                            }
 
                                                                         }
                                                                     }
@@ -2619,7 +2665,19 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                             e.printStackTrace();
                         }
                         Bitmap bitmap= BitmapFactory.decodeStream(image_stream );
-                        cardImg.setImageBitmap(bitmap);
+                        int nh = (int) ( bitmap.getHeight() * (512.0 / bitmap.getWidth()) );
+                        Bitmap scaled = Bitmap.createScaledBitmap(bitmap, 512, nh, true);
+                        cardImg.setImageBitmap(scaled);
+                       /* compressImage(String.valueOf(imageUri));
+                        Picasso.with(getActivity()).load(imageUri).error(R.drawable.card).into(cardImg);*/
+                       /* try {
+                            cardImg.setImageURI(imageUri);
+
+
+                        } catch (OutOfMemoryError e) {
+                            e.printStackTrace();
+                        }*/
+                        // cardImg.setImageBitmap(bitmap);
 
                         frountImageBase64 = getEncoded64ImageStringFromBitmap(bitmap);
                         Log.e("checking the back 64",frountImageBase64);
@@ -2638,7 +2696,11 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                             e.printStackTrace();
                         }
                         Bitmap bitmap= BitmapFactory.decodeStream(image_stream );
-                        backCardImg.setImageBitmap(bitmap);
+                        try {
+                            backCardImg.setImageBitmap(bitmap);
+                        } catch (OutOfMemoryError e) {
+                            e.printStackTrace();
+                        }
 
 
                         backImageBase64 = getEncoded64ImageStringFromBitmap(bitmap);
@@ -2656,7 +2718,167 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
         }
     }
 
-    public static int calculateInSampleSize(
+    public String compressImage(String imageUri) {
+
+        String filePath = getRealPathFromURI(imageUri);
+        Bitmap scaledBitmap = null;
+
+        BitmapFactory.Options options = new BitmapFactory.Options();
+
+//      by setting this field as true, the actual bitmap pixels are not loaded in the memory. Just the bounds are loaded. If
+//      you try the use the bitmap here, you will get null.
+        options.inJustDecodeBounds = true;
+        Bitmap bmp = BitmapFactory.decodeFile(filePath, options);
+
+        int actualHeight = options.outHeight;
+        int actualWidth = options.outWidth;
+
+//      max Height and width values of the compressed image is taken as 816x612
+
+        float maxHeight = 816.0f;
+        float maxWidth = 612.0f;
+        float imgRatio = actualWidth / actualHeight;
+        float maxRatio = maxWidth / maxHeight;
+
+//      width and height values are set maintaining the aspect ratio of the image
+
+        if (actualHeight > maxHeight || actualWidth > maxWidth) {
+            if (imgRatio < maxRatio) {
+                imgRatio = maxHeight / actualHeight;
+                actualWidth = (int) (imgRatio * actualWidth);
+                actualHeight = (int) maxHeight;
+            } else if (imgRatio > maxRatio) {
+                imgRatio = maxWidth / actualWidth;
+                actualHeight = (int) (imgRatio * actualHeight);
+                actualWidth = (int) maxWidth;
+            } else {
+                actualHeight = (int) maxHeight;
+                actualWidth = (int) maxWidth;
+
+            }
+        }
+
+//      setting inSampleSize value allows to load a scaled down version of the original image
+
+        options.inSampleSize = calculateInSampleSize(options, actualWidth, actualHeight);
+
+//      inJustDecodeBounds set to false to load the actual bitmap
+        options.inJustDecodeBounds = false;
+
+//      this options allow android to claim the bitmap memory if it runs low on memory
+        options.inPurgeable = true;
+        options.inInputShareable = true;
+        options.inTempStorage = new byte[16 * 1024];
+
+        try {
+//          load the bitmap from its path
+            bmp = BitmapFactory.decodeFile(filePath, options);
+        } catch (OutOfMemoryError exception) {
+            exception.printStackTrace();
+
+        }
+        try {
+            scaledBitmap = Bitmap.createBitmap(actualWidth, actualHeight, Bitmap.Config.ARGB_8888);
+        } catch (OutOfMemoryError exception) {
+            exception.printStackTrace();
+        }
+
+        float ratioX = actualWidth / (float) options.outWidth;
+        float ratioY = actualHeight / (float) options.outHeight;
+        float middleX = actualWidth / 2.0f;
+        float middleY = actualHeight / 2.0f;
+
+        Matrix scaleMatrix = new Matrix();
+        scaleMatrix.setScale(ratioX, ratioY, middleX, middleY);
+
+        Canvas canvas = new Canvas(scaledBitmap);
+        canvas.setMatrix(scaleMatrix);
+        canvas.drawBitmap(bmp, middleX - bmp.getWidth() / 2, middleY - bmp.getHeight() / 2, new Paint(Paint.FILTER_BITMAP_FLAG));
+
+//      check the rotation of the image and display it properly
+        ExifInterface exif;
+        try {
+            exif = new ExifInterface(filePath);
+
+            int orientation = exif.getAttributeInt(
+                    ExifInterface.TAG_ORIENTATION, 0);
+            Log.d("EXIF", "Exif: " + orientation);
+            Matrix matrix = new Matrix();
+            if (orientation == 6) {
+                matrix.postRotate(90);
+                Log.d("EXIF", "Exif: " + orientation);
+            } else if (orientation == 3) {
+                matrix.postRotate(180);
+                Log.d("EXIF", "Exif: " + orientation);
+            } else if (orientation == 8) {
+                matrix.postRotate(270);
+                Log.d("EXIF", "Exif: " + orientation);
+            }
+            scaledBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0,
+                    scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix,
+                    true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        FileOutputStream out = null;
+        String filename = getFilename();
+        try {
+            out = new FileOutputStream(filename);
+
+//          write the compressed bitmap at the destination specified by filename.
+            scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 80, out);
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return filename;
+
+    }
+
+    public String getFilename() {
+        File file = new File(Environment.getExternalStorageDirectory().getPath(), "MyFolder/Images");
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+        String uriSting = (file.getAbsolutePath() + "/" + System.currentTimeMillis() + ".jpg");
+        return uriSting;
+
+    }
+
+    private String getRealPathFromURI(String contentURI) {
+        Uri contentUri = Uri.parse(contentURI);
+        Cursor cursor = getActivity().getContentResolver().query(contentUri, null, null, null, null);
+        if (cursor == null) {
+            return contentUri.getPath();
+        } else {
+            cursor.moveToFirst();
+            int index = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+            return cursor.getString(index);
+        }
+    }
+
+    public static int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+            final int heightRatio = Math.round((float) height / (float) reqHeight);
+            final int widthRatio = Math.round((float) width / (float) reqWidth);
+            inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
+        }
+        final float totalPixels = width * height;
+        final float totalReqPixelsCap = reqWidth * reqHeight * 2;
+        while (totalPixels / (inSampleSize * inSampleSize) > totalReqPixelsCap) {
+            inSampleSize++;
+        }
+
+        return inSampleSize;
+    }
+
+   /* public static int calculateInSampleSize(
             BitmapFactory.Options options, int reqWidth, int reqHeight) {
 // Raw height and width of image
         final int height = options.outHeight;
@@ -2672,7 +2894,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
         }
         return inSampleSize;
     }
-
+*/
     //convert bitmap to base64
     public String getEncoded64ImageStringFromBitmap(Bitmap bitmap) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -2917,5 +3139,34 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                 }
             });
         }
+
+   /* private void performCrop() {
+        // take care of exceptions
+        try {
+            // call the standard crop action intent (the user device may not
+            // support it)
+            Intent cropIntent = new Intent("com.android.camera.action.CROP");
+            // indicate image type and Uri
+            cropIntent.setDataAndType(picUri, "image*//*");
+            // set crop properties
+            cropIntent.putExtra("crop", "true");
+            // indicate aspect of desired crop
+            cropIntent.putExtra("aspectX", 2);
+            cropIntent.putExtra("aspectY", 1);
+            // indicate output X and Y
+            cropIntent.putExtra("outputX", 256);
+            cropIntent.putExtra("outputY", 256);
+            // retrieve data on return
+            cropIntent.putExtra("return-data", true);
+            // start the activity - we handle returning in onActivityResult
+            startActivityForResult(cropIntent, CROP_PIC);
+        }
+        // respond to users whose devices do not support the crop action
+        catch (ActivityNotFoundException anfe) {
+            Toast toast = Toast
+                    .makeText(this, "This device doesn't support the crop action!", Toast.LENGTH_SHORT);
+            toast.show();
+        }
+    }*/
     }
 

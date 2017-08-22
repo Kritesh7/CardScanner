@@ -14,6 +14,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 import cardscaner.cfcs.com.cardscanner.Fragment.CamFragment;
 import cardscaner.cfcs.com.cardscanner.Fragment.CardFragment;
 import cardscaner.cfcs.com.cardscanner.Fragment.MessageFragment;
@@ -86,6 +88,7 @@ public class HomeActivity extends AppCompatActivity {
         navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
+
         Intent intent = getIntent();
         if (intent != null)
         {
@@ -118,6 +121,12 @@ public class HomeActivity extends AppCompatActivity {
             CardFrontImage = intent.getStringExtra("CardFrontImage");
             CardFrontImage = intent.getStringExtra("CardFrontImage");
             UserActionMode = intent.getStringExtra("UserActionMode");
+            ZoneName = intent.getStringExtra("ZoneName");
+            ArrayList<String> BussinesList = (ArrayList<String>) getIntent().getSerializableExtra("BusinessList");
+            ArrayList<String> IndustrytypeList = (ArrayList<String>) getIntent().getSerializableExtra("IndustryTypeList");
+            ArrayList<String> segmentmyList = (ArrayList<String>) getIntent().getSerializableExtra("IndustrySegmentList");
+            ArrayList<String> PrincipleList = (ArrayList<String>) getIntent().getSerializableExtra("PrincipleList");
+
 
             bundle = new Bundle();
 
@@ -150,6 +159,11 @@ public class HomeActivity extends AppCompatActivity {
             bundle.putString("CardFrontImage",CardFrontImage);
             bundle.putString("CardBackImage",CardBackImage);
             bundle.putString("UserActionMode",UserActionMode);
+            bundle.putString("ZoneName",ZoneName);
+            bundle.putStringArrayList("BusinessList", BussinesList);
+            bundle.putStringArrayList("IndustryTypeList", IndustrytypeList);
+            bundle.putStringArrayList("IndustrySegmentList", segmentmyList);
+            bundle.putStringArrayList("PrincipleList", PrincipleList);
 
         }
 

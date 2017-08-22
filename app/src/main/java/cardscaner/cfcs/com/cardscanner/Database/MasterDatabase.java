@@ -23,6 +23,8 @@ public class MasterDatabase
     public TitleMasterTable titleMasterTable = new TitleMasterTable();
     public ZoneMasterTable zoneMasterTable = new ZoneMasterTable();
     public DataBaseHelper dataBaseHelper;
+    public ManagementTypeMasterTable managementTypeMasterTable = new ManagementTypeMasterTable();
+    public ContactTypeMasterTable contactTypeMasterTable = new ContactTypeMasterTable();
 
     public MasterDatabase(Context context)
     {
@@ -226,6 +228,62 @@ public class MasterDatabase
         int cnt = cursor.getCount();
         cursor.close();
         return cnt;
+    }
+
+    //get and set ManagmentType
+    public void setManageMentTypeTable(String userId,String managementTypeId, String managementType)
+    {
+        sqLiteDatabase = dataBaseHelper.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+
+        contentValues.put(ManagementTypeMasterTable.userId,userId);
+        contentValues.put(ManagementTypeMasterTable.managementTypeID,managementTypeId);
+        contentValues.put(ManagementTypeMasterTable.managementType,managementType);
+
+        sqLiteDatabase.insertWithOnConflict(ManagementTypeMasterTable.tableName,null,contentValues,SQLiteDatabase.CONFLICT_REPLACE);
+    }
+
+    public Cursor getManagementTypeTable(String userId)
+    {
+        sqLiteDatabase=dataBaseHelper.getReadableDatabase();
+        Cursor cursor=null;
+        cursor = sqLiteDatabase.rawQuery("SELECT " + ManagementTypeMasterTable.managementTypeID + ", " + ManagementTypeMasterTable.managementType +
+                " FROM " + ManagementTypeMasterTable.tableName + " WHERE " + ManagementTypeMasterTable.userId + "=?", new String[]
+                {userId});
+        return cursor;
+    }
+   /* public int getZoneMasterTableCunt(String userId)
+    {
+
+        String countQuery = "SELECT  * FROM " + ZoneMasterTable.tableName + " WHERE " + ZoneMasterTable.userId + "=" + userId;
+        SQLiteDatabase db = dataBaseHelper.getReadableDatabase();
+        Cursor cursor = db.rawQuery(countQuery, null);
+        int cnt = cursor.getCount();
+        cursor.close();
+        return cnt;
+    }*/
+
+    //get and set ContactType
+    public void setContactTypeTable(String userId,String contactTypeId, String contactType)
+    {
+        sqLiteDatabase = dataBaseHelper.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+
+        contentValues.put(ContactTypeMasterTable.userId,userId);
+        contentValues.put(ContactTypeMasterTable.contactTypeID,contactTypeId);
+        contentValues.put(ContactTypeMasterTable.contactType,contactType);
+
+        sqLiteDatabase.insertWithOnConflict(ContactTypeMasterTable.tableName,null,contentValues,SQLiteDatabase.CONFLICT_REPLACE);
+    }
+
+    public Cursor getContactTypeMasterTable(String userId)
+    {
+        sqLiteDatabase=dataBaseHelper.getReadableDatabase();
+        Cursor cursor=null;
+        cursor = sqLiteDatabase.rawQuery("SELECT " + ContactTypeMasterTable.contactTypeID + ", " + ContactTypeMasterTable.contactType +
+                " FROM " + ContactTypeMasterTable.tableName + " WHERE " + ContactTypeMasterTable.userId + "=?", new String[]
+                {userId});
+        return cursor;
     }
 
 }

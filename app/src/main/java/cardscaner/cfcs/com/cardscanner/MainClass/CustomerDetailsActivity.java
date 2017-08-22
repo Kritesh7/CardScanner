@@ -28,6 +28,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,16 +45,20 @@ public class CustomerDetailsActivity extends AppCompatActivity {
     public TextView nameTxt, designationtxt,companynameTxt,zoneNameTxt,mangementLevelTxt, businessverticalTxt, industryTypetxt,
     principleTypeTxt, industryTypeSegmentTxt,emailIdtxt,phonenumbertxt,phonenumbertxt2,phonenumbertxt3,phonenumbertxt4,
             phonenumbertxt5,websitetxt,addressTxt,residentalAddTxt,officeaddTxt,phoneType,phoneType2,phoneType3,
-            phoneType4,phoneType5;
+            phoneType4,phoneType5, managementTypeTxt,contactType;
     public String userId = "", authCode = "",customerId = "";
     public Button editBtn;
-    public LinearLayout phLay, phLay2,phLay3,phLay4,phLay5,busLay,indLay,indsegLay,priLay;
+    public LinearLayout phLay, phLay2,phLay3,phLay4,phLay5,busLay,indLay,indsegLay,priLay,mngLay,contLay;
     public String getCustomerDetailsUrl = SettingConstant.BASEURL_FOR_LOGIN + "DigiCardScannerService.asmx/AppCustomerDetail";
     public String Name = "",Designation ="",Company="",ZoneName = "",EmailID = "",OfficeAddress = "",PrincipleName = "",
-            BusinessVerticalName="",IndustryTypeName="",IndustrySegmentName="",Website="",ManagementLevel="",FactoryAddress="",
+            BusinessVerticalName="",IndustryTypeName="",IndustrySegmentName="",Website="",ManagementType="",FactoryAddress="",
             ResidenceAddress = "",EmailID2 = "",NumberType = "", NumberType2 = "",NumberType3="",NumberType4="",
             NumberType5 = "",Number = "",Number2="",Number3="",Number4="",Number5 = "", customerIdGet = "",ZoneID = "",
-            CardFrontImage = "",CardBackImage = "",UserActionMode= "";
+            CardFrontImage = "",CardBackImage = "",ContactType= "";
+    public ArrayList<String> bussinessverticalidList = new ArrayList<>();
+    public ArrayList<String> industrySegmentIdList = new ArrayList<>();
+    public ArrayList<String> industryTypeIdList = new ArrayList<>();
+    public ArrayList<String> principleTypeIdList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,6 +118,10 @@ public class CustomerDetailsActivity extends AppCompatActivity {
         indLay = (LinearLayout)findViewById(R.id.indlay);
         indsegLay = (LinearLayout)findViewById(R.id.indseglay);
         priLay = (LinearLayout)findViewById(R.id.prnlay);
+        managementTypeTxt = (TextView)findViewById(R.id.managementtypetxt);
+        contactType = (TextView)findViewById(R.id.contacttypetxt);
+        mngLay = (LinearLayout)findViewById(R.id.mngtyplay) ;
+        contLay = (LinearLayout)findViewById(R.id.contlay) ;
 
         userId = UtilsMethods.getBlankIfStringNull(String.valueOf(SharedPrefs.getUserId(CustomerDetailsActivity.this)));
         authCode = UtilsMethods.getBlankIfStringNull(String.valueOf(SharedPrefs.getAuthCode(CustomerDetailsActivity.this)));
@@ -137,6 +146,7 @@ public class CustomerDetailsActivity extends AppCompatActivity {
                 intent.putExtra("Designation",Designation);
                 intent.putExtra("Company",Company);
                 intent.putExtra("ZoneID",ZoneID);
+                intent.putExtra("ZoneName",ZoneName);
                 intent.putExtra("EmailID",EmailID);
                 intent.putExtra("OfficeAddress",OfficeAddress);
                 intent.putExtra("PrincipleName",PrincipleName);
@@ -144,7 +154,7 @@ public class CustomerDetailsActivity extends AppCompatActivity {
                 intent.putExtra("IndustryTypeName",IndustryTypeName);
                 intent.putExtra("IndustrySegmentName",IndustrySegmentName);
                 intent.putExtra("Website",Website);
-                intent.putExtra("ManagementLevel",ManagementLevel);
+                intent.putExtra("ManagementLevel",ManagementType);
                 intent.putExtra("FactoryAddress",FactoryAddress);
                 intent.putExtra("ResidenceAddress",ResidenceAddress);
                 intent.putExtra("EmailID2",EmailID2);
@@ -162,6 +172,11 @@ public class CustomerDetailsActivity extends AppCompatActivity {
                 intent.putExtra("CardFrontImage",CardFrontImage);
                 intent.putExtra("CardBackImage",CardBackImage);
                 intent.putExtra("UserActionMode","EditMode");
+                intent.putExtra("BusinessList",bussinessverticalidList);
+                intent.putExtra("IndustryTypeList",industryTypeIdList);
+                intent.putExtra("IndustrySegmentList",industrySegmentIdList);
+                intent.putExtra("PrincipleList", principleTypeIdList);
+
                 startActivity(intent);
                 finish();
             }
@@ -192,8 +207,9 @@ public class CustomerDetailsActivity extends AppCompatActivity {
 
                 try {
                     Log.e("AppDdlList", response);
-                    JSONArray jsonArray = new JSONArray(response.substring(response.indexOf("["),response.lastIndexOf("]") +1 ));
+                    JSONObject jsonObject = new JSONObject(response.substring(response.indexOf("{"),response.lastIndexOf("}") +1 ));
 
+                    JSONArray jsonArray = jsonObject.getJSONArray("CustomerDetail");
 
                     for (int i=0; i<jsonArray.length(); i++)
                     {
@@ -209,7 +225,7 @@ public class CustomerDetailsActivity extends AppCompatActivity {
                         IndustryTypeName = object.getString("IndustryTypeName");
                         IndustrySegmentName = object.getString("IndustrySegmentName");
                         Website = object.getString("Website");
-                        ManagementLevel = object.getString("ManagementLevel");
+                        ManagementType = object.getString("ManagementType");
                         FactoryAddress = object.getString("FactoryAddress");
                         ResidenceAddress = object.getString("ResidenceAddress");
                         EmailID2 = object.getString("EmailID2");
@@ -227,6 +243,8 @@ public class CustomerDetailsActivity extends AppCompatActivity {
                         ZoneID = object.getString("ZoneID");
                         CardBackImage = object.getString("CardBackImage");
                         CardFrontImage = object.getString("CardFrontImage");
+                        ContactType = object.getString("ContactType");
+
 
 
 
@@ -235,7 +253,7 @@ public class CustomerDetailsActivity extends AppCompatActivity {
                         companynameTxt.setText(Company);
                         zoneNameTxt.setText(ZoneName);
                         emailIdtxt.setText(EmailID);
-                        mangementLevelTxt.setText(ManagementLevel);
+                        mangementLevelTxt.setText(ManagementType);
                         principleTypeTxt.setText(PrincipleName);
                         businessverticalTxt.setText(BusinessVerticalName);
                         industryTypetxt.setText(IndustryTypeName);
@@ -249,6 +267,8 @@ public class CustomerDetailsActivity extends AppCompatActivity {
                         phonenumbertxt3.setText(Number3);
                         phonenumbertxt4.setText(Number4);
                         phonenumbertxt5.setText(Number5);
+                        contactType.setText(ContactType);
+                        managementTypeTxt.setText(ManagementType);
 
 
                         if (Number.equalsIgnoreCase(""))
@@ -339,10 +359,76 @@ public class CustomerDetailsActivity extends AppCompatActivity {
                             priLay.setVisibility(View.GONE);
                         }
 
+                        if (ManagementType.equalsIgnoreCase("null") || ManagementType.equalsIgnoreCase(""))
+                        {
+                            mngLay.setVisibility(View.GONE);
+                        }
+                        if (ContactType.equalsIgnoreCase("null") || ContactType.equalsIgnoreCase(""))
+                        {
+                            contLay.setVisibility(View.GONE);
+                        }
+
                         /*phoneType2.setText("Phone No.("+NumberType2+")");
                         phoneType3.setText("Phone No.("+NumberType3+")");
                         phoneType4.setText("Phone No.("+NumberType4+")");
                         phoneType5.setText("Phone No.("+NumberType5+")");*/
+
+                    }
+
+                   if (principleTypeIdList.size()>0)
+                   {
+                       principleTypeIdList.clear();
+                   }
+                    JSONArray customerPrincipleArray = jsonObject.getJSONArray("CustomerPrinciple");
+                    for (int j =0; j<customerPrincipleArray.length(); j++)
+                    {
+                        JSONObject object = customerPrincipleArray.getJSONObject(j);
+                        String PrincipleID = object.getString("PrincipleID");
+                        principleTypeIdList.add(PrincipleID);
+
+                      //  String Principle =
+
+                    }
+
+
+                    if (bussinessverticalidList.size()>0)
+                    {
+                        bussinessverticalidList.clear();
+                    }
+                    JSONArray CustomerBusinessVerticalArray = jsonObject.getJSONArray("CustomerBusinessVertical");
+                    for (int k = 0; k<CustomerBusinessVerticalArray.length();k++)
+                    {
+                        JSONObject object = CustomerBusinessVerticalArray.getJSONObject(k);
+                        String BusinessVerticalID = object.getString("BusinessVerticalID");
+                        bussinessverticalidList.add(BusinessVerticalID);
+
+                    }
+
+                    if (industryTypeIdList.size()>0)
+                    {
+                        industryTypeIdList.clear();
+                    }
+                    JSONArray CustomerIndustryTypeArray = jsonObject.getJSONArray("CustomerIndustryType");
+                    for (int l=0; l<CustomerIndustryTypeArray.length(); l++)
+                    {
+                        JSONObject object = CustomerIndustryTypeArray.getJSONObject(l);
+                        String IndustryTypeID = object.getString("IndustryTypeID");
+                        industryTypeIdList.add(IndustryTypeID);
+
+                    }
+
+                    if (industrySegmentIdList.size()>0)
+                    {
+                        industrySegmentIdList.clear();
+                    }
+                    JSONArray CustomerIndustrySegmentArray = jsonObject.getJSONArray("CustomerIndustrySegment");
+                    for (int m=0; m<CustomerIndustrySegmentArray.length();m++)
+                    {
+
+                        JSONObject object = CustomerIndustrySegmentArray.getJSONObject(m);
+                        String IndustrySegmentID = object.getString("IndustrySegmentID");
+                        industrySegmentIdList.add(IndustrySegmentID);
+
 
                     }
 
