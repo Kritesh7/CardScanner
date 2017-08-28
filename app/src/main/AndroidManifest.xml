@@ -23,10 +23,12 @@
             android:value="ocr" />
 
         <activity
+            android:screenOrientation="portrait"
             android:name=".MainClass.LoginActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:screenOrientation="portrait"
             android:name=".MainClass.SplashScreen"
             android:label="@string/title_activity_splash_screen"
             android:theme="@style/AppTheme.NoActionBar">
@@ -37,19 +39,23 @@
             </intent-filter>
         </activity>
         <activity
+            android:screenOrientation="portrait"
             android:name=".MainClass.HomeActivity"
             android:label="@string/title_activity_home"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
         <activity
+            android:screenOrientation="portrait"
             android:name=".MainClass.ForgetPasswordActivity"
             android:label="@string/title_activity_forget_password"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:screenOrientation="portrait"
             android:name=".MainClass.ChangePasswordActivity"
             android:label="@string/title_activity_change_password"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
+            android:screenOrientation="portrait"
             android:name=".MainClass.CustomerDetailsActivity"
             android:label="@string/title_activity_customer_details"
             android:theme="@style/AppTheme.NoActionBar"></activity>

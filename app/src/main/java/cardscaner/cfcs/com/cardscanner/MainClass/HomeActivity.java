@@ -238,6 +238,8 @@ public class HomeActivity extends AppCompatActivity {
             UtilsMethods.getBlankIfStringNull(String.valueOf(SharedPrefs.setStatus(HomeActivity.this,
                     "")));
 
+            UtilsMethods.getBlankIfStringNull(String.valueOf(SharedPrefs.setZoneId(HomeActivity.this, "")));
+
             Intent i = new Intent(getApplicationContext(), LoginActivity.class);
             startActivity(i);
             overridePendingTransition(R.anim.push_left_in,

@@ -13,6 +13,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.DefaultRetryPolicy;
@@ -38,7 +39,8 @@ import cardscaner.cfcs.com.cardscanner.source.UtilsMethods;
 
 public class ForgetPasswordActivity extends AppCompatActivity {
 
-    public Button backBtn, forgetBtn;
+    public Button  forgetBtn;
+    public TextView backBtn;
     public EditText forgotPasswordTxt;
     public String forgotPassUrl = SettingConstant.BASEURL_FOR_LOGIN + "loginservice.asmx/AppUserForgetPassword";
     public ConnectionDetector conn;
@@ -55,7 +57,7 @@ public class ForgetPasswordActivity extends AppCompatActivity {
             window.setStatusBarColor(this.getResources().getColor(R.color.status_color));
         }
 
-        backBtn = (Button)findViewById(R.id.backbtn);
+        backBtn = (TextView)findViewById(R.id.backbtn);
         forgotPasswordTxt = (EditText)findViewById(R.id.usernameforgot);
         forgetBtn = (Button)findViewById(R.id.forgetpasswordbtn);
         conn = new ConnectionDetector(ForgetPasswordActivity.this);
@@ -89,9 +91,6 @@ public class ForgetPasswordActivity extends AppCompatActivity {
                     }
             }
         });
-
-
-
     }
 
     public void forgotPasswordMethod(final String UserName ) {
@@ -157,5 +156,4 @@ public class ForgetPasswordActivity extends AppCompatActivity {
         AppController.getInstance().addToRequestQueue(historyInquiry, "Login");
 
     }
-
 }

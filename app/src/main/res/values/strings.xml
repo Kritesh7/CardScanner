@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">CardScanner</string>
+    <string name="app_name">Digi Card</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_splash_screen">Digi Card</string>
     <string name="title_activity_home">HomeActivity</string>

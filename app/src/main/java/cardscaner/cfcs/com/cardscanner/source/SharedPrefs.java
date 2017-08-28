@@ -79,16 +79,16 @@ public class SharedPrefs
 
 
     //status Refrence--------------------
-    public static String getEmployName(Context context)
+    public static String getZoneId(Context context)
     {
         SharedPreferences sp = getSetting(context);
-        return  sp.getString(SettingConstant.EmployeName, null);
+        return  sp.getString(SettingConstant.ZoneId, null);
     }
-    public static boolean setEmployeName(Context context, String authKey)
+    public static boolean setZoneId(Context context, String authKey)
     {
         SharedPreferences sp = getSetting(context);
         SharedPreferences.Editor editor = sp.edit();
-        editor.putString(SettingConstant.EmployeName, authKey);
+        editor.putString(SettingConstant.ZoneId, authKey);
         return editor.commit();
     }
 

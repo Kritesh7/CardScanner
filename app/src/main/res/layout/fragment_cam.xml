@@ -660,6 +660,51 @@
                         android:textColor="@color/status_color"
                         android:textSize="18sp"/>
 
+                        <LinearLayout
+                            android:layout_marginTop="10dp"
+                            android:orientation="vertical"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <TextView
+                                android:textColor="@color/status_color"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Contact Type"/>
+
+                            <Spinner
+                                android:layout_marginTop="5dp"
+                                android:id="@+id/contacttypeid"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content">
+
+                            </Spinner>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_marginTop="10dp"
+                            android:orientation="vertical"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <TextView
+                                android:textColor="@color/status_color"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Management Type"/>
+
+                            <Spinner
+                                android:layout_marginTop="5dp"
+                                android:id="@+id/managementtypeid"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content">
+
+                            </Spinner>
+
+                        </LinearLayout>
+
+
                         <TextView
                             android:layout_marginTop="10dp"
                             android:layout_width="wrap_content"
@@ -802,49 +847,8 @@
                             </Spinner>
 
                         </LinearLayout>
-                        <LinearLayout
-                            android:layout_marginTop="10dp"
-                            android:orientation="vertical"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
 
-                            <TextView
-                                android:textColor="@color/status_color"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Management Type"/>
 
-                            <Spinner
-                                android:layout_marginTop="5dp"
-                                android:id="@+id/managementtypeid"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content">
-
-                            </Spinner>
-
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:layout_marginTop="10dp"
-                            android:orientation="vertical"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
-
-                            <TextView
-                                android:textColor="@color/status_color"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Contact Type"/>
-
-                            <Spinner
-                                android:layout_marginTop="5dp"
-                                android:id="@+id/contacttypeid"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content">
-
-                            </Spinner>
-
-                        </LinearLayout>
                        <!-- <android.support.design.widget.TextInputLayout
 
                             android:layout_marginTop="10dp"

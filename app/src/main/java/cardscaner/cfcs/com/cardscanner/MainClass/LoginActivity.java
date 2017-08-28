@@ -173,6 +173,7 @@ public class LoginActivity extends AppCompatActivity {
                                     UserID)));
                             UtilsMethods.getBlankIfStringNull(String.valueOf(SharedPrefs.setAuthCode(LoginActivity.this, AuthCode)));
 
+                            UtilsMethods.getBlankIfStringNull(String.valueOf(SharedPrefs.setZoneId(LoginActivity.this, ZoneID)));
 
                         }
 
@@ -218,6 +219,4 @@ public class LoginActivity extends AppCompatActivity {
         AppController.getInstance().addToRequestQueue(historyInquiry, "Login");
 
     }
-
-
 }

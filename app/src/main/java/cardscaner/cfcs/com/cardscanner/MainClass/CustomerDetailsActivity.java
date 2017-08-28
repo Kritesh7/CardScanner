@@ -23,6 +23,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.StringRequest;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -47,18 +48,21 @@ public class CustomerDetailsActivity extends AppCompatActivity {
             phonenumbertxt5,websitetxt,addressTxt,residentalAddTxt,officeaddTxt,phoneType,phoneType2,phoneType3,
             phoneType4,phoneType5, managementTypeTxt,contactType;
     public String userId = "", authCode = "",customerId = "";
-    public Button editBtn;
+    public Button editBtn, delBtn;
     public LinearLayout phLay, phLay2,phLay3,phLay4,phLay5,busLay,indLay,indsegLay,priLay,mngLay,contLay;
     public String getCustomerDetailsUrl = SettingConstant.BASEURL_FOR_LOGIN + "DigiCardScannerService.asmx/AppCustomerDetail";
     public String Name = "",Designation ="",Company="",ZoneName = "",EmailID = "",OfficeAddress = "",PrincipleName = "",
             BusinessVerticalName="",IndustryTypeName="",IndustrySegmentName="",Website="",ManagementType="",FactoryAddress="",
             ResidenceAddress = "",EmailID2 = "",NumberType = "", NumberType2 = "",NumberType3="",NumberType4="",
             NumberType5 = "",Number = "",Number2="",Number3="",Number4="",Number5 = "", customerIdGet = "",ZoneID = "",
-            CardFrontImage = "",CardBackImage = "",ContactType= "";
+            CardFrontImage = "",CardBackImage = "",ContactType= "",deletableStatus = "";
     public ArrayList<String> bussinessverticalidList = new ArrayList<>();
     public ArrayList<String> industrySegmentIdList = new ArrayList<>();
     public ArrayList<String> industryTypeIdList = new ArrayList<>();
     public ArrayList<String> principleTypeIdList = new ArrayList<>();
+    public String deleteDetailsUrl = SettingConstant.BASEURL_FOR_LOGIN + "DigiCardScannerService.asmx/AppCustomerDelete";
+    public ImageView cardImg, backImg;
+    public LinearLayout frountLay, backLay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,6 +126,11 @@ public class CustomerDetailsActivity extends AppCompatActivity {
         contactType = (TextView)findViewById(R.id.contacttypetxt);
         mngLay = (LinearLayout)findViewById(R.id.mngtyplay) ;
         contLay = (LinearLayout)findViewById(R.id.contlay) ;
+        delBtn = (Button)findViewById(R.id.delbtn);
+        cardImg = (ImageView)findViewById(R.id.frountimage);
+        backImg = (ImageView)findViewById(R.id.backimage);
+        frountLay = (LinearLayout)findViewById(R.id.frountimglay);
+        backLay = (LinearLayout)findViewById(R.id.backimglay);
 
         userId = UtilsMethods.getBlankIfStringNull(String.valueOf(SharedPrefs.getUserId(CustomerDetailsActivity.this)));
         authCode = UtilsMethods.getBlankIfStringNull(String.valueOf(SharedPrefs.getAuthCode(CustomerDetailsActivity.this)));
@@ -182,6 +191,13 @@ public class CustomerDetailsActivity extends AppCompatActivity {
             }
         });
 
+        delBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                deleteDetails(authCode,userId,customerId);
+            }
+        });
       /*  FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -228,7 +244,7 @@ public class CustomerDetailsActivity extends AppCompatActivity {
                         ManagementType = object.getString("ManagementType");
                         FactoryAddress = object.getString("FactoryAddress");
                         ResidenceAddress = object.getString("ResidenceAddress");
-                        EmailID2 = object.getString("EmailID2");
+                        EmailID2 = object.getString("EmailID");
                         NumberType = object.getString("NumberType");
                         NumberType2 = object.getString("NumberType2");
                         NumberType3 = object.getString("NumberType3");
@@ -244,6 +260,7 @@ public class CustomerDetailsActivity extends AppCompatActivity {
                         CardBackImage = object.getString("CardBackImage");
                         CardFrontImage = object.getString("CardFrontImage");
                         ContactType = object.getString("ContactType");
+                        deletableStatus = object.getString("ISDeletable");
 
 
 
@@ -269,6 +286,24 @@ public class CustomerDetailsActivity extends AppCompatActivity {
                         phonenumbertxt5.setText(Number5);
                         contactType.setText(ContactType);
                         managementTypeTxt.setText(ManagementType);
+
+                        if (!CardFrontImage.equalsIgnoreCase(""))
+                        {
+                            Picasso.with(CustomerDetailsActivity.this).load(SettingConstant.ImageUrl + CardFrontImage).error(R.drawable.card).into(cardImg);
+
+                        }else
+                            {
+                                frountLay.setVisibility(View.GONE);
+                            }
+
+                            if (!CardBackImage.equalsIgnoreCase(""))
+                            {
+                                Picasso.with(CustomerDetailsActivity.this).load(SettingConstant.ImageUrl + CardBackImage).error(R.drawable.card).into(backImg);
+
+                            }else
+                                {
+                                    backLay.setVisibility(View.GONE);
+                                }
 
 
                         if (Number.equalsIgnoreCase(""))
@@ -367,6 +402,12 @@ public class CustomerDetailsActivity extends AppCompatActivity {
                         {
                             contLay.setVisibility(View.GONE);
                         }
+
+                        if (deletableStatus.equalsIgnoreCase("1"))
+                        {
+                            delBtn.setVisibility(View.VISIBLE);
+                        }
+
 
                         /*phoneType2.setText("Phone No.("+NumberType2+")");
                         phoneType3.setText("Phone No.("+NumberType3+")");
@@ -471,5 +512,74 @@ public class CustomerDetailsActivity extends AppCompatActivity {
 
     }
 
+    //delete details
+    public void deleteDetails(final String AuthCode , final String UserID , final String CustomerID) {
 
+        final ProgressDialog pDialog = new ProgressDialog(CustomerDetailsActivity.this,R.style.AppCompatAlertDialogStyle);
+        pDialog.setMessage("Loading...");
+        pDialog.show();
+
+        StringRequest historyInquiry = new StringRequest(
+                Request.Method.POST, deleteDetailsUrl, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+
+                try {
+                    Log.e("Login", response);
+                    JSONArray jsonArray = new JSONArray(response.substring(response.indexOf("["),response.lastIndexOf("]") +1 ));
+
+                    for (int i=0 ; i<jsonArray.length();i++)
+                    {
+                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+                        // String status = jsonObject.getString("status");
+                        if (jsonObject.has("MsgNotification"))
+                        {
+                            String MsgNotification = jsonObject.getString("MsgNotification");
+                            Toast.makeText(CustomerDetailsActivity.this, MsgNotification, Toast.LENGTH_SHORT).show();
+
+                            onBackPressed();
+                            overridePendingTransition(R.anim.push_left_in, R.anim.push_right_out);
+                            finish();
+
+                        }
+
+                    }
+
+                    pDialog.dismiss();
+
+                } catch (JSONException e) {
+                    Log.e("checking json excption" , e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.d("Login", "Error: " + error.getMessage());
+                // Log.e("checking now ",error.getMessage());
+
+                Toast.makeText(CustomerDetailsActivity.this, error.getMessage(), Toast.LENGTH_SHORT).show();
+                pDialog.dismiss();
+
+
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("AuthCode",AuthCode);
+                params.put("UserID",UserID);
+                params.put("CustomerID",CustomerID);
+
+                Log.e("Parms", params.toString());
+                return params;
+            }
+
+        };
+        historyInquiry.setRetryPolicy(new DefaultRetryPolicy(SettingConstant.Retry_Time,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        AppController.getInstance().addToRequestQueue(historyInquiry, "Delete");
+
+    }
 }

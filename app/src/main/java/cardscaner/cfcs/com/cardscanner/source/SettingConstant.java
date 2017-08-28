@@ -11,15 +11,15 @@ public class SettingConstant {
        //public static final String BASEURL_FOR_LOGIN = "http://card.nmtronics.in/webApi/";
       // public static final String ImageUrl= "http://card.nmtronics.in/webApi/";
       //Local
-      public static final String BASEURL_FOR_LOGIN = "http://192.168.1.12:9090/webApi/";
-     public static final String ImageUrl= "http://192.168.1.12:9090/";
+      public static final String BASEURL_FOR_LOGIN = "http://192.168.1.62:9090/webApi/";
+     public static final String ImageUrl= "http://192.168.1.62:9090/";
 
 
 
     public static final int Retry_Time = 15000;
     protected static final String SP_NAME = "myPref";
     protected static final String Status = "Status";
-    protected static final String EmployeName = "EmployeName";
+    protected static final String ZoneId = "ZONE_ID";
     protected static final String VechelType = "VechelType";
     protected static final String UserId = "UserId";
     protected static final String SourceAddress = "SourceAddress";

@@ -35,5 +35,6 @@ dependencies {
     compile 'com.android.support:cardview-v7:26.0.0-alpha1'
     compile 'com.mcxiaoke.volley:library:1.0.19'
     compile 'com.squareup.picasso:picasso:2.5.2'
+    compile 'net.rimoto:intlphoneinput:1.0.1'
     testCompile 'junit:junit:4.12'
 }

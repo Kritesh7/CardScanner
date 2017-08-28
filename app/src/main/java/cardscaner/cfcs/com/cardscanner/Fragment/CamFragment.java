@@ -20,19 +20,11 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.media.ExifInterface;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -57,7 +49,6 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -69,12 +60,12 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.text.TextBlock;
 import com.google.android.gms.vision.text.TextRecognizer;
+import com.google.i18n.phonenumbers.PhoneNumberMatch;
+import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.squareup.picasso.Picasso;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -85,18 +76,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Random;
-import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import cardscaner.cfcs.com.cardscanner.Adapter.BusinessVerticalAdapter;
-import cardscaner.cfcs.com.cardscanner.Adapter.CardListAdapter;
 import cardscaner.cfcs.com.cardscanner.Adapter.DemoCustomeAdapter;
 import cardscaner.cfcs.com.cardscanner.Adapter.IndusteryAdapter;
 import cardscaner.cfcs.com.cardscanner.Adapter.PrincipalTypeAdapter;
@@ -114,36 +101,19 @@ import cardscaner.cfcs.com.cardscanner.Interface.CustomerNameInterface;
 import cardscaner.cfcs.com.cardscanner.Interface.IndustrySegmentInterface;
 import cardscaner.cfcs.com.cardscanner.Interface.IndustryTypeInterface;
 import cardscaner.cfcs.com.cardscanner.Interface.PrincipleTypeInterface;
-import cardscaner.cfcs.com.cardscanner.MainClass.ForgetPasswordActivity;
-import cardscaner.cfcs.com.cardscanner.MainClass.LoginActivity;
-import cardscaner.cfcs.com.cardscanner.Model.BusinessVerticalCheckList;
-import cardscaner.cfcs.com.cardscanner.Model.CardListModel;
 import cardscaner.cfcs.com.cardscanner.Model.ContactTypeListModel;
 import cardscaner.cfcs.com.cardscanner.Model.CustomerDetailsModel;
-import cardscaner.cfcs.com.cardscanner.Model.IndustryModel;
 import cardscaner.cfcs.com.cardscanner.Model.ManagmentTypeListModel;
-import cardscaner.cfcs.com.cardscanner.Model.PrincipalTypeModel;
 import cardscaner.cfcs.com.cardscanner.Model.ZoneListModel;
 import cardscaner.cfcs.com.cardscanner.R;
 import cardscaner.cfcs.com.cardscanner.source.AppController;
 import cardscaner.cfcs.com.cardscanner.source.ConnectionDetector;
 import cardscaner.cfcs.com.cardscanner.source.EditTextMonitor;
-import cardscaner.cfcs.com.cardscanner.source.MultiTouchListener;
 import cardscaner.cfcs.com.cardscanner.source.SettingConstant;
 import cardscaner.cfcs.com.cardscanner.source.SharedPrefs;
 import cardscaner.cfcs.com.cardscanner.source.UtilsMethods;
-
-import static android.app.Activity.RESULT_OK;
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link CamFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link CamFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class CamFragment extends Fragment implements CustomerNameInterface,BusinessVerticalInterface,IndustrySegmentInterface,
         IndustryTypeInterface,PrincipleTypeInterface {
     // TODO: Rename parameter arguments, choose names that match
@@ -159,7 +129,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
     public android.support.design.widget.FloatingActionButton floatingActionButton;
     private static final int REQUEST_GALLERY = 0;
     private static final int REQUEST_CAMERA = 1;
-    public String userId = "", authCode = "";
+    public String userId = "", authCode = "", zoneIdShared = "";
     public ConnectionDetector conn;
     public String backImageBase64 = "";
     public String frountImageBase64 = "";
@@ -170,9 +140,10 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
     private static final String TAG = "Cam Scanner";
     private static final int REQUEST_WRITE_PERMISSION = 20;
     public MasterDatabase masterDatabase;
+    public ArrayList<String> phoneNumberListAll = new ArrayList<>();
 
     private Uri imageUri;
-    int count = 0, addCnt = 0;
+    int count = 0;
     private EditTextMonitor detectedTextView, emailTxt, phoneTxt, nameTxt, addresstxt, PostalCode,
             thirdTxt, designation, company_name, phoneNumberTxt, PhoneTxtthird, webUrlTxt, homeaddressFirst, homeaddressSecond, phoneNumerfour, phonenumerfivth;
     public TextView selectEditTxt, selectIndustrySegemnttxt, industryTypeTxt, principleTypeTxt;
@@ -188,10 +159,6 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
             businessVerticalTypeString = "", industrySegmentString = "", industryTypeString = "", principleTypeString = "",
             UserActionMode = "", managementTypeIdString = "", contactTypeIdString = "";
     public EditTextMonitor emailIdSecond, remarkTxt;
-
-    public BusinessVerticalAdapter adapter;
-    public IndusteryAdapter industeryAdapter;
-    public PrincipalTypeAdapter principalTypeAdapter;
     public ArrayList<CustomerDetailsModel> principalTypeList = new ArrayList<>();
     public ArrayList<CustomerDetailsModel> industryTypeList = new ArrayList<>();
     public ArrayList<CustomerDetailsModel> industrySegMentList = new ArrayList<>();
@@ -208,7 +175,6 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
     public ArrayList<String> industryTypeIdList = new ArrayList<>();
     public ArrayList<String> industryTypeNameList = new ArrayList<>();
     public ArrayList<String> principleTypeIdList = new ArrayList<>();
-    public ArrayList<String> principleTypeIdgList = new ArrayList<>();
     public ArrayList<String> principleTypeNameList = new ArrayList<>();
     public ArrayList sendBussinesList = new ArrayList();
     public ArrayList sendindustryTypeList = new ArrayList();
@@ -223,20 +189,13 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
             NumberType5 = "", Number = "", Number2 = "", Number3 = "", Number4 = "", Number5 = "", customerIdGet = "", ZoneIDSend = "",
             CardFrontImage = "", CardBackImage = "", PrincipleNameId = "",
             BusinessVerticalNameId = "", IndustryTypeNameId = "", IndustrySegmentNameId = "";
+    final int PIC_CROP = 2;
 
 
     public CamFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment CamFragment.
-     */
     // TODO: Rename and change types and number of parameters
     public static CamFragment newInstance(String param1, String param2) {
         CamFragment fragment = new CamFragment();
@@ -309,6 +268,8 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
         conn = new ConnectionDetector(getActivity());
         userId = UtilsMethods.getBlankIfStringNull(String.valueOf(SharedPrefs.getUserId(getActivity())));
         authCode = UtilsMethods.getBlankIfStringNull(String.valueOf(SharedPrefs.getAuthCode(getActivity())));
+        zoneIdShared = UtilsMethods.getBlankIfStringNull(String.valueOf(SharedPrefs.getZoneId(getActivity())));
+
 
 
         selectIndustrySegemnttxt.setOnClickListener(new View.OnClickListener() {
@@ -608,8 +569,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
                 flag = 1;
                 requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA}, REQUEST_WRITE_PERMISSION);
-
-
+                //performCrop(imageUri);
             }
         });
 
@@ -956,7 +916,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
                 //zoneList
                 for (int n = 0; n < zoneList.size(); n++) {
-                    if (ZoneIDSend.equalsIgnoreCase(zoneList.get(n).getZoneId().toString())) {
+                    if (zoneIdShared.equalsIgnoreCase(zoneList.get(n).getZoneId().toString())) {
                         zoneTypeSpinner.setSelection(n + 1);
                     }
                 }
@@ -989,33 +949,88 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                             String FirstAddress = "", secondAddress = "", thirdaddress = "";
                             //checked the firstadress choosing
                             if (adressStringFirst.equalsIgnoreCase("Office Address")) {
-                                FirstAddress = thirdTxt.getText().toString() + ", ";
+                                if (!FirstAddress.equalsIgnoreCase("")) {
+
+                                    FirstAddress = FirstAddress + ", " + thirdTxt.getText().toString();
+                                }else
+                                    {
+                                        FirstAddress =  thirdTxt.getText().toString();
+                                    }
                             } else if (adressStringFirst.equalsIgnoreCase("Factory Address")) {
-                                secondAddress = thirdTxt.getText().toString() + ", ";
+
+                                if (!secondAddress.equalsIgnoreCase("")) {
+                                    secondAddress = secondAddress + ", " + thirdTxt.getText().toString();
+                                }else
+                                    {
+                                        secondAddress = thirdTxt.getText().toString() + ", ";
+                                    }
                             } else if (adressStringFirst.equalsIgnoreCase("Residence Address")) {
-                                thirdaddress = thirdTxt.getText().toString() + ", ";
+                                if (thirdaddress.equalsIgnoreCase("")) {
+                                    thirdaddress = thirdTxt.getText().toString() + ", ";
+                                }else
+                                    {
+                                        thirdaddress = thirdaddress+", " +thirdTxt.getText().toString();
+                                    }
                             }
 
                             //checking the second addressline
                             if (adressStringSecond.equalsIgnoreCase("Office Address")) {
-                                FirstAddress = addresstxt.getText().toString() + ", ";
+
+                                if (!FirstAddress.equalsIgnoreCase("")) {
+
+                                    FirstAddress = FirstAddress + ", " + addresstxt.getText().toString();
+                                }else
+                                {
+                                    FirstAddress =  addresstxt.getText().toString();
+                                }
 
                             } else if (adressStringSecond.equalsIgnoreCase("Factory Address")) {
-                                secondAddress = addresstxt.getText().toString() + ", ";
+
+                                if (!secondAddress.equalsIgnoreCase("")) {
+                                    secondAddress = secondAddress + ", " + addresstxt.getText().toString();
+                                }else
+                                {
+                                    secondAddress = addresstxt.getText().toString() + ", ";
+                                }
 
                             } else if (adressStringSecond.equalsIgnoreCase("Residence Address")) {
-                                thirdaddress = addresstxt.getText().toString() + ", ";
+
+                                if (thirdaddress.equalsIgnoreCase("")) {
+                                    thirdaddress = addresstxt.getText().toString() + ", ";
+                                }else
+                                {
+                                    thirdaddress = thirdaddress+", " +addresstxt.getText().toString();
+                                }
                             }
 
                             //checking the third address
                             if (adressStringThird.equalsIgnoreCase("Office Address")) {
-                                FirstAddress = homeaddressFirst.getText().toString();
+
+                                if (!FirstAddress.equalsIgnoreCase("")) {
+
+                                    FirstAddress = FirstAddress + ", " + homeaddressFirst.getText().toString();
+                                }else
+                                {
+                                    FirstAddress =  homeaddressFirst.getText().toString();
+                                }
 
                             } else if (adressStringThird.equalsIgnoreCase("Factory Address")) {
-                                secondAddress = homeaddressFirst.getText().toString();
+                                if (!secondAddress.equalsIgnoreCase("")) {
+                                    secondAddress = secondAddress + ", " + homeaddressFirst.getText().toString();
+                                }else
+                                {
+                                    secondAddress = homeaddressFirst.getText().toString() + ", ";
+                                }
+
 
                             } else if (adressStringThird.equalsIgnoreCase("Residence Address")) {
-                                thirdaddress = homeaddressFirst.getText().toString();
+
+                                if (thirdaddress.equalsIgnoreCase("")) {
+                                    thirdaddress = homeaddressFirst.getText().toString() + ", ";
+                                }else
+                                {
+                                    thirdaddress = thirdaddress+", " +homeaddressFirst.getText().toString();
+                                }
                             }
 
                             //insert the data
@@ -1064,9 +1079,9 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
                             } else {
 
-                                if (emailTxt.getText().toString().equalsIgnoreCase(""))
+                                if (emailIdSecond.getText().toString().equalsIgnoreCase(""))
                                 {
-                                    emailTxt.setError("Please Enter Valid EmailId");
+                                    emailIdSecond.setError("Please Enter Valid EmailId");
 
                                 }else if (managementTypeIdString.equalsIgnoreCase("0"))
                                 {
@@ -1074,7 +1089,11 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                 }else if (contactTypeIdString.equalsIgnoreCase("0"))
                                 {
                                     Toast.makeText(getActivity(), "Please Select Contact Type", Toast.LENGTH_SHORT).show();
-                                }else {
+                                }else if (FirstAddress.equalsIgnoreCase("") && secondAddress.equalsIgnoreCase("")
+                                        && thirdaddress.equalsIgnoreCase(""))
+                                {
+                                    Toast.makeText(getActivity(), "Please Select Address Type", Toast.LENGTH_SHORT).show();
+                                } else {
                                     insertData(authCode, userId, customerIdGet, "", nameTxt.getText().toString(), "", designation.getText().toString(),
                                             company_name.getText().toString(), webUrlTxt.getText().toString(), managementTypeIdString,
                                             zoneIdString, emailTxt.getText().toString(), emailIdSecond.getText().toString(), numberTypeOne,
@@ -1099,34 +1118,90 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                             String FirstAddress = "", secondAddress = "", thirdaddress = "";
                             //checked the firstadress choosing
                             if (adressStringFirst.equalsIgnoreCase("Office Address")) {
-                                FirstAddress = thirdTxt.getText().toString() + ", ";
+                                if (!FirstAddress.equalsIgnoreCase("")) {
+
+                                    FirstAddress = FirstAddress + ", " + thirdTxt.getText().toString();
+                                }else
+                                {
+                                    FirstAddress =  thirdTxt.getText().toString();
+                                }
                             } else if (adressStringFirst.equalsIgnoreCase("Factory Address")) {
-                                secondAddress = thirdTxt.getText().toString() + ", ";
+
+                                if (!secondAddress.equalsIgnoreCase("")) {
+                                    secondAddress = secondAddress + ", " + thirdTxt.getText().toString();
+                                }else
+                                {
+                                    secondAddress = thirdTxt.getText().toString() + ", ";
+                                }
                             } else if (adressStringFirst.equalsIgnoreCase("Residence Address")) {
-                                thirdaddress = thirdTxt.getText().toString() + ", ";
+                                if (thirdaddress.equalsIgnoreCase("")) {
+                                    thirdaddress = thirdTxt.getText().toString() + ", ";
+                                }else
+                                {
+                                    thirdaddress = thirdaddress+", " +thirdTxt.getText().toString();
+                                }
                             }
 
                             //checking the second addressline
                             if (adressStringSecond.equalsIgnoreCase("Office Address")) {
-                                FirstAddress = addresstxt.getText().toString() + ", ";
+
+                                if (!FirstAddress.equalsIgnoreCase("")) {
+
+                                    FirstAddress = FirstAddress + ", " + addresstxt.getText().toString();
+                                }else
+                                {
+                                    FirstAddress =  addresstxt.getText().toString();
+                                }
 
                             } else if (adressStringSecond.equalsIgnoreCase("Factory Address")) {
-                                secondAddress = addresstxt.getText().toString() + ", ";
+
+                                if (!secondAddress.equalsIgnoreCase("")) {
+                                    secondAddress = secondAddress + ", " + addresstxt.getText().toString();
+                                }else
+                                {
+                                    secondAddress = addresstxt.getText().toString() + ", ";
+                                }
 
                             } else if (adressStringSecond.equalsIgnoreCase("Residence Address")) {
-                                thirdaddress = addresstxt.getText().toString() + ", ";
+
+                                if (thirdaddress.equalsIgnoreCase("")) {
+                                    thirdaddress = addresstxt.getText().toString() + ", ";
+                                }else
+                                {
+                                    thirdaddress = thirdaddress+", " +addresstxt.getText().toString();
+                                }
                             }
 
                             //checking the third address
                             if (adressStringThird.equalsIgnoreCase("Office Address")) {
-                                FirstAddress = homeaddressFirst.getText().toString();
+
+                                if (!FirstAddress.equalsIgnoreCase("")) {
+
+                                    FirstAddress = FirstAddress + ", " + homeaddressFirst.getText().toString();
+                                }else
+                                {
+                                    FirstAddress =  homeaddressFirst.getText().toString();
+                                }
 
                             } else if (adressStringThird.equalsIgnoreCase("Factory Address")) {
-                                secondAddress = homeaddressFirst.getText().toString();
+                                if (!secondAddress.equalsIgnoreCase("")) {
+                                    secondAddress = secondAddress + ", " + homeaddressFirst.getText().toString();
+                                }else
+                                {
+                                    secondAddress = homeaddressFirst.getText().toString() + ", ";
+                                }
+
 
                             } else if (adressStringThird.equalsIgnoreCase("Residence Address")) {
-                                thirdaddress = homeaddressFirst.getText().toString();
+
+                                if (thirdaddress.equalsIgnoreCase("")) {
+                                    thirdaddress = homeaddressFirst.getText().toString() + ", ";
+                                }else
+                                {
+                                    thirdaddress = thirdaddress+", " +homeaddressFirst.getText().toString();
+                                }
                             }
+
 
                             //insert the data
                             if (UserActionMode.equalsIgnoreCase("EditMode")) {
@@ -1440,9 +1515,8 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                     Toast.makeText(getActivity(),MsgNotification, Toast.LENGTH_SHORT).show();
                     if (status.equalsIgnoreCase("success"))
                     {
-
+                           subButton.setEnabled(false);
                     }
-
 
                     pDialog.dismiss();
 
@@ -1534,11 +1608,11 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                     imageUri = getActivity().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
 
 
-
                     Intent intent = new Intent();
                     intent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
                     intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
                     startActivityForResult(intent, REQUEST_CAMERA);
+
 
 
                     // cardImg.setImageURI(imageUri);
@@ -1640,10 +1714,6 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
                                     }
                                 }
-                            }else
-                            {
-
-
                             }
                         }
 
@@ -1682,8 +1752,6 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                      //   phoneTxt.setText(firstLine);
                                     } else
                                     {
-                                        //    thirdTxt.setText(firstLine);
-
                                         try {
                                             if (!thirdTxt.getText().toString().equalsIgnoreCase(lines[i + 1])) {
                                                 if (!lines[i + 1].contains(".com")) {
@@ -1706,7 +1774,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                                                 if (num1>=1 && num1<=12 && letter1>=5) {
                                                                     if (!designation.getText().toString().equalsIgnoreCase(lines[i + 1])) {
                                                                         if (!lines[i+1].contains("mobile") ||!lines[i+1].contains("Phone")
-                                                                                || !lines[i+1].contains("Phone No.")) {
+                                                                                || !lines[i+1].contains("Phone No.") || !lines[i+1].contains("Mobile")) {
                                                                             addresstxt.setText(lines[i + 1]);
                                                                         }
                                                                     }
@@ -1725,10 +1793,6 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
                             }
                         }else {
-
-
-                            //    thirdTxt.setText(firstLine);
-
                             try {
 
                                 // check the number of numeric character
@@ -1746,7 +1810,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
                                 if (num1>=1 && num1<=12 && letter1>=5) {
                                     if (!lines[i+1].contains("mobile") ||!lines[i+1].contains("Phone")
-                                            || !lines[i+1].contains("Phone No.")) {
+                                            || !lines[i+1].contains("Phone No.") || !lines[i+1].contains("Mobile")) {
                                         addresstxt.setText(lines[i + 1]);
                                     }
                                 }
@@ -1787,8 +1851,15 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                                             !firstLine.contains("co.in")) {
                                                         if (detectedTextView.getText().toString().equalsIgnoreCase("")) {
 
-                                                            if (!firstLine.equalsIgnoreCase(".com"))
-                                                            company_name.setText(firstLine);
+                                                            if (!firstLine.equalsIgnoreCase(".com")) {
+
+                                                                Matcher url = Patterns.WEB_URL.matcher(firstLine);
+                                                                if (!url.find()){
+                                                                    company_name.setText(firstLine);
+                                                                }
+
+
+                                                            }
                                                         }
                                                     }
                                                     }
@@ -1819,23 +1890,14 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                             String regexStr = "^[0-9]*$";
                                             if(lines[i+1].matches(regexStr))
                                             {
-                                                //write code here for success
+
                                             }
                                             else
                                             {
-                                                // System.out.println("No Match");
-
                                                 Pattern p = Pattern.compile("(([A-Z].*[0-9]))");
                                                 Matcher m = p.matcher(lines[i +1]);
                                                 boolean b = m.find();
                                                 System.out.println(b);
-
-
-
-                                                if (!b) {
-                                               //if(Pattern.matches(".*[a-zA-Z]+.*[a-zA-Z]", firstLine)) {
-                                                  //  designation.setText(lines[i + 1]);
-                                                }
                                             }
 
                                         } catch (ArrayIndexOutOfBoundsException e) {
@@ -1882,8 +1944,13 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                         }
                                     }
                                     if (letter1 <= 20 && num1 == 0) {
-                                        nameTxt.setText(firstLine);
-                                        count++;
+                                        Pattern pa = Pattern.compile("([a-zA-Z]*(\\s)*[\\.\\,]*)*");
+                                        Matcher ma = pa.matcher(firstLine);
+                                        if (ma.find()) {
+
+                                            nameTxt.setText(firstLine);
+                                            count++;
+                                        }
 
                                     }
 
@@ -1896,10 +1963,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                         if (!b) {
                                             if (Pattern.matches(".*[a-zA-Z]+.*[a-zA-Z]", firstLine)) {
 
-                                             //   if (!firstLine.equalsIgnoreCase(lines[i + 1])) {
-
                                                     designation.setText(lines[i + 1]);
-                                             //   }
                                             }
                                         }
                                     } catch (ArrayIndexOutOfBoundsException e) {
@@ -1915,7 +1979,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                             community.contains("S.r.l.") || community.contains("eurl") || community.contains("GbR") ||
                             community.contains("GmbH") || community.contains("Inc") || community.contains("LLC") ||
                             community.contains("LLP") || community.contains("Ltd") || community.contains("Srl")||
-                            community.contains("Corp")) {
+                            community.contains("Corp") || community.contains("Ltd.")) {
                         detectedTextView.setText(firstLine);
                     }
 
@@ -1947,44 +2011,75 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
                                             if (num>=10) {
                                                 String[] splitString = firstLine.split(",");
-                                                if (splitString.length>0) {
+                                                //String[] splitStringSecond = firstLine.split("FAX.");
 
-                                                   /* Matcher m = Pattern.compile("(\\d{3})-(\\d{3})-(\\d{4})").matcher();
-                                                    while (m.find()) {*/
+                                                String regex = "(?<=Tel[:\\s])([+\\d\\s]+\\S)(?=\\s\\D)|" // this captures the tel number
+                                                        + "(?<=Fax[:\\s])([+\\d\\s]+\\S)(?=\\s\\D)|" // this captures the fax number
+                                                        + "(?<=\\s)(\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}\\b)"; // this captures the email string
+
+                                                // Remember the CASE_INSENSITIVE option
+                                                Pattern re = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
+
+                                                Matcher m = re.matcher(firstLine);
+                                                while (m.find()) {
+                                                    String[] splitString2 = m.group(0).split(".");
+                                                    if (splitString2.length>0) {
+                                                        phoneTxt.setText(splitString[0]);
+                                                    }
+                                                }
+                                                if (splitString.length>0 ) {
+
                                                         String   str = splitString[0].replaceAll(".*[a-zA-Z]+.*[a-zA-Z].*[:]", "");
+                                                        str = str.replaceAll("[A-Za-z]", "");
+
                                                         phoneTxt.setText(str);
-                                                  //  }
+
                                                     try {
                                                         String   str1 = splitString[1].replaceAll(".*[a-zA-Z]+.*[a-zA-Z].*[:]", "");
+                                                        str1 = str1.replaceAll("[A-Za-z]", "");
                                                         phoneNumberTxt.setText(str1);
                                                         String   str2 = splitString[2].replaceAll(".*[a-zA-Z]+.*[a-zA-Z].*[:]", "");
+                                                        str2 = str2.replaceAll("[A-Za-z]", "");
                                                         PhoneTxtthird.setText(str2);
 
                                                         String  str3 = splitString[3].replaceAll(".*[a-zA-Z]+.*[a-zA-Z].*[:]", "");
+                                                        str3 = str3.replaceAll("[A-Za-z]", "");
                                                         phoneNumerfour.setText(str3);
                                                         if (!detectedTextView.getText().toString().equalsIgnoreCase(splitString[4])) {
 
-                                                            String  str4 = splitString[4].replaceAll(".*[a-zA-Z]+.*[a-zA-Z].*[:]", "");
-                                                            phonenumerfivth.setText(str4);
+                                                            if (!phoneNumerfour.getText().toString().equalsIgnoreCase(splitString[4])) {
+
+                                                                if (!phoneNumerfour.getText().toString().equalsIgnoreCase(splitString[4])) {
+                                                                    String str4 = splitString[4].replaceAll(".*[a-zA-Z]+.*[a-zA-Z].*[:]", "");
+
+                                                                    if (!str4.contains("@")) {
+                                                                        str4 = str4.replaceAll("[A-Za-z]", "");
+                                                                        phonenumerfivth.setText(str4);
+                                                                    }
+                                                                }
+
+                                                            }
                                                         }
 
                                                     } catch (ArrayIndexOutOfBoundsException e) {
                                                         e.printStackTrace();
                                                     }
-                                                }else
+                                                }
+                                                else
                                                     {
-                                                        /*Matcher m = Pattern.compile("(\\d{3})-(\\d{3})-(\\d{4})").matcher(firstLine);
-                                                        while (m.find()) {*/
                                                         String   str = firstLine.replaceAll(".*[a-zA-Z]+.*[a-zA-Z].*[:]", "");
-                                                            phoneTxt.setText(str);
+                                                        str = str.replaceAll("[A-Za-z]", "");
 
-                                                     //   }
+                                                        if (!phoneTxt.getText().toString().equalsIgnoreCase("")) {
+                                                            phoneTxt.setText(str);
+                                                        }
+
                                                     }
                                             }else
                                             {
                                                 if (num>=1 && num<=12 && letter>=5)
                                                     if (!firstLine.contains("mobile") ||!firstLine.contains("Phone")
-                                                            || !firstLine.contains("Phone No.")) {
+                                                            || !firstLine.contains("Phone No.") || !firstLine.contains("Mobile")) {
                                                         addresstxt.setText(firstLine);
                                                     }
                                             }
@@ -1996,14 +2091,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
                                 int numberOfDigits = lines[i-1].length();
                                 if (numberOfDigits>2) {
-
-                                   /* Pattern p = Pattern.compile("(([A-Z].*[0-9]))");
-                                    Matcher m = p.matcher(lines[i - 1]);
-                                    boolean b = m.find();
-                                    System.out.println(b);
-
-                                    if (b) {*/
-                                        if (!PhoneTxtthird.getText().toString().equalsIgnoreCase(lines[i - 1])) {
+                                    if (!PhoneTxtthird.getText().toString().equalsIgnoreCase(lines[i - 1])) {
 
                                             if ( !phoneTxt.getText().toString().equalsIgnoreCase(lines[i - 1])) {
                                                 if (!addresstxt.getText().toString().equalsIgnoreCase(lines[i - 1])) {
@@ -2022,28 +2110,27 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                                         }
 
                                                         if (num>=10) {
-                                                            //if (phoneNumberTxt.getText().toString().equalsIgnoreCase("")) {
-
                                                                 String[] splitString = lines[i - 1].split(",");
                                                                 if (splitString.length>0) {
-
-                                                                 //   phoneTxt.setText(splitString[0]);
                                                                     try {
                                                                         if (phoneNumberTxt.getText().toString().equalsIgnoreCase("")) {
 
                                                                             String   str1 = splitString[0].replaceAll(".*[a-zA-Z]+.*[a-zA-Z].*[:]", "");
+                                                                            str1 = str1.replaceAll("[A-Za-z]", "");
                                                                             phoneNumberTxt.setText(str1);
                                                                         }
 
                                                                         if (PhoneTxtthird.getText().toString().equalsIgnoreCase("")) {
 
                                                                             String   str2 = splitString[1].replaceAll(".*[a-zA-Z]+.*[a-zA-Z].*[:]", "");
+                                                                            str2 = str2.replaceAll("[A-Za-z]", "");
                                                                             PhoneTxtthird.setText(str2);
                                                                         }
 
                                                                         if (phoneNumerfour.getText().toString().equalsIgnoreCase("")) {
 
                                                                             String  str3 = splitString[2].replaceAll(".*[a-zA-Z]+.*[a-zA-Z].*[:]", "");
+                                                                            str3 = str3.replaceAll("[A-Za-z]", "");
                                                                             phoneNumerfour.setText(str3);
                                                                         }
 
@@ -2051,33 +2138,35 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                                                             if (!phoneNumerfour.getText().toString().equalsIgnoreCase(splitString[3])) {
                                                                                 if (!detectedTextView.getText().toString().equalsIgnoreCase(splitString[3])) {
 
-                                                                                    String  str4 = splitString[3].replaceAll(".*[a-zA-Z]+.*[a-zA-Z].*[:]", "");
-                                                                                    phonenumerfivth.setText(str4);
+                                                                                    if (!phoneNumerfour.getText().toString().equalsIgnoreCase(splitString[3])) {
+                                                                                        String str4 = splitString[3].replaceAll(".*[a-zA-Z]+.*[a-zA-Z].*[:]", "");
+
+                                                                                        if (!str4.contains("@")) {
+                                                                                            str4 = str4.replaceAll("[A-Za-z]", "");
+                                                                                            phonenumerfivth.setText(str4);
+                                                                                        }
+                                                                                    }
                                                                                 }
                                                                             }
                                                                         }
                                                                     } catch (ArrayIndexOutOfBoundsException e) {
                                                                         e.printStackTrace();
                                                                     }
-
-
-                                                                }else
+                                                                }
+                                                                else
                                                                 {
                                                                     if (phoneNumberTxt.getText().toString().equalsIgnoreCase("")) {
 
                                                                         String   str1 = lines[i - 1].replaceAll(".*[a-zA-Z]+.*[a-zA-Z].*[:]", "");
-
+                                                                        str1 = str1.replaceAll("[A-Za-z]", "");
                                                                         phoneNumberTxt.setText(str1);
                                                                     }
                                                                 }
-
-
-                                                           // }
                                                         }else
                                                         {
                                                             if (num>=1 && num<=12 && letter>=5) {
                                                                 if (!lines[i-1].contains("mobile") ||!lines[i - 1].contains("Phone")
-                                                                        || !lines[i - 1].contains("Phone No.") ) {
+                                                                        || !lines[i - 1].contains("Phone No.") || !lines[i-1].contains("Mobile") ) {
                                                                     addresstxt.setText(lines[i - 1]);
                                                                 }
                                                             }
@@ -2087,8 +2176,6 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                             }
                                         }
                                     }
-                              //  }
-
                             } catch (ArrayIndexOutOfBoundsException e) {
                                 e.printStackTrace();
                             }
@@ -2097,13 +2184,6 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
                                 int numberOfDigits = lines[i-2].length();
                                 if (numberOfDigits>2) {
-
-                                   /* Pattern p = Pattern.compile("(([A-Z].*[0-9]))");
-                                    Matcher m = p.matcher(lines[i - 2]);
-                                    boolean b = m.find();
-                                    System.out.println(b);
-
-                                    if (b) {*/
                                         if (!phoneTxt.getText().toString().equalsIgnoreCase(lines[i - 2])) {
                                             if ( !phoneNumberTxt.getText().toString().equalsIgnoreCase(lines[i - 2])) {
                                                 if ( !addresstxt.getText().toString().equalsIgnoreCase(lines[i - 2])) {
@@ -2124,14 +2204,25 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                                         if (num>=10) {
                                                             if (PhoneTxtthird.getText().toString().equalsIgnoreCase("")) {
 
-                                                                String   str2 = lines[i - 2].replaceAll(".*[a-zA-Z]+.*[a-zA-Z].*[:]", "");
-                                                                PhoneTxtthird.setText(str2);
+                                                                if (phoneNumberTxt.getText().toString().equalsIgnoreCase(lines[i - 2])) {
+
+
+                                                                    String str2 = lines[i - 2].replaceAll(".*[a-zA-Z]+.*[a-zA-Z].*[:]", "");
+                                                                    str2 = str2.replaceAll("[A-Za-z]", "");
+                                                                    PhoneTxtthird.setText(str2);
+                                                                }else
+                                                                    {
+
+                                                                        String str2 = lines[i - 1].replaceAll(".*[a-zA-Z]+.*[a-zA-Z].*[:]", "");
+                                                                        str2 = str2.replaceAll("[A-Za-z]", "");
+                                                                        PhoneTxtthird.setText(str2);
+                                                                    }
                                                             }
                                                         }else
                                                             {
                                                                 if (num>=1 && num<=12 && letter>=5) {
                                                                     if (!lines[i-2].contains("mobile") ||!lines[i - 2].contains("Phone")
-                                                                            || !lines[i - 2].contains("Phone No.")) {
+                                                                            || !lines[i - 2].contains("Phone No.") || !lines[i-2].contains("Mobile")) {
                                                                         addresstxt.setText(lines[i - 2]);
                                                                     }
                                                                 }
@@ -2141,10 +2232,8 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                             }
                                         }
                                     }
-                              //  }
 
-
-                                // fourth phone numer
+                                    // fourth phone numer
                                 int numberOfDigitsfourth = lines[i-3].length();
                                 if (numberOfDigitsfourth>2) {
                                     if (!phoneTxt.getText().toString().equalsIgnoreCase(lines[i - 3])) {
@@ -2168,6 +2257,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                                             if (phoneNumerfour.getText().toString().equalsIgnoreCase("")) {
 
                                                                 String  str3 = lines[i - 3].replaceAll(".*[a-zA-Z]+.*[a-zA-Z].*[:]", "");
+                                                                str3 = str3.replaceAll("[A-Za-z]", "");
                                                                 phoneNumerfour.setText(str3);
                                                             }
                                                         }
@@ -2203,9 +2293,13 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                                                 if (phonenumerfivth.getText().toString().equalsIgnoreCase("")) {
                                                                     if (!phoneNumerfour.getText().toString().equalsIgnoreCase(lines[i - 3])) {
                                                                         if (!detectedTextView.getText().toString().equalsIgnoreCase(lines[i - 3])) {
-
-                                                                            String  str4 = lines[i - 3].replaceAll(".*[a-zA-Z]+.*[a-zA-Z].*[:]", "");
-                                                                            phonenumerfivth.setText(str4);
+                                                                            if (!phoneNumerfour.getText().toString().equalsIgnoreCase(lines[i - 3])) {
+                                                                                String str4 = lines[i - 3].replaceAll(".*[a-zA-Z]+.*[a-zA-Z].*[:]", "");
+                                                                                if (!str4.contains("@")) {
+                                                                                    str4 = str4.replaceAll("[A-Za-z]", "");
+                                                                                    phonenumerfivth.setText(str4);
+                                                                                }
+                                                                            }
                                                                         }
                                                                     }
                                                                 }
@@ -2225,6 +2319,25 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                         }
 
                     }
+
+                    //contacts number
+
+                    /*Pattern p = Pattern.compile("^[a-zA-Z]+([0-9]+).*");
+                    Matcher m = p.matcher(firstLine);
+
+                    if (m.find()) {
+                        System.out.println(m.group(1));
+
+
+
+                    }*/
+                   /* Iterator<PhoneNumberMatch> existsPhone= PhoneNumberUtil.getInstance().findNumbers(firstLine, "IN").iterator();
+                    while (existsPhone.hasNext()){
+
+                        phoneNumberListAll.add("Phone == " + existsPhone.next().number());
+
+                    }
+*/
 
                     //postal code
                     Pattern zipPattern = Pattern.compile("[0-9]{5}(?!.*([0-9]{5}))");
@@ -2277,25 +2390,27 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                                         }
                                                     }
 
-
                                                     if (!detectedTextView.getText().toString().equalsIgnoreCase(firstLine)) {
 
                                                         if (!nameTxt.getText().toString().equalsIgnoreCase(firstLine)) {
 
                                                             if (num1>=1 && num1<=12 && letter1>=5) {
-
-
-                                                                //if (thirdTxt.getText().toString().equalsIgnoreCase("")) {
-                                                                //  if (addCnt == 0) {
-                                                                if (!firstLine.contains("Mobile") || !firstLine.contains("Phone"))
+                                                                if (!firstLine.contains("Mobile"))
                                                                 {
-                                                                    thirdTxt.setText(firstLine);
+                                                                    if ( !firstLine.contains("Phone")) {
+                                                                        if (!firstLine.equalsIgnoreCase("Mobile:")) {
+                                                                            thirdTxt.setText(firstLine);
+                                                                        }
+                                                                    }
                                                                }
                                                             }else
                                                                 {
                                                                     if (num1>=1 ) {
                                                                         if (addresstxt.getText().toString().equalsIgnoreCase("")) {
-                                                                            addresstxt.setText(firstLine);
+
+                                                                            if (!firstLine.contains("Mobile")) {
+                                                                                addresstxt.setText(firstLine);
+                                                                            }
                                                                         }
                                                                     }
                                                                 }
@@ -2310,33 +2425,15 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                             }
                         }
                     }
-
-
-
-
                 }
 
-                //Web Url ---
-              //  if (firstLine.contains(".com") && !firstLine.contains("@") || firstLine.contains("w.") || firstLine.contains("co.")) {
-
-                   // if (firstLine.contains("W")) {
-                    Matcher url = Patterns.WEB_URL.matcher(firstLine);
+                Matcher url = Patterns.WEB_URL.matcher(firstLine);
                     while (url.find()) {
                         webUrlTxt.setText(url.group());
 
                     }
-                   // }
-              //  }
 
-                //email
-                /*Pattern pe = Pattern.compile("\\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,4}\\b",
-                        Pattern.CASE_INSENSITIVE);
-                Matcher matcher1 = pe.matcher(firstLine);
-                while(matcher1.find()) {*/
-
-
-
-                if (firstLine.contains("@")) {
+                    if (firstLine.contains("@")) {
 
                     if (emailIdSecond.getText().toString().equalsIgnoreCase(firstLine)) {
 
@@ -2402,7 +2499,10 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                                     if (!company_name.getText().toString().equalsIgnoreCase(firstLine)) {
                                                         if (!firstLine.contains("co.")) {
                                                             if (num1<10 ) {
-                                                                homeaddressFirst.setText(firstLine);
+                                                                Matcher url1 = Patterns.WEB_URL.matcher(firstLine);
+                                                                if (!url1.find()) {
+                                                                    homeaddressFirst.setText(firstLine);
+                                                                }
                                                             }
 
                                                         }
@@ -2432,7 +2532,10 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                                         if (!company_name.getText().toString().equalsIgnoreCase(firstLine)) {
                                                             if (!firstLine.contains("co.")) {
                                                                 if (num1<10 ) {
-                                                                    homeaddressSecond.setText(firstLine);
+                                                                    Matcher url1 = Patterns.WEB_URL.matcher(firstLine);
+                                                                    if (!url1.find()) {
+                                                                        homeaddressSecond.setText(firstLine);
+                                                                    }
                                                                 }
                                                             }
                                                         }
@@ -2468,7 +2571,10 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                                                        if (!detectedTextView.getText().toString().equalsIgnoreCase(firstLine)) {
 
                                                                            if (num1<10 ) {
-                                                                               homeaddressFirst.setText(firstLine);
+                                                                               Matcher url1 = Patterns.WEB_URL.matcher(firstLine);
+                                                                               if (!url1.find()) {
+                                                                                   homeaddressFirst.setText(firstLine);
+                                                                               }
                                                                            }
 
 
@@ -2485,6 +2591,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                 }
                             }
                         }
+
 
                         //second home address second line get with no number
                         if (!addresstxt.getText().toString().equalsIgnoreCase(firstLine))
@@ -2504,7 +2611,10 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                                                     if (!designation.getText().toString().equalsIgnoreCase(firstLine)) {
                                                                         if (!detectedTextView.getText().toString().equalsIgnoreCase(firstLine)) {
                                                                             if (num1<10 ) {
-                                                                                homeaddressSecond.setText(firstLine);
+                                                                                Matcher url1 = Patterns.WEB_URL.matcher(firstLine);
+                                                                                if (!url1.find()) {
+                                                                                    homeaddressSecond.setText(firstLine);
+                                                                                }
                                                                             }
 
                                                                         }
@@ -2529,43 +2639,19 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
         finally {
             textRecognizer.release();
         }
-    }
 
-    //extract Url
-    public static List<String> extractUrls(String text)
-    {
-        List<String> containedUrls = new ArrayList<String>();
-        String urlRegex = "((https?|ftp|gopher|telnet|file):((//)|(\\\\))+[\\w\\d:#@%/;$()~_?\\+-=\\\\\\.&]*)";
-        Pattern pattern = Pattern.compile(urlRegex, Pattern.CASE_INSENSITIVE);
-        Matcher urlMatcher = pattern.matcher(text);
+       /* try {
 
-        while (urlMatcher.find())
-        {
-            containedUrls.add(text.substring(urlMatcher.start(0),
-                    urlMatcher.end(0)));
-        }
+            phoneTxt.setText(phoneNumberListAll.get(1));
+            phoneNumberTxt.setText(phoneNumberListAll.get(2));
+            PhoneTxtthird.setText(phoneNumberListAll.get(3));
+            phoneNumerfour.setText(phoneNumberListAll.get(4));
+            phonenumerfivth.setText(phoneNumberListAll.get(5));
 
-        return containedUrls;
-    }
+        } catch (IndexOutOfBoundsException e) {
 
-    // extract the string
-    public static String extractNumber(final String str) {
-
-        if(str == null || str.isEmpty()) return "";
-
-        StringBuilder sb = new StringBuilder();
-        boolean found = false;
-        for(char c : str.toCharArray()){
-            if(Character.isDigit(c)){
-                sb.append(c);
-                found = true;
-            } else if(found){
-                // If we already found a digit before and this char is not a digit, stop looping
-                break;
-            }
-        }
-
-        return sb.toString();
+            e.printStackTrace();
+        }*/
     }
 
     public static int getCount(String number) {
@@ -2605,47 +2691,6 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
         }
     }
 
-
-    boolean isValidPostalCode(String code) {
-
-        // must have 6 digits
-
-        if(code.length() != 6)
-
-        return false;
-
-
-
-        // make if uppercase for not having to chack for A to Z AND a to z
-
-        code = code.toUpperCase();
-
-        // translate into digit
-
-        char[] digit = code.toCharArray();
-
-        for(int i = 0; i < 4; ++i) {
-
-            if(digit[i] < '0' || digit[i] > '9')
-
-            return false;
-
-        }
-
-        for(int i = 4; i < 6; ++i) {
-
-            if(digit[i] < 'A' || digit[i] > 'Z')
-
-            return false;
-
-        }
-
-        // sounds OK to me
-
-        return true;
-
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -2654,9 +2699,20 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
             if (resultCode == Activity.RESULT_OK) {
 
                 if (imageUri != null) {
+
                     inspect(imageUri);
 
-                    if (flag == 1) {
+                    try {
+                        performCrop(imageUri);
+
+                    } catch (ActivityNotFoundException e) {
+
+                        String errorMessage = "Whoops - your device doesn't support the crop action!";
+                        Toast toast = Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT);
+                        toast.show();
+                    }
+
+                    /*if (flag == 1) {
 
                         InputStream image_stream = null;
                         try {
@@ -2664,24 +2720,16 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                         } catch (FileNotFoundException e) {
                             e.printStackTrace();
                         }
+
+
                         Bitmap bitmap= BitmapFactory.decodeStream(image_stream );
                         int nh = (int) ( bitmap.getHeight() * (512.0 / bitmap.getWidth()) );
                         Bitmap scaled = Bitmap.createScaledBitmap(bitmap, 512, nh, true);
                         cardImg.setImageBitmap(scaled);
-                       /* compressImage(String.valueOf(imageUri));
-                        Picasso.with(getActivity()).load(imageUri).error(R.drawable.card).into(cardImg);*/
-                       /* try {
-                            cardImg.setImageURI(imageUri);
 
-
-                        } catch (OutOfMemoryError e) {
-                            e.printStackTrace();
-                        }*/
                         // cardImg.setImageBitmap(bitmap);
-
                         frountImageBase64 = getEncoded64ImageStringFromBitmap(bitmap);
                         Log.e("checking the back 64",frountImageBase64);
-                        //convert base64
 
                         flag = 0;
                     }else if (flag == 2) {
@@ -2712,10 +2760,72 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                         flag = 0;
                     }
                    // cardImg.setImageURI(imageUri);
+                }*/
+
+                }
+            }
+        }else if (requestCode == PIC_CROP) {
+
+
+            if (flag == 1) {
+
+                /*ContentValues values = new ContentValues();
+                values.put(MediaStore.Images.Media.TITLE, filename);
+                values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
+                imageUri = getActivity().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);*/
+
+                InputStream image_stream = null;
+                try {
+                    image_stream = getActivity().getContentResolver().openInputStream(imageUri);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
                 }
 
+                Bitmap bitmap = BitmapFactory.decodeStream(image_stream);
+                int nh = (int) (bitmap.getHeight() * (512.0 / bitmap.getWidth()));
+                Bitmap scaled = Bitmap.createScaledBitmap(bitmap, 512, nh, true);
+               // inspectFromBitmap(scaled);
+                cardImg.setImageBitmap(scaled);
+
+                // cardImg.setImageBitmap(bitmap);
+                frountImageBase64 = getEncoded64ImageStringFromBitmap(bitmap);
+                Log.e("checking the back 64", frountImageBase64);
+
+                flag = 0;
+            } else if (flag == 2) {
+
+                LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 500);
+                backCardImg.setLayoutParams(layoutParams);
+
+                InputStream image_stream = null;
+                try {
+                    image_stream = getActivity().getContentResolver().openInputStream(imageUri);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                Bitmap bitmap = BitmapFactory.decodeStream(image_stream);
+                try {
+                    backCardImg.setImageBitmap(bitmap);
+                } catch (OutOfMemoryError e) {
+                    e.printStackTrace();
+                }
+
+
+                backImageBase64 = getEncoded64ImageStringFromBitmap(bitmap);
+                Log.e("checking the frount 64", backImageBase64);
+                //convert base64
+
+
+                //  backCardImg.setImageBitmap(decodeSampledBitmapFromResource(getPath(imageUri), 200, 200));
+                flag = 0;
             }
         }
+    }
+    public Uri getImageUri(Context inContext, Bitmap inImage) {
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        inImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        String path = MediaStore.Images.Media.insertImage(inContext.getContentResolver(), inImage, "Title", null);
+        return Uri.parse(path);
     }
 
     public String compressImage(String imageUri) {
@@ -2878,23 +2988,6 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
         return inSampleSize;
     }
 
-   /* public static int calculateInSampleSize(
-            BitmapFactory.Options options, int reqWidth, int reqHeight) {
-// Raw height and width of image
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        int inSampleSize = 2;
-
-        if (height > reqHeight || width > reqWidth) {
-            if (width > height) {
-                inSampleSize = Math.round((float) height / (float) reqHeight);
-            } else {
-                inSampleSize = Math.round((float) width / (float) reqWidth);
-            }
-        }
-        return inSampleSize;
-    }
-*/
     //convert bitmap to base64
     public String getEncoded64ImageStringFromBitmap(Bitmap bitmap) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
@@ -2976,7 +3069,6 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
      //  Log.e("businessVerticalTypeString Cheking the tYpe",cusId);
     }
 
-
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
@@ -2999,8 +3091,6 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
         popupWindow.showAtLocation(popupView, Gravity.CENTER, 0, 0);
         save = (Button) popupView.findViewById(R.id.saveBtn);
         cancel = (Button) popupView.findViewById(R.id.cancelbtutton);
-
-
 
         save.setOnClickListener(new View.OnClickListener() {
 
@@ -3085,7 +3175,6 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
         });
 
-
         cancel.setOnClickListener(new View.OnClickListener() {
 
             public void onClick(View arg0) {
@@ -3097,17 +3186,10 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
         searchData = (EditText) popupView.findViewById(R.id.editTextsearching);
         serchListData = (ListView) popupView.findViewById(R.id.listview_customer_list);
 
-
         final DemoCustomeAdapter demoCustomeAdapter = new DemoCustomeAdapter(getActivity(), list, this,checkingType,this,this,this,
                 this);
         serchListData.setAdapter(demoCustomeAdapter);
-
-
-
-
-
-
-            serchListData.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        serchListData.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
@@ -3140,33 +3222,30 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
             });
         }
 
-   /* private void performCrop() {
-        // take care of exceptions
-        try {
-            // call the standard crop action intent (the user device may not
-            // support it)
+    private void performCrop(Uri picUri) {
+
             Intent cropIntent = new Intent("com.android.camera.action.CROP");
             // indicate image type and Uri
-            cropIntent.setDataAndType(picUri, "image*//*");
-            // set crop properties
-            cropIntent.putExtra("crop", "true");
+            cropIntent.setDataAndType(picUri, "image/*");
+            // set crop properties here
+            cropIntent.putExtra("crop", true);
             // indicate aspect of desired crop
-            cropIntent.putExtra("aspectX", 2);
-            cropIntent.putExtra("aspectY", 1);
+            cropIntent.putExtra("aspectX", 3.370);
+            cropIntent.putExtra("aspectY", 2.125);
             // indicate output X and Y
-            cropIntent.putExtra("outputX", 256);
-            cropIntent.putExtra("outputY", 256);
+            cropIntent.putExtra("outputX", 512);
+            cropIntent.putExtra("outputY", 512);
             // retrieve data on return
             cropIntent.putExtra("return-data", true);
             // start the activity - we handle returning in onActivityResult
-            startActivityForResult(cropIntent, CROP_PIC);
-        }
-        // respond to users whose devices do not support the crop action
-        catch (ActivityNotFoundException anfe) {
-            Toast toast = Toast
-                    .makeText(this, "This device doesn't support the crop action!", Toast.LENGTH_SHORT);
-            toast.show();
-        }
-    }*/
-    }
+            startActivityForResult(cropIntent, PIC_CROP);
 
+
+
+
+            // display an error message
+
+
+
+    }
+}

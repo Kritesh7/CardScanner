@@ -36,6 +36,7 @@ import cardscaner.cfcs.com.cardscanner.Model.CustomerDetailsModel;
 import cardscaner.cfcs.com.cardscanner.Model.ZoneListModel;
 import cardscaner.cfcs.com.cardscanner.R;
 import cardscaner.cfcs.com.cardscanner.source.AppController;
+import cardscaner.cfcs.com.cardscanner.source.ConnectionDetector;
 import cardscaner.cfcs.com.cardscanner.source.LinearLayoutManagerWithSmoothScroller;
 import cardscaner.cfcs.com.cardscanner.source.SettingConstant;
 import cardscaner.cfcs.com.cardscanner.source.SharedPrefs;
@@ -64,6 +65,7 @@ public class CardFragment extends Fragment {
     public String getCustomerListUrl = SettingConstant.BASEURL_FOR_LOGIN + "DigiCardScannerService.asmx/AppCustomerList";
     public String userId = "",authCode = "";
     public TextView cardTxt;
+    public ConnectionDetector conn;
 
     private OnFragmentInteractionListener mListener;
 
@@ -99,6 +101,7 @@ public class CardFragment extends Fragment {
         cardTxt = (TextView)rootView.findViewById(R.id.no_customer);
         userId = UtilsMethods.getBlankIfStringNull(String.valueOf(SharedPrefs.getUserId(getActivity())));
         authCode = UtilsMethods.getBlankIfStringNull(String.valueOf(SharedPrefs.getAuthCode(getActivity())));
+        conn = new ConnectionDetector(getActivity());
 
         adapter = new CardListAdapter(getActivity(),list,getActivity());
         cardRecycler.setLayoutManager(new LinearLayoutManagerWithSmoothScroller(getActivity()));
@@ -110,12 +113,26 @@ public class CardFragment extends Fragment {
 
        // prepareMemberData();
 
-        getCustomerList(authCode,userId,"","0","0","0","0","0");
+
 
         return rootView;
     }
 
- /*  private void prepareMemberData() {
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (conn.getConnectivityStatus()>0)
+        {
+            getCustomerList(authCode,userId,"","0","0","0","0","0");
+
+        }else
+            {
+                conn.showNoInternetAlret();
+            }
+    }
+
+    /*  private void prepareMemberData() {
         CardListModel model = new CardListModel("Himanshu Dubey","Nmtronics Privat Limited");
         list.add(model);
 
@@ -146,6 +163,11 @@ public class CardFragment extends Fragment {
                     JSONArray jsonArray = null;
                     try {
                         jsonArray = new JSONArray(response.substring(response.indexOf("["),response.lastIndexOf("]") +1 ));
+
+                        if (list.size()>0)
+                        {
+                            list.clear();
+                        }
                         for (int i=0; i<jsonArray.length(); i++)
                         {
                             JSONObject object = jsonArray.getJSONObject(i);
