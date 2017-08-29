@@ -1,8 +1,8 @@
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#fafafa"
     tools:context="cardscaner.cfcs.com.cardscanner.Fragment.CardFragment">
 
@@ -12,6 +12,14 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
+       <!-- <ImageView
+            android:id="@+id/filterbtn"
+            android:layout_gravity="right"
+            android:padding="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/filter"/>-->
 
     <cardscaner.cfcs.com.cardscanner.source.CustomRecyclerView
         android:scrollbars="vertical"
@@ -34,5 +42,16 @@
 
 
     </LinearLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/filterbtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="@dimen/fab_margin"
+        app:backgroundTint="@color/status_color"
+        app:elevation="6dp"
+        android:src="@drawable/filter"
+        />
 
 </FrameLayout>

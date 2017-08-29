@@ -5,10 +5,13 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
+import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.OperationApplicationException;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -20,8 +23,12 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.RemoteException;
+import android.provider.Contacts;
+import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -40,6 +47,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -139,6 +148,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
     public ListView serchListData;
     private static final String TAG = "Cam Scanner";
     private static final int REQUEST_WRITE_PERMISSION = 20;
+    private static final int REQUEST_WRITE_CONTACTS_PERMISSION = 30;
     public MasterDatabase masterDatabase;
     public ArrayList<String> phoneNumberListAll = new ArrayList<>();
 
@@ -183,12 +193,14 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
     public String getDdlListUrl = SettingConstant.BASEURL_FOR_LOGIN + "DigiCardScannerService.asmx/AppddlList";
     public String insertDataUrl = SettingConstant.BASEURL_FOR_LOGIN + "DigiCardScannerService.asmx/AppCustomerInsUpdt";
     public Button subButton;
+    private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 100;
+    public CheckBox contactSave;
     public String Name = "", Designation = "", Company = "", ZoneName = "", zoneNameSend = "", EmailID = "", OfficeAddress = "", PrincipleName = "",
             BusinessVerticalName = "", IndustryTypeName = "", IndustrySegmentName = "", Website = "", ManagementLevel = "", FactoryAddress = "",
             ResidenceAddress = "", EmailID2 = "", NumberType = "", NumberType2 = "", NumberType3 = "", NumberType4 = "",
             NumberType5 = "", Number = "", Number2 = "", Number3 = "", Number4 = "", Number5 = "", customerIdGet = "", ZoneIDSend = "",
             CardFrontImage = "", CardBackImage = "", PrincipleNameId = "",
-            BusinessVerticalNameId = "", IndustryTypeNameId = "", IndustrySegmentNameId = "";
+            BusinessVerticalNameId = "", IndustryTypeNameId = "", IndustrySegmentNameId = "",checkedCheckBox = "";
     final int PIC_CROP = 2;
 
 
@@ -263,7 +275,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
         emailIdSecond = (EditTextMonitor) rootView.findViewById(R.id.emailidsecond_text);
         subButton = (Button) rootView.findViewById(R.id.submitbtn);
         remarkTxt = (EditTextMonitor) rootView.findViewById(R.id.remarks);
-
+        contactSave = (CheckBox)rootView.findViewById(R.id.savecontact);
         masterDatabase = new MasterDatabase(getActivity());
         conn = new ConnectionDetector(getActivity());
         userId = UtilsMethods.getBlankIfStringNull(String.valueOf(SharedPrefs.getUserId(getActivity())));
@@ -590,6 +602,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
                 flag = 2;
                 requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA}, REQUEST_WRITE_PERMISSION);
+                //requestPermissions(new String[]{Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS}, REQUEST_WRITE_PERMISSION);
 
             }
         });
@@ -1079,9 +1092,50 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
                             } else {
 
-                                if (emailIdSecond.getText().toString().equalsIgnoreCase(""))
+                                if (nameTxt.getText().toString().equalsIgnoreCase(""))
+                                {
+                                    nameTxt.setError("Please enter valid Name");
+                                }else if (phoneTxt.getText().toString().equalsIgnoreCase("") &&
+                                        phoneNumberTxt.getText().toString().equalsIgnoreCase("") &&
+                                        PhoneTxtthird.getText().toString().equalsIgnoreCase("") &&
+                                        phoneNumerfour.getText().toString().equalsIgnoreCase("")&&
+                                        phonenumerfivth.getText().toString().equalsIgnoreCase(""))
+                                {
+                                    phoneTxt.setError("Please Enter Valid Phone Number");
+                                }else if (!phoneTxt.getText().toString().equalsIgnoreCase("") && !phoneTxt.getText().toString().contains("+"))
+                                {
+                                    Toast.makeText(getActivity(), "Please Enter Country Code", Toast.LENGTH_SHORT).show();
+                                }else if (!phoneNumberTxt.getText().toString().equalsIgnoreCase("") && !phoneNumberTxt.getText().toString().contains("+"))
+                                {
+                                    Toast.makeText(getActivity(), "Please Enter Country Code", Toast.LENGTH_SHORT).show();
+                                }else if (!PhoneTxtthird.getText().toString().equalsIgnoreCase("") && !PhoneTxtthird.getText().toString().contains("+"))
+                                {
+                                    Toast.makeText(getActivity(), "Please Enter Country Code", Toast.LENGTH_SHORT).show();
+                                }else if (!phoneNumerfour.getText().toString().equalsIgnoreCase("")&& !phoneNumerfour.getText().toString().contains("+"))
+                                {
+                                    Toast.makeText(getActivity(), "Please Enter Country Code", Toast.LENGTH_SHORT).show();
+                                }else if (!phonenumerfivth.getText().toString().equalsIgnoreCase("") && !phonenumerfivth.getText().toString().contains("+"))
+                                {
+                                    Toast.makeText(getActivity(), "Please Enter Country Code", Toast.LENGTH_SHORT).show();
+                                }
+                                else if (emailIdSecond.getText().toString().equalsIgnoreCase(""))
                                 {
                                     emailIdSecond.setError("Please Enter Valid EmailId");
+
+                                }else if (businessVerticalTypeString.equalsIgnoreCase(""))
+                                {
+                                    Toast.makeText(getActivity(), "Please Select Business Vertical", Toast.LENGTH_SHORT).show();
+                                }else if (industrySegmentString.equalsIgnoreCase(""))
+                                {
+                                    Toast.makeText(getActivity(), "Please Select Industry Segment", Toast.LENGTH_SHORT).show();
+
+                                }else if (industryTypeString.equalsIgnoreCase(""))
+                                {
+                                    Toast.makeText(getActivity(), "Please Select Industry Type", Toast.LENGTH_SHORT).show();
+
+                                }else if (principleTypeString.equalsIgnoreCase(""))
+                                {
+                                    Toast.makeText(getActivity(), "Please Select Principle Type", Toast.LENGTH_SHORT).show();
 
                                 }else if (managementTypeIdString.equalsIgnoreCase("0"))
                                 {
@@ -1093,7 +1147,8 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                         && thirdaddress.equalsIgnoreCase(""))
                                 {
                                     Toast.makeText(getActivity(), "Please Select Address Type", Toast.LENGTH_SHORT).show();
-                                } else {
+                                }else {
+
                                     insertData(authCode, userId, customerIdGet, "", nameTxt.getText().toString(), "", designation.getText().toString(),
                                             company_name.getText().toString(), webUrlTxt.getText().toString(), managementTypeIdString,
                                             zoneIdString, emailTxt.getText().toString(), emailIdSecond.getText().toString(), numberTypeOne,
@@ -1249,10 +1304,53 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                 );
 
                             } else {
-                                if (emailIdSecond.getText().toString().equalsIgnoreCase(""))
+
+                                if (nameTxt.getText().toString().equalsIgnoreCase(""))
+                                {
+                                    nameTxt.setError("Please enter valid Name");
+                                }else if (phoneTxt.getText().toString().equalsIgnoreCase("") &&
+                                        phoneNumberTxt.getText().toString().equalsIgnoreCase("") &&
+                                        PhoneTxtthird.getText().toString().equalsIgnoreCase("") &&
+                                        phoneNumerfour.getText().toString().equalsIgnoreCase("")&&
+                                        phonenumerfivth.getText().toString().equalsIgnoreCase(""))
+                                {
+                                    phoneTxt.setError("Please Enter Valid Phone Number");
+                                }else if (!phoneTxt.getText().toString().equalsIgnoreCase("") && !phoneTxt.getText().toString().contains("+"))
+                                {
+                                    Toast.makeText(getActivity(), "Please Enter Country Code", Toast.LENGTH_SHORT).show();
+                                }else if (!phoneNumberTxt.getText().toString().equalsIgnoreCase("") && !phoneNumberTxt.getText().toString().contains("+"))
+                                {
+                                    Toast.makeText(getActivity(), "Please Enter Country Code", Toast.LENGTH_SHORT).show();
+                                }else if (!PhoneTxtthird.getText().toString().equalsIgnoreCase("") && !PhoneTxtthird.getText().toString().contains("+"))
+                                {
+                                    Toast.makeText(getActivity(), "Please Enter Country Code", Toast.LENGTH_SHORT).show();
+                                }else if (!phoneNumerfour.getText().toString().equalsIgnoreCase("")&& !phoneNumerfour.getText().toString().contains("+"))
+                                {
+                                    Toast.makeText(getActivity(), "Please Enter Country Code", Toast.LENGTH_SHORT).show();
+                                }else if (!phonenumerfivth.getText().toString().equalsIgnoreCase("") && !phonenumerfivth.getText().toString().contains("+"))
+                                {
+                                    Toast.makeText(getActivity(), "Please Enter Country Code", Toast.LENGTH_SHORT).show();
+                                }
+                                else if (emailIdSecond.getText().toString().equalsIgnoreCase(""))
                                 {
                                     emailIdSecond.setError("Please Enter Valid EmailId");
-                                }else if (managementTypeIdString.equalsIgnoreCase("0"))
+
+                                }else if (businessVerticalTypeString.equalsIgnoreCase(""))
+                                {
+                                    Toast.makeText(getActivity(), "Please Select Business Vertical", Toast.LENGTH_SHORT).show();
+                                }else if (industrySegmentString.equalsIgnoreCase(""))
+                                {
+                                    Toast.makeText(getActivity(), "Please Select Industry Segment", Toast.LENGTH_SHORT).show();
+
+                                }else if (industryTypeString.equalsIgnoreCase(""))
+                                {
+                                    Toast.makeText(getActivity(), "Please Select Industry Type", Toast.LENGTH_SHORT).show();
+
+                                }else if (principleTypeString.equalsIgnoreCase(""))
+                                {
+                                    Toast.makeText(getActivity(), "Please Select Principle Type", Toast.LENGTH_SHORT).show();
+
+                                } else if (managementTypeIdString.equalsIgnoreCase("0"))
                                 {
                                     Toast.makeText(getActivity(), "Please Select Management Type", Toast.LENGTH_SHORT).show();
                                 }else if (contactTypeIdString.equalsIgnoreCase("0"))
@@ -1277,6 +1375,40 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                     }
                 }
             });
+
+
+        contactSave.setText("Save Contact");
+
+        //save Contacts
+        contactSave.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+
+                if (b)
+                {
+
+                    contactSave.setEnabled(false);
+
+                    // Check the SDK version and whether the permission is already granted or not.
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && getActivity().checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+                        requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, PERMISSIONS_REQUEST_READ_CONTACTS);
+                        //After this point you wait for callback in onRequestPermissionsResult(int, String[], int[]) overriden method
+                    } else {
+
+                        checkedCheckBox = "1";
+
+                    }
+
+                }else
+                    {
+                        checkedCheckBox = "0";
+                    }
+            }
+        });
+
+
+
+
 
 
             return rootView;
@@ -1516,6 +1648,114 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                     if (status.equalsIgnoreCase("success"))
                     {
                            subButton.setEnabled(false);
+
+                        if (checkedCheckBox.equalsIgnoreCase("1"))
+                        {
+                            if (!nameTxt.getText().toString().equalsIgnoreCase("")) {
+
+                                String comapnyNameStrings = company_name.getText().toString();
+                                if (!detectedTextView.getText().toString().equalsIgnoreCase(""))
+                                {
+                                    comapnyNameStrings = detectedTextView.getText().toString();
+                                }
+
+                                //save contact details my Phone
+                                ArrayList<ContentProviderOperation> ops = new ArrayList<ContentProviderOperation>();
+                                int rawContactInsertIndex = ops.size();
+
+                                ops.add(ContentProviderOperation.newInsert(ContactsContract.RawContacts.CONTENT_URI)
+                                        .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
+                                        .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null).build());
+
+                                //Phone Number
+                                ops.add(ContentProviderOperation
+                                        .newInsert(ContactsContract.Data.CONTENT_URI)
+                                        .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID,
+                                                rawContactInsertIndex)
+                                        .withValue(ContactsContract.Contacts.Data.MIMETYPE, ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
+                                        .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, phoneTxt.getText().toString())
+                                        .withValue(ContactsContract.Contacts.Data.MIMETYPE, ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
+                                        .withValue(ContactsContract.CommonDataKinds.Phone.TYPE, "1").build());
+
+                                //Display name/Contact name
+                                ops.add(ContentProviderOperation
+                                        .newInsert(ContactsContract.Data.CONTENT_URI)
+                                        .withValueBackReference(ContactsContract.Contacts.Data.RAW_CONTACT_ID,
+                                                rawContactInsertIndex)
+                                        .withValue(ContactsContract.Contacts.Data.MIMETYPE, ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
+                                        .withValue(ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME, nameTxt.getText().toString())
+                                        .build());
+                                //Email details
+                                ops.add(ContentProviderOperation
+                                        .newInsert(ContactsContract.Data.CONTENT_URI)
+                                        .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID,
+                                                rawContactInsertIndex)
+                                        .withValue(ContactsContract.Contacts.Data.MIMETYPE, ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE)
+                                        .withValue(ContactsContract.CommonDataKinds.Email.DATA, emailIdSecond.getText().toString())
+                                        .withValue(ContactsContract.Contacts.Data.MIMETYPE, ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE)
+                                        .withValue(ContactsContract.CommonDataKinds.Email.TYPE, "2").build());
+
+
+                                //Postal Address
+
+                                ops.add(ContentProviderOperation
+                                        .newInsert(ContactsContract.Data.CONTENT_URI)
+                                        .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID,
+                                                rawContactInsertIndex)
+                                        .withValue(ContactsContract.Contacts.Data.MIMETYPE, ContactsContract.CommonDataKinds.StructuredPostal.CONTENT_ITEM_TYPE)
+                                        .withValue(ContactsContract.CommonDataKinds.StructuredPostal.POBOX, "Postbox")
+
+                                        .withValue(ContactsContract.Contacts.Data.MIMETYPE, ContactsContract.CommonDataKinds.StructuredPostal.CONTENT_ITEM_TYPE)
+                                        .withValue(ContactsContract.CommonDataKinds.StructuredPostal.STREET, addresstxt.getText().toString())
+
+                                        .withValue(ContactsContract.Contacts.Data.MIMETYPE, ContactsContract.CommonDataKinds.StructuredPostal.CONTENT_ITEM_TYPE)
+                                        .withValue(ContactsContract.CommonDataKinds.StructuredPostal.CITY, thirdTxt.getText().toString())
+
+                                        .withValue(ContactsContract.Contacts.Data.MIMETYPE, ContactsContract.CommonDataKinds.StructuredPostal.CONTENT_ITEM_TYPE)
+                                        .withValue(ContactsContract.CommonDataKinds.StructuredPostal.REGION, "region")
+
+                                        .withValue(ContactsContract.Contacts.Data.MIMETYPE, ContactsContract.CommonDataKinds.StructuredPostal.CONTENT_ITEM_TYPE)
+                                        .withValue(ContactsContract.CommonDataKinds.StructuredPostal.POSTCODE, "postcode")
+
+                                        .withValue(ContactsContract.Contacts.Data.MIMETYPE, ContactsContract.CommonDataKinds.StructuredPostal.CONTENT_ITEM_TYPE)
+                                        .withValue(ContactsContract.CommonDataKinds.StructuredPostal.COUNTRY, "country")
+
+                                        .withValue(ContactsContract.Contacts.Data.MIMETYPE, ContactsContract.CommonDataKinds.StructuredPostal.CONTENT_ITEM_TYPE)
+                                        .withValue(ContactsContract.CommonDataKinds.StructuredPostal.TYPE, "3")
+
+
+                                        .build());
+
+
+                                //Organization details
+                                ops.add(ContentProviderOperation
+                                        .newInsert(ContactsContract.Data.CONTENT_URI)
+                                        .withValueBackReference(ContactsContract.Contacts.Data.RAW_CONTACT_ID,
+                                                rawContactInsertIndex)
+                                        .withValue(ContactsContract.Contacts.Data.MIMETYPE, ContactsContract.CommonDataKinds.Organization.CONTENT_ITEM_TYPE)
+                                        .withValue(ContactsContract.CommonDataKinds.Organization.COMPANY, comapnyNameStrings)
+                                        .withValue(ContactsContract.Contacts.Data.MIMETYPE, ContactsContract.CommonDataKinds.Organization.CONTENT_ITEM_TYPE)
+                                        .withValue(ContactsContract.CommonDataKinds.Organization.TITLE, designation.getText().toString())
+                                        .withValue(ContactsContract.Contacts.Data.MIMETYPE, ContactsContract.CommonDataKinds.Organization.CONTENT_ITEM_TYPE)
+                                        .withValue(ContactsContract.CommonDataKinds.Organization.TYPE, "0")
+
+                                        .build());
+
+                                try {
+                                    ContentProviderResult[] res = getActivity().getContentResolver().applyBatch(
+                                            ContactsContract.AUTHORITY, ops);
+                                } catch (RemoteException e) {
+                                    // TODO Auto-generated catch block
+                                    e.printStackTrace();
+                                } catch (OperationApplicationException e) {
+                                    // TODO Auto-generated catch block
+                                    e.printStackTrace();
+                                }
+
+                                Toast.makeText(getActivity(), "Your Contact Details is saved", Toast.LENGTH_SHORT).show();
+
+                            }
+                        }
                     }
 
                     pDialog.dismiss();
@@ -1614,10 +1854,17 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                     startActivityForResult(intent, REQUEST_CAMERA);
 
 
-
                     // cardImg.setImageURI(imageUri);
-                } else {
-                    Toast.makeText(getActivity(), "Permission Denied!", Toast.LENGTH_SHORT).show();
+                } else if (requestCode == PERMISSIONS_REQUEST_READ_CONTACTS) {
+                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                        checkedCheckBox = "1";
+
+                    } else {
+                        Toast.makeText(getActivity(), "Permission Denied!", Toast.LENGTH_SHORT).show();
+                    }
+
+
                 }
         }
     }
@@ -2416,7 +2663,6 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                                                 }
                                                         }
                                                     }
-
                                                 }
                                             }
                                         }
@@ -3244,8 +3490,5 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
 
             // display an error message
-
-
-
     }
 }

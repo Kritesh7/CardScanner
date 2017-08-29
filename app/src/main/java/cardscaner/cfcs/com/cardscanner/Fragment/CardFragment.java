@@ -2,16 +2,30 @@ package cardscaner.cfcs.com.cardscanner.Fragment;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ExpandableListView;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,9 +42,21 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import cardscaner.cfcs.com.cardscanner.Adapter.CardListAdapter;
+import cardscaner.cfcs.com.cardscanner.Adapter.DemoCustomeAdapter;
+import cardscaner.cfcs.com.cardscanner.Adapter.ExpandableListAdapter;
+import cardscaner.cfcs.com.cardscanner.Database.BusinessVerticalMasterTable;
+import cardscaner.cfcs.com.cardscanner.Database.IndustrySegmentMasterTable;
+import cardscaner.cfcs.com.cardscanner.Database.IndustryTypeMasterTable;
+import cardscaner.cfcs.com.cardscanner.Database.MasterDatabase;
+import cardscaner.cfcs.com.cardscanner.Database.NumberTypeMasterTable;
+import cardscaner.cfcs.com.cardscanner.Database.PrincipleMasterTable;
+import cardscaner.cfcs.com.cardscanner.Database.ZoneMasterTable;
+import cardscaner.cfcs.com.cardscanner.Interface.ExpandDataisInterface;
+import cardscaner.cfcs.com.cardscanner.Model.AllExapndableListModel;
 import cardscaner.cfcs.com.cardscanner.Model.CardListModel;
 import cardscaner.cfcs.com.cardscanner.Model.CustomerDetailsModel;
 import cardscaner.cfcs.com.cardscanner.Model.ZoneListModel;
@@ -42,6 +68,8 @@ import cardscaner.cfcs.com.cardscanner.source.SettingConstant;
 import cardscaner.cfcs.com.cardscanner.source.SharedPrefs;
 import cardscaner.cfcs.com.cardscanner.source.UtilsMethods;
 
+import static android.content.Context.LAYOUT_INFLATER_SERVICE;
+
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
@@ -50,7 +78,7 @@ import cardscaner.cfcs.com.cardscanner.source.UtilsMethods;
  * Use the {@link CardFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class CardFragment extends Fragment {
+public class CardFragment extends Fragment implements ExpandDataisInterface {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -66,6 +94,19 @@ public class CardFragment extends Fragment {
     public String userId = "",authCode = "";
     public TextView cardTxt;
     public ConnectionDetector conn;
+    public PopupWindow popupWindow;
+    ExpandableListAdapter listAdapter;
+    ExpandableListView expListView;
+    List<String> listDataHeader;
+    HashMap<String, List<AllExapndableListModel>> listDataChild;
+    public FloatingActionButton filterBtn;
+    public List<AllExapndableListModel> principleList = new ArrayList<AllExapndableListModel>();
+    public  List<AllExapndableListModel> businessVerticalList = new ArrayList<AllExapndableListModel>();
+    public List<AllExapndableListModel> industrySegmentList = new ArrayList<AllExapndableListModel>();
+    public List<AllExapndableListModel> industryTypeList = new ArrayList<AllExapndableListModel>();
+    public List<AllExapndableListModel> zoneTypeList = new ArrayList<AllExapndableListModel>();
+    public MasterDatabase masterdatbase;
+    public String headerValueName = "",valueId = "0";
 
     private OnFragmentInteractionListener mListener;
 
@@ -99,9 +140,11 @@ public class CardFragment extends Fragment {
 
         cardRecycler = (RecyclerView)rootView.findViewById(R.id.card_recyceler);
         cardTxt = (TextView)rootView.findViewById(R.id.no_customer);
+        filterBtn = (FloatingActionButton)rootView.findViewById(R.id.filterbtn);
         userId = UtilsMethods.getBlankIfStringNull(String.valueOf(SharedPrefs.getUserId(getActivity())));
         authCode = UtilsMethods.getBlankIfStringNull(String.valueOf(SharedPrefs.getAuthCode(getActivity())));
         conn = new ConnectionDetector(getActivity());
+        masterdatbase = new MasterDatabase(getActivity());
 
         adapter = new CardListAdapter(getActivity(),list,getActivity());
         cardRecycler.setLayoutManager(new LinearLayoutManagerWithSmoothScroller(getActivity()));
@@ -112,6 +155,14 @@ public class CardFragment extends Fragment {
         cardRecycler.setAdapter(adapter);
 
        // prepareMemberData();
+
+        filterBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                callPopup();
+            }
+        });
 
 
 
@@ -254,8 +305,232 @@ public class CardFragment extends Fragment {
 
     }
 
+    @Override
+    public void getExpandId(String Id) {
+
+
+        if (headerValueName.equalsIgnoreCase("Principle"))
+        {
+            valueId = Id;
+            getCustomerList(authCode,userId,"",valueId,"0","0","0","0");
+            popupWindow.dismiss();
+
+        }else if (headerValueName.equalsIgnoreCase("Business Vertical"))
+        {
+            valueId = Id;
+            getCustomerList(authCode,userId,"","0",valueId,"0","0","0");
+            popupWindow.dismiss();
+
+        }else if (headerValueName.equalsIgnoreCase("Industry Segment"))
+        {
+            valueId = Id;
+            getCustomerList(authCode,userId,"","0","0",valueId,"0","0");
+            popupWindow.dismiss();
+
+        }else if (headerValueName.equalsIgnoreCase("Industry Type"))
+        {
+            valueId = Id;
+            getCustomerList(authCode,userId,"","0","0","0",valueId,"0");
+            popupWindow.dismiss();
+
+        }else if (headerValueName.equalsIgnoreCase("Region"))
+        {
+            valueId = Id;
+            getCustomerList(authCode,userId,"","0","0","0","0",valueId);
+            popupWindow.dismiss();
+
+        }
+
+      //  Toast.makeText(getActivity(), valueId, Toast.LENGTH_SHORT).show();
+
+    }
+
+
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
+    //call popup
+    private void callPopup() {
+
+        LayoutInflater layoutInflater = (LayoutInflater) getActivity().getBaseContext()
+                .getSystemService(LAYOUT_INFLATER_SERVICE);
+        View popupView = layoutInflater.inflate(R.layout.filter_layout, null);
+        Button cancel, save;
+        popupWindow = new PopupWindow(popupView,
+                RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT,
+                true);
+        popupWindow.setTouchable(true);
+        popupWindow.setFocusable(true);
+        popupWindow.setAnimationStyle(R.style.animationName);
+        popupWindow.showAtLocation(popupView, Gravity.CENTER_HORIZONTAL, 0, 0);
+
+        expListView = (ExpandableListView)popupView.findViewById(R.id.lvExp);
+        prepareListData();
+        listAdapter = new ExpandableListAdapter(getActivity(), listDataHeader, listDataChild,this);
+        expListView.setAdapter(listAdapter);
+
+        expListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+            @Override
+            public boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
+
+              //  Toast.makeText(getActivity(), listDataHeader.get(i), Toast.LENGTH_SHORT).show();
+                headerValueName = listDataHeader.get(i);
+                return false;
+            }
+        });
+
+
+       /* expListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+            @Override
+            public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i1, long l) {
+
+                AllExapndableListModel child = (AllExapndableListModel) ExpandableListAdapter.getChild(i, i1);
+
+                return true;
+            }
+        });
+*/
+
+       /* save = (Button) popupView.findViewById(R.id.saveBtn);
+        cancel = (Button) popupView.findViewById(R.id.cancelbtutton);*/
+
+
+       /* cancel.setOnClickListener(new View.OnClickListener() {
+
+            public void onClick(View arg0) {
+
+                popupWindow.dismiss();
+            }
+        });*/
+
+    }
+    private void prepareListData() {
+        listDataHeader = new ArrayList<String>();
+        listDataChild = new HashMap<String, List<AllExapndableListModel>>();
+
+        // Adding child data
+        listDataHeader.add("Region");
+        listDataHeader.add("Business Vertical");
+        listDataHeader.add("Industry Segment");
+        listDataHeader.add("Industry Type");
+        listDataHeader.add("Principle");
+
+
+        // Adding child data
+
+        //checking zone list also
+        Cursor zoneTypeCursor = masterdatbase.getZoneMasterTable(userId);
+        if (zoneTypeCursor != null && zoneTypeCursor.getCount() > 0) {
+            if (zoneTypeList.size() > 0) {
+                zoneTypeList.clear();
+            }
+            if (zoneTypeCursor.moveToFirst()) {
+                do {
+
+                    String zoneId = zoneTypeCursor.getString(zoneTypeCursor.getColumnIndex(ZoneMasterTable.zoneID));
+                    String zoneName = zoneTypeCursor.getString(zoneTypeCursor.getColumnIndex(ZoneMasterTable.zoneName));
+
+                    zoneTypeList.add(new AllExapndableListModel(zoneName,zoneId));
+
+
+                } while (zoneTypeCursor.moveToNext());
+            }
+
+
+        //checking the BusinessVertical data is save In local database or not!------------
+        Cursor cursor = masterdatbase.getBusinessVerticalMasterTableData(userId);
+        if (cursor != null && cursor.getCount() > 0) {
+            if (businessVerticalList.size() > 0) {
+                businessVerticalList.clear();
+            }
+            if (cursor.moveToFirst()) {
+                do {
+
+                    String businessVerticalId = cursor.getString(cursor.getColumnIndex(BusinessVerticalMasterTable.businessVerticalID));
+                    String businessVerticalType = cursor.getString(cursor.getColumnIndex(BusinessVerticalMasterTable.businessVertical));
+
+
+                    businessVerticalList.add(new AllExapndableListModel(businessVerticalType, businessVerticalId));
+
+                } while (cursor.moveToNext());
+            }
+
+        }
+
+        //Industry Segment local database checking
+        Cursor industryCursor = masterdatbase.getIndustrySegmentMasterTable(userId);
+        if (industryCursor != null && industryCursor.getCount() > 0) {
+            if (industrySegmentList.size() > 0) {
+                industrySegmentList.clear();
+
+            }
+            if (industryCursor.moveToFirst()) {
+                do {
+
+                    String industrySegmentID = industryCursor.getString(industryCursor.getColumnIndex(IndustrySegmentMasterTable.industrySegmentID));
+                    String industrySegment = industryCursor.getString(industryCursor.getColumnIndex(IndustrySegmentMasterTable.industrySegment));
+
+                    industrySegmentList.add(new AllExapndableListModel(industrySegment, industrySegmentID));
+
+                } while (industryCursor.moveToNext());
+            }
+
+        }
+
+
+        //Industry Type chck database in local database
+        Cursor industryTypeCursor = masterdatbase.getIndustryTypeMasterTable(userId);
+        if (industryTypeCursor != null && industryTypeCursor.getCount() > 0) {
+            if (industryTypeList.size() > 0) {
+                industryTypeList.clear();
+            }
+            if (industryTypeCursor.moveToFirst()) {
+                do {
+
+                    String industryTypeID = industryTypeCursor.getString(industryTypeCursor.getColumnIndex(IndustryTypeMasterTable.industryTypeID));
+                    String industryType = industryTypeCursor.getString(industryTypeCursor.getColumnIndex(IndustryTypeMasterTable.industryType));
+
+                    industryTypeList.add(new AllExapndableListModel(industryType, industryTypeID));
+
+                } while (industryTypeCursor.moveToNext());
+            }
+
+        }
+            //Checked principle type data in my local database
+            Cursor principleTypeCursor = masterdatbase.getPrincipleMasterTable(userId);
+            if (principleTypeCursor != null && principleTypeCursor.getCount() > 0) {
+                if (principleList.size() > 0) {
+                    principleList.clear();
+                }
+                if (principleTypeCursor.moveToFirst()) {
+                    do {
+
+                        String principleTypeID = principleTypeCursor.getString(principleTypeCursor.getColumnIndex(PrincipleMasterTable.principleId));
+                        String principleType = principleTypeCursor.getString(principleTypeCursor.getColumnIndex(PrincipleMasterTable.principle));
+
+                        principleList.add(new AllExapndableListModel(principleType, principleTypeID));
+
+                    } while (principleTypeCursor.moveToNext());
+                }
+
+            }
+
+
+
+
+            //   zoneIdString = zoneList.get(0).getZoneId();
+
+
+        }
+
+
+        listDataChild.put(listDataHeader.get(0), zoneTypeList); // Header, Child data
+        listDataChild.put(listDataHeader.get(1), businessVerticalList);
+        listDataChild.put(listDataHeader.get(2), industrySegmentList);
+        listDataChild.put(listDataHeader.get(3), industryTypeList);
+        listDataChild.put(listDataHeader.get(4), principleList);
+    }
+
 }
