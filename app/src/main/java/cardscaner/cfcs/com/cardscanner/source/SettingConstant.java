@@ -8,11 +8,11 @@ public class SettingConstant {
 
 
     //Server
-       //public static final String BASEURL_FOR_LOGIN = "http://card.nmtronics.in/webApi/";
-      // public static final String ImageUrl= "http://card.nmtronics.in/webApi/";
+       public static final String BASEURL_FOR_LOGIN = "http://card.nmtronics.in/webApi/";
+       public static final String ImageUrl= "http://card.nmtronics.in/";
       //Local
-      public static final String BASEURL_FOR_LOGIN = "http://192.168.1.62:9090/webApi/";
-     public static final String ImageUrl= "http://192.168.1.62:9090/";
+      //public static final String BASEURL_FOR_LOGIN = "http://192.168.1.62:9090/webApi/";
+      //public static final String ImageUrl= "http://192.168.1.62:9090/";
 
 
 

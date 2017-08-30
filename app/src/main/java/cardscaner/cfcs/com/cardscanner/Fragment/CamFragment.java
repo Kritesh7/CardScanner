@@ -1387,7 +1387,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                 if (b)
                 {
 
-                    contactSave.setEnabled(false);
+                  //  contactSave.setEnabled(false);
 
                     // Check the SDK version and whether the permission is already granted or not.
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && getActivity().checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
@@ -2108,7 +2108,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
                                                             }
                                                         }
-                                                    }
+                                                      }
                                                     }
                                             }
                                         }
@@ -2222,11 +2222,13 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                         }
                     }
 
+                    community.toLowerCase();
                     if (community.contains("PVT.") || community.contains("LTD.") || community.contains("LTD") ||
                             community.contains("S.r.l.") || community.contains("eurl") || community.contains("GbR") ||
-                            community.contains("GmbH") || community.contains("Inc") || community.contains("LLC") ||
+                            community.contains("GmbH") || community.contains("inc") || community.contains("LLC") ||
                             community.contains("LLP") || community.contains("Ltd") || community.contains("Srl")||
-                            community.contains("Corp") || community.contains("Ltd.")) {
+                            community.contains("Corp") || community.contains("Ltd.") || community.contains("Inc.") ||
+                            community.contains("Co,LTD.")) {
                         detectedTextView.setText(firstLine);
                     }
 
@@ -3029,7 +3031,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
                 Bitmap bitmap = BitmapFactory.decodeStream(image_stream);
                 int nh = (int) (bitmap.getHeight() * (512.0 / bitmap.getWidth()));
-                Bitmap scaled = Bitmap.createScaledBitmap(bitmap, 512, nh, true);
+                Bitmap scaled = Bitmap.createScaledBitmap(bitmap, 812, 512, true);
                // inspectFromBitmap(scaled);
                 cardImg.setImageBitmap(scaled);
 
@@ -3479,7 +3481,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
             cropIntent.putExtra("aspectX", 3.370);
             cropIntent.putExtra("aspectY", 2.125);
             // indicate output X and Y
-            cropIntent.putExtra("outputX", 512);
+            cropIntent.putExtra("outputX", 812);
             cropIntent.putExtra("outputY", 512);
             // retrieve data on return
             cropIntent.putExtra("return-data", true);
