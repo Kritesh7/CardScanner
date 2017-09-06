@@ -54,6 +54,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -626,7 +627,6 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
             }
 
         } else {
-
             if (conn.getConnectivityStatus() > 0) {
 
                 getAppDdlList(authCode, userId);
@@ -1094,14 +1094,16 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
                                 if (nameTxt.getText().toString().equalsIgnoreCase(""))
                                 {
-                                    nameTxt.setError("Please enter valid Name");
+                                    //nameTxt.setError("Please enter valid Name");
+                                    Toast.makeText(getActivity(), "Please Enter Valid  Name", Toast.LENGTH_SHORT).show();
                                 }else if (phoneTxt.getText().toString().equalsIgnoreCase("") &&
                                         phoneNumberTxt.getText().toString().equalsIgnoreCase("") &&
                                         PhoneTxtthird.getText().toString().equalsIgnoreCase("") &&
                                         phoneNumerfour.getText().toString().equalsIgnoreCase("")&&
                                         phonenumerfivth.getText().toString().equalsIgnoreCase(""))
                                 {
-                                    phoneTxt.setError("Please Enter Valid Phone Number");
+                                    Toast.makeText(getActivity(), "Please Enter Valid Phone Number", Toast.LENGTH_SHORT).show();
+
                                 }else if (!phoneTxt.getText().toString().equalsIgnoreCase("") && !phoneTxt.getText().toString().contains("+"))
                                 {
                                     Toast.makeText(getActivity(), "Please Enter Country Code", Toast.LENGTH_SHORT).show();
@@ -1120,7 +1122,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                 }
                                 else if (emailIdSecond.getText().toString().equalsIgnoreCase(""))
                                 {
-                                    emailIdSecond.setError("Please Enter Valid EmailId");
+                                    Toast.makeText(getActivity(), "Please Enter Valid  Email id", Toast.LENGTH_SHORT).show();
 
                                 }else if (businessVerticalTypeString.equalsIgnoreCase(""))
                                 {
@@ -1307,14 +1309,15 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
                                 if (nameTxt.getText().toString().equalsIgnoreCase(""))
                                 {
-                                    nameTxt.setError("Please enter valid Name");
+                                    Toast.makeText(getActivity(), "Please Enter Valid Name", Toast.LENGTH_SHORT).show();
                                 }else if (phoneTxt.getText().toString().equalsIgnoreCase("") &&
                                         phoneNumberTxt.getText().toString().equalsIgnoreCase("") &&
                                         PhoneTxtthird.getText().toString().equalsIgnoreCase("") &&
                                         phoneNumerfour.getText().toString().equalsIgnoreCase("")&&
                                         phonenumerfivth.getText().toString().equalsIgnoreCase(""))
                                 {
-                                    phoneTxt.setError("Please Enter Valid Phone Number");
+                                    Toast.makeText(getActivity(), "Please Enter Valid Phone Number", Toast.LENGTH_SHORT).show();
+
                                 }else if (!phoneTxt.getText().toString().equalsIgnoreCase("") && !phoneTxt.getText().toString().contains("+"))
                                 {
                                     Toast.makeText(getActivity(), "Please Enter Country Code", Toast.LENGTH_SHORT).show();
@@ -1333,7 +1336,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                 }
                                 else if (emailIdSecond.getText().toString().equalsIgnoreCase(""))
                                 {
-                                    emailIdSecond.setError("Please Enter Valid EmailId");
+                                    Toast.makeText(getActivity(), "Please Enter Valid Email Id", Toast.LENGTH_SHORT).show();
 
                                 }else if (businessVerticalTypeString.equalsIgnoreCase(""))
                                 {
@@ -3238,11 +3241,15 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
     //convert bitmap to base64
     public String getEncoded64ImageStringFromBitmap(Bitmap bitmap) {
+        ProgressDialog progressBar = new ProgressDialog(getActivity());
+        progressBar.setTitle("Please Wait..");
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 70, stream);
         byte[] byteFormat = stream.toByteArray();
         // get the base 64 string
         String imgString = Base64.encodeToString(byteFormat, Base64.NO_WRAP);
+
+        progressBar.dismiss();
 
         return imgString;
     }
