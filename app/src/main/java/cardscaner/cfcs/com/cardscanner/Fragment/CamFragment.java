@@ -82,7 +82,9 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -1936,6 +1938,10 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
             String convertStringBuilder = String.valueOf(detectedText);
             String[] lines = convertStringBuilder.split(System.getProperty("line.separator"));
+
+            String convString = Arrays.toString(lines);
+
+            Log.e("checking the string is", convString);
 
             for (int i =0; i<lines.length; i++)
             {
