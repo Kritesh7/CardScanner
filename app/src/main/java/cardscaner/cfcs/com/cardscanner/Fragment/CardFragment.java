@@ -8,6 +8,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -95,8 +97,10 @@ public class CardFragment extends Fragment implements ExpandDataisInterface {
     public TextView cardTxt;
     public ConnectionDetector conn;
     public PopupWindow popupWindow;
+    View view_Group = null;
     ExpandableListAdapter listAdapter;
     ExpandableListView expListView;
+    public Button applyBtn,resetBtn;
     List<String> listDataHeader;
     HashMap<String, List<AllExapndableListModel>> listDataChild;
     public FloatingActionButton filterBtn;
@@ -106,7 +110,8 @@ public class CardFragment extends Fragment implements ExpandDataisInterface {
     public List<AllExapndableListModel> industryTypeList = new ArrayList<AllExapndableListModel>();
     public List<AllExapndableListModel> zoneTypeList = new ArrayList<AllExapndableListModel>();
     public MasterDatabase masterdatbase;
-    public String headerValueName = "",valueId = "0";
+    public String headerValueName = "",principileId = "0", businessVerticalId = "0",industrySegmentId = "0",
+                  industryTypeId = "0",regionId="0";
 
     private OnFragmentInteractionListener mListener;
 
@@ -230,22 +235,38 @@ public class CardFragment extends Fragment implements ExpandDataisInterface {
 
                                     Toast.makeText(getActivity(), MsgNotification, Toast.LENGTH_SHORT).show();
                                     pDialog.dismiss();
-                                }
-                            }
-                            String Name =object.getString("Name");
-                            String Designation = object.getString("Designation");
-                            String Company = object.getString("Company");
-                            String CardFrontImage = object.getString("CardFrontImage");
-                            String CustomerID = object.getString("CustomerID");
-                            String Number = object.getString("Number");
+                                }else
+                                    {
+                                        String Name =object.getString("Name");
+                                        String Designation = object.getString("Designation");
+                                        String Company = object.getString("Company");
+                                        String CardFrontImage = object.getString("CardFrontImage");
+                                        String CustomerID = object.getString("CustomerID");
+                                        String Number = object.getString("Number");
 
-                            list.add(new CardListModel(Name,Company,CustomerID,CardFrontImage,Designation,Number));
+                                        list.add(new CardListModel(Name,Company,CustomerID,CardFrontImage,Designation,Number));
+                                    }
+                            }else
+                                {
+                                    String Name =object.getString("Name");
+                                    String Designation = object.getString("Designation");
+                                    String Company = object.getString("Company");
+                                    String CardFrontImage = object.getString("CardFrontImage");
+                                    String CustomerID = object.getString("CustomerID");
+                                    String Number = object.getString("Number");
+
+                                    list.add(new CardListModel(Name,Company,CustomerID,CardFrontImage,Designation,Number));
+                                }
+
+
+
 
                         }
 
                     } catch (StringIndexOutOfBoundsException e) {
                         e.printStackTrace();
                     }
+
 
                     if (list.size() == 0)
                     {
@@ -293,7 +314,7 @@ public class CardFragment extends Fragment implements ExpandDataisInterface {
                 params.put("IndustryTypeID", IndustryTypeID);
                 params.put("ZoneID", ZoneID);
 
-                // Log.e("Parms", params.toString());
+                Log.e("Parms", params.toString());
                 return params;
             }
 
@@ -311,33 +332,38 @@ public class CardFragment extends Fragment implements ExpandDataisInterface {
 
         if (headerValueName.equalsIgnoreCase("Principle"))
         {
-            valueId = Id;
-            getCustomerList(authCode,userId,"",valueId,"0","0","0","0");
-            popupWindow.dismiss();
+            principileId = Id;
+            Log.e("principileId",principileId);
+          //  getCustomerList(authCode,userId,"",valueId,"0","0","0","0");
+           // popupWindow.dismiss();
 
         }else if (headerValueName.equalsIgnoreCase("Business Vertical"))
         {
-            valueId = Id;
-            getCustomerList(authCode,userId,"","0",valueId,"0","0","0");
-            popupWindow.dismiss();
+            businessVerticalId = Id;
+            Log.e("businessVerticalId",businessVerticalId);
+            //getCustomerList(authCode,userId,"","0",valueId,"0","0","0");
+         //   popupWindow.dismiss();
 
         }else if (headerValueName.equalsIgnoreCase("Industry Segment"))
         {
-            valueId = Id;
-            getCustomerList(authCode,userId,"","0","0",valueId,"0","0");
-            popupWindow.dismiss();
+            industrySegmentId = Id;
+            Log.e("industrySegmentId",industrySegmentId);
+          //  getCustomerList(authCode,userId,"","0","0",valueId,"0","0");
+         //   popupWindow.dismiss();
 
         }else if (headerValueName.equalsIgnoreCase("Industry Type"))
         {
-            valueId = Id;
-            getCustomerList(authCode,userId,"","0","0","0",valueId,"0");
-            popupWindow.dismiss();
+            industryTypeId = Id;
+            Log.e("industryTypeId",industryTypeId);
+          //  getCustomerList(authCode,userId,"","0","0","0",valueId,"0");
+          //  popupWindow.dismiss();
 
         }else if (headerValueName.equalsIgnoreCase("Region"))
         {
-            valueId = Id;
-            getCustomerList(authCode,userId,"","0","0","0","0",valueId);
-            popupWindow.dismiss();
+            regionId = Id;
+            Log.e("regionId",regionId);
+          //  getCustomerList(authCode,userId,"","0","0","0","0",valueId);
+         //   popupWindow.dismiss();
 
         }
 
@@ -359,7 +385,7 @@ public class CardFragment extends Fragment implements ExpandDataisInterface {
         View popupView = layoutInflater.inflate(R.layout.filter_layout, null);
         Button cancel, save;
         popupWindow = new PopupWindow(popupView,
-                RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT,
+                RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT,
                 true);
         popupWindow.setTouchable(true);
         popupWindow.setFocusable(true);
@@ -367,9 +393,13 @@ public class CardFragment extends Fragment implements ExpandDataisInterface {
         popupWindow.showAtLocation(popupView, Gravity.CENTER_HORIZONTAL, 0, 0);
 
         expListView = (ExpandableListView)popupView.findViewById(R.id.lvExp);
+        applyBtn = (Button)popupView.findViewById(R.id.applybtn);
+        resetBtn = (Button)popupView.findViewById(R.id.resetbtn);
         prepareListData();
         listAdapter = new ExpandableListAdapter(getActivity(), listDataHeader, listDataChild,this);
         expListView.setAdapter(listAdapter);
+
+        expListView.setChoiceMode(ExpandableListView.CHOICE_MODE_SINGLE);
 
         expListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
             @Override
@@ -377,7 +407,36 @@ public class CardFragment extends Fragment implements ExpandDataisInterface {
 
               //  Toast.makeText(getActivity(), listDataHeader.get(i), Toast.LENGTH_SHORT).show();
                 headerValueName = listDataHeader.get(i);
+
+                Log.e("checking headervalue",headerValueName);
                 return false;
+            }
+        });
+
+        applyBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                getCustomerList(authCode,userId,"",principileId,businessVerticalId,industrySegmentId,industryTypeId,regionId);
+                popupWindow.dismiss();
+            }
+        });
+
+        resetBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                FragmentManager fragmentManager = getFragmentManager();
+                // FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+                Fragment frag = new CardFragment();
+                // update the main content by replacing fragments
+                fragmentManager.beginTransaction()
+                        .replace(R.id.cardlayout, frag)
+                        .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                        .addToBackStack(null)
+                        .commit();
+
+                popupWindow.dismiss();
             }
         });
 
@@ -386,24 +445,19 @@ public class CardFragment extends Fragment implements ExpandDataisInterface {
             @Override
             public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i1, long l) {
 
-                AllExapndableListModel child = (AllExapndableListModel) ExpandableListAdapter.getChild(i, i1);
+                view.setSelected(true);
+                if (view_Group != null) {
+                    view_Group.setBackgroundColor(Color.parseColor("#e0e0e0"));
+                }else {
+                    view_Group = view;
+                    view_Group.setBackgroundColor(Color.parseColor("#676767"));
+                }
 
                 return true;
             }
         });
 */
 
-       /* save = (Button) popupView.findViewById(R.id.saveBtn);
-        cancel = (Button) popupView.findViewById(R.id.cancelbtutton);*/
-
-
-       /* cancel.setOnClickListener(new View.OnClickListener() {
-
-            public void onClick(View arg0) {
-
-                popupWindow.dismiss();
-            }
-        });*/
 
     }
     private void prepareListData() {

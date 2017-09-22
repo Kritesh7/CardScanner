@@ -10,4 +10,6 @@
     <color name="white">#ffffff</color>
     <color name="text_color">#009688</color>
     <color name="edit_below_line">#00897B</color>
+
+    <color name="bluecolor">#0D47A1</color>
 </resources>

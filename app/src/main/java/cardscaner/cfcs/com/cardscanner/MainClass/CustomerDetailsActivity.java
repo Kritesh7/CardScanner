@@ -1,10 +1,17 @@
 package cardscaner.cfcs.com.cardscanner.MainClass;
 
+import android.Manifest;
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -63,6 +70,7 @@ public class CustomerDetailsActivity extends AppCompatActivity {
     public String deleteDetailsUrl = SettingConstant.BASEURL_FOR_LOGIN + "DigiCardScannerService.asmx/AppCustomerDelete";
     public ImageView cardImg, backImg;
     public LinearLayout frountLay, backLay;
+    public Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +93,7 @@ public class CustomerDetailsActivity extends AppCompatActivity {
             customerId = intent.getStringExtra("CustomerId");
         }
 
+        context = CustomerDetailsActivity.this;
         Log.e("Customer id is", customerId);
 
         backbtnImg = (ImageView)toolbar.findViewById(R.id.backbtn);
@@ -206,6 +215,116 @@ public class CustomerDetailsActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });*/
+
+        emailIdtxt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                try{
+
+                    Intent intent = new Intent (Intent.ACTION_VIEW , Uri.parse("mailto:" +emailIdtxt.getText().toString()));
+                    intent.putExtra(Intent.EXTRA_SUBJECT, "your_subject");
+                    intent.putExtra(Intent.EXTRA_TEXT, "your_text");
+                    startActivity(intent);
+
+                }catch(ActivityNotFoundException e){
+                    //TODO smth
+                }
+            }
+        });
+
+        phoneType.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if (ContextCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(CustomerDetailsActivity.this, new String[]{Manifest.permission.CALL_PHONE}, 1);
+
+                } else {
+
+                    Intent callIntent = new Intent(Intent.ACTION_CALL);
+                    callIntent.setData(Uri.parse("tel:" + phoneType.getText().toString()));
+                    startActivity(callIntent);
+                }
+            }
+        });
+
+        phonenumbertxt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if (ContextCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(CustomerDetailsActivity.this, new String[]{Manifest.permission.CALL_PHONE}, 1);
+
+                } else {
+
+                    Intent callIntent = new Intent(Intent.ACTION_CALL);
+                    callIntent.setData(Uri.parse("tel:" + phonenumbertxt.getText().toString()));
+                    startActivity(callIntent);
+                }
+            }
+        });
+
+        phonenumbertxt2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if (ContextCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(CustomerDetailsActivity.this, new String[]{Manifest.permission.CALL_PHONE}, 1);
+
+                } else {
+
+                    Intent callIntent = new Intent(Intent.ACTION_CALL);
+                    callIntent.setData(Uri.parse("tel:" + phonenumbertxt2.getText().toString()));
+                    startActivity(callIntent);
+                }
+            }
+        });
+
+        phonenumbertxt3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if (ContextCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(CustomerDetailsActivity.this, new String[]{Manifest.permission.CALL_PHONE}, 1);
+
+                } else {
+
+                    Intent callIntent = new Intent(Intent.ACTION_CALL);
+                    callIntent.setData(Uri.parse("tel:" + phonenumbertxt3.getText().toString()));
+                    startActivity(callIntent);
+                }
+            }
+        });
+
+        phonenumbertxt4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if (ContextCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(CustomerDetailsActivity.this, new String[]{Manifest.permission.CALL_PHONE}, 1);
+
+                } else {
+
+                    Intent callIntent = new Intent(Intent.ACTION_CALL);
+                    callIntent.setData(Uri.parse("tel:" + phonenumbertxt4.getText().toString()));
+                    startActivity(callIntent);
+                }
+
+            }
+        });
+
+        websitetxt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+              /*  Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(websitetxt.getText().toString()));
+                startActivity(i);*/
+
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://"+websitetxt.getText().toString())));
+            }
+        });
 
         getCustomerList(authCode,userId,customerId);
     }

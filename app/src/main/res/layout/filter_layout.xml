@@ -1,13 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
     android:background="#f4f4f4" >
 
     <ExpandableListView
+        android:layout_above="@+id/btnlay"
         android:id="@+id/lvExp"
         android:layout_height="match_parent"
         android:layout_width="match_parent"/>
 
-</LinearLayout>
+    <LinearLayout
+        android:id="@+id/btnlay"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/applybtn"
+            android:background="@color/backround_color"
+            android:layout_width="0dp"
+            android:layout_weight=".5"
+            android:text="Apply"
+            android:layout_marginRight="10dp"
+            android:textColor="@color/white"
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/resetbtn"
+            android:background="@color/backround_color"
+            android:text="Reset"
+            android:textColor="@color/white"
+            android:layout_width="0dp"
+            android:layout_weight=".5"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+</RelativeLayout>

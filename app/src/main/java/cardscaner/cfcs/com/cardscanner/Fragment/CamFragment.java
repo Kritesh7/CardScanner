@@ -32,6 +32,8 @@ import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -1746,6 +1748,9 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
                                         .build());
 
+
+
+
                                 try {
                                     ContentProviderResult[] res = getActivity().getContentResolver().applyBatch(
                                             ContactsContract.AUTHORITY, ops);
@@ -1759,8 +1764,21 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
                                 Toast.makeText(getActivity(), "Your Contact Details is saved", Toast.LENGTH_SHORT).show();
 
+
+
+
                             }
                         }
+
+                        FragmentManager fragmentManager = getFragmentManager();
+                        // FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+                        Fragment frag = new CardFragment();
+                        // update the main content by replacing fragments
+                        fragmentManager.beginTransaction()
+                                .replace(R.id.cardlayout, frag)
+                                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                                .addToBackStack(null)
+                                .commit();
                     }
 
                     pDialog.dismiss();

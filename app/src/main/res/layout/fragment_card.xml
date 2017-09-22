@@ -4,6 +4,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#fafafa"
+    android:id="@+id/cardlayout"
     tools:context="cardscaner.cfcs.com.cardscanner.Fragment.CardFragment">
 
     <!-- TODO: Update blank fragment layout -->
