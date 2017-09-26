@@ -1,6 +1,7 @@
 package cardscaner.cfcs.com.cardscanner.Adapter;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +28,8 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
     // child data in format of header title, child title
     private HashMap<String, List<AllExapndableListModel>> _listDataChild;
     public ExpandDataisInterface expandInterface;
+   // private int selectedIndex;
+  //  private int selectedColor = Color.parseColor("#e0e0e0");
 
     public ExpandableListAdapter(Context context, List<String> listDataHeader,
                                  HashMap<String, List<AllExapndableListModel>> listChildData,
@@ -35,7 +38,14 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
         this._listDataHeader = listDataHeader;
         this._listDataChild = listChildData;
         this.expandInterface = expandInterface;
+       // selectedIndex = -1;
     }
+
+   /* public void setSelectedIndex(int ind)
+    {
+        selectedIndex = ind;
+        notifyDataSetChanged();
+    }*/
 
     @Override
     public Object getChild(int groupPosition, int childPosititon) {
@@ -60,21 +70,25 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
             LayoutInflater infalInflater = (LayoutInflater) this._context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = infalInflater.inflate(R.layout.list_item, null);
+
+            //convertView.setTag(holder);
         }
 
-        TextView txtListChild = (TextView) convertView
+        final TextView txtListChild = (TextView) convertView
                 .findViewById(R.id.lblListItem);
 
+
         txtListChild.setText(childText);
-        txtListChild.setOnClickListener(new View.OnClickListener() {
+        /*txtListChild.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 expandInterface.getExpandId(childTextId);
-               // Toast.makeText(_context, childTextId, Toast.LENGTH_SHORT).show();
             }
-        });
+        });*/
         return convertView;
     }
+
+
 
     @Override
     public int getChildrenCount(int groupPosition) {
@@ -132,5 +146,11 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
     @Override
     public boolean isChildSelectable(int groupPosition, int childPosition) {
         return true;
+    }
+
+    private int selectedItem;
+
+    public void setSelectedItem(int position) {
+        selectedItem = position;
     }
 }

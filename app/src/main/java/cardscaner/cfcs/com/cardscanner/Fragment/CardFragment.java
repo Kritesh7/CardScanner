@@ -97,7 +97,7 @@ public class CardFragment extends Fragment implements ExpandDataisInterface {
     public TextView cardTxt;
     public ConnectionDetector conn;
     public PopupWindow popupWindow;
-    View view_Group = null;
+    private int lastExpandedPosition = -1;
     ExpandableListAdapter listAdapter;
     ExpandableListView expListView;
     public Button applyBtn,resetBtn;
@@ -114,6 +114,7 @@ public class CardFragment extends Fragment implements ExpandDataisInterface {
                   industryTypeId = "0",regionId="0";
 
     private OnFragmentInteractionListener mListener;
+    View view_Group;
 
     public CardFragment() {
         // Required empty public constructor
@@ -400,15 +401,99 @@ public class CardFragment extends Fragment implements ExpandDataisInterface {
         expListView.setAdapter(listAdapter);
 
         expListView.setChoiceMode(ExpandableListView.CHOICE_MODE_SINGLE);
-
         expListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
             @Override
             public boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
 
               //  Toast.makeText(getActivity(), listDataHeader.get(i), Toast.LENGTH_SHORT).show();
                 headerValueName = listDataHeader.get(i);
-
                 Log.e("checking headervalue",headerValueName);
+
+               /* if(groupPosition != previousGroup)
+                    expandableList.collapseGroup(previousGroup);
+                previousGroup = groupPosition;*/
+
+
+
+                return false;
+            }
+        });
+
+
+        expListView.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
+
+            @Override
+            public void onGroupExpand(int groupPosition) {
+                if (lastExpandedPosition != -1
+                        && groupPosition != lastExpandedPosition) {
+                    expListView.collapseGroup(lastExpandedPosition);
+                }
+                lastExpandedPosition = groupPosition;
+            }
+        });
+
+        expListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+
+            public boolean onChildClick(ExpandableListView parent, View v,
+                                        int groupPosition, int childPosition, long id) {
+
+                final String childTextId = listDataChild.get(listDataHeader.get(groupPosition))
+                        .get(childPosition).getId();
+
+
+                if (headerValueName.equalsIgnoreCase("Principle"))
+                {
+                    principileId = childTextId;
+                    Log.e("principileId",principileId);
+                    //  getCustomerList(authCode,userId,"",valueId,"0","0","0","0");
+                    // popupWindow.dismiss();
+
+                }else if (headerValueName.equalsIgnoreCase("Business Vertical"))
+                {
+                    businessVerticalId = childTextId;
+                    Log.e("businessVerticalId",businessVerticalId);
+                    //getCustomerList(authCode,userId,"","0",valueId,"0","0","0");
+                    //   popupWindow.dismiss();
+
+                }else if (headerValueName.equalsIgnoreCase("Industry Segment"))
+                {
+                    industrySegmentId = childTextId;
+                    Log.e("industrySegmentId",industrySegmentId);
+                    //  getCustomerList(authCode,userId,"","0","0",valueId,"0","0");
+                    //   popupWindow.dismiss();
+
+                }else if (headerValueName.equalsIgnoreCase("Industry Type"))
+                {
+                    industryTypeId = childTextId;
+                    Log.e("industryTypeId",industryTypeId);
+                    //  getCustomerList(authCode,userId,"","0","0","0",valueId,"0");
+                    //  popupWindow.dismiss();
+
+                }else if (headerValueName.equalsIgnoreCase("Region"))
+                {
+                    regionId = childTextId;
+                    Log.e("regionId",regionId);
+                    //  getCustomerList(authCode,userId,"","0","0","0","0",valueId);
+                    //   popupWindow.dismiss();
+
+                }
+
+
+                v.setSelected(true);
+                if (view_Group != null) {
+                  //  view_Group.setBackgroundColor(Color.parseColor("#ffffff"));
+                }else
+                    {
+                        view_Group = v;
+                        //view_Group.setBackgroundColor(Color.parseColor("#e0e0e0"));
+                    }
+
+
+                final String selected = (String) listAdapter.getChild(
+                        groupPosition, childPosition);
+                Toast.makeText(getActivity(), selected, Toast.LENGTH_LONG)
+                        .show();
+
                 return false;
             }
         });
