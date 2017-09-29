@@ -63,7 +63,6 @@
         <Button
             android:id="@+id/loginbtn"
             android:elevation="10dp"
-            android:background="@drawable/rippileefact"
             android:textColor="@color/status_color"
             android:text="Login"
             android:layout_margin="20dp"

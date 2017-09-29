@@ -3,6 +3,7 @@ package cardscaner.cfcs.com.cardscanner.MainClass;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -120,6 +121,19 @@ public class LoginActivity extends AppCompatActivity {
                 finish();*/
             }
         });
+
+
+        // CHECKED PERMISSION
+        if (Build.VERSION.SDK_INT == 16 || Build.VERSION.SDK_INT == 17 ||
+                Build.VERSION.SDK_INT == 18 || Build.VERSION.SDK_INT == 19)
+        {
+
+            loginBtn.setBackgroundColor(getResources().getColor(R.color.white));
+        }
+        else
+        {
+            loginBtn.setBackgroundResource(R.drawable.rippileefact);
+        }
     }
 
     public void Login_Api(final String UserName  , final String Password, final String AuthCode ,

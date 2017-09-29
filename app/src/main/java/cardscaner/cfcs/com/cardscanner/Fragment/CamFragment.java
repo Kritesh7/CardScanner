@@ -3057,9 +3057,15 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                 }
 
                 Bitmap bitmap = BitmapFactory.decodeStream(image_stream);
-                int nh = (int) (bitmap.getHeight() * (512.0 / bitmap.getWidth()));
-                Bitmap scaled = Bitmap.createScaledBitmap(bitmap, 812, 512, true);
-               // inspectFromBitmap(scaled);
+               // int nh = (int) (bitmap.getHeight() * (512.0 / bitmap.getWidth()));
+                Bitmap scaled = null;
+                try {
+                    scaled = Bitmap.createScaledBitmap(bitmap, 812, 512, true);
+                } catch (NullPointerException e) {
+                    scaled = Bitmap.createScaledBitmap(bitmap, 512, 212, true);
+
+                }
+                // inspectFromBitmap(scaled);
                 cardImg.setImageBitmap(scaled);
 
                 // cardImg.setImageBitmap(bitmap);

@@ -539,11 +539,8 @@ public class CardFragment extends Fragment implements ExpandDataisInterface {
                 }
 
                 return true;
-            }
-        });
-*/
-
-
+           }
+        });*/
     }
     private void prepareListData() {
         listDataHeader = new ArrayList<String>();
