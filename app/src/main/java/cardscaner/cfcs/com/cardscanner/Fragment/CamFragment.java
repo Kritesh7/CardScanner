@@ -158,6 +158,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
     public ArrayList<String> phoneNumberListAll = new ArrayList<>();
 
     private Uri imageUri;
+    public ProgressDialog progressBar;
     int count = 0;
     private EditTextMonitor detectedTextView, emailTxt, phoneTxt, nameTxt, addresstxt, PostalCode,
             thirdTxt, designation, company_name, phoneNumberTxt, PhoneTxtthird, webUrlTxt, homeaddressFirst, homeaddressSecond, phoneNumerfour, phonenumerfivth;
@@ -577,9 +578,6 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
             }
         });
 
-
-        // MultiTouchListener touchListener=new MultiTouchListener(getActivity());
-
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -590,8 +588,6 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
             }
         });
 
-        //floatingActionButton.onTouchEvent(touchListener);
-        //floatingActionButton.setOnTouchListener(touchListener);
         if (!isGooglePlayServicesAvailable(getActivity())) {
 
             Log.e("onCreate", "Google Play Services not available. Ending Test case.");
@@ -607,7 +603,6 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
                 flag = 2;
                 requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA}, REQUEST_WRITE_PERMISSION);
-                //requestPermissions(new String[]{Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS}, REQUEST_WRITE_PERMISSION);
 
             }
         });
@@ -709,7 +704,6 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                 do {
 
                     String numberType = numberTypeCursor.getString(numberTypeCursor.getColumnIndex(NumberTypeMasterTable.numberType));
-                    //String principleType = principleTypeCursor.getString(principleTypeCursor.getColumnIndex(PrincipleMasterTable.principle));
 
                     phoneList.add(numberType);
 
@@ -742,10 +736,6 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
                 } while (zoneTypeCursor.moveToNext());
             }
-
-            //   zoneIdString = zoneList.get(0).getZoneId();
-
-
         }
 
 
@@ -789,11 +779,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
             }
         }
 
-
-            //  Log.e("cheking the count of zone",masterDatabase.getPrincipleMasterTableCunt(userId)+" ");
-
-
-            //editing mode
+        //editing mode
             Bundle bundle = this.getArguments();
             if (bundle != null) {
 
@@ -2135,11 +2121,11 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
                                                             }
                                                         }
-                                                      }
                                                     }
+                                                }
                                             }
                                         }
-                                   }
+                                    }
                             }
                         }
 
@@ -2245,7 +2231,6 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                     }
                                 }
                             }
-                            // break;
                         }
                     }
 
@@ -2973,6 +2958,10 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
         if (requestCode == REQUEST_CAMERA) {
             if (resultCode == Activity.RESULT_OK) {
 
+                progressBar = new ProgressDialog(getActivity());
+                progressBar.setTitle("Please Wait..");
+                progressBar.show();
+
                 if (imageUri != null) {
 
                     inspect(imageUri);
@@ -3044,10 +3033,8 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
             if (flag == 1) {
 
-                /*ContentValues values = new ContentValues();
-                values.put(MediaStore.Images.Media.TITLE, filename);
-                values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
-                imageUri = getActivity().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);*/
+
+
 
                 InputStream image_stream = null;
                 try {
@@ -3069,6 +3056,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                 cardImg.setImageBitmap(scaled);
 
                 // cardImg.setImageBitmap(bitmap);
+
                 frountImageBase64 = getEncoded64ImageStringFromBitmap(bitmap);
                 Log.e("checking the back 64", frountImageBase64);
 
@@ -3092,6 +3080,9 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                 }
 
 
+                progressBar = new ProgressDialog(getActivity());
+                progressBar.setTitle("Please Wait..");
+                progressBar.show();
                 backImageBase64 = getEncoded64ImageStringFromBitmap(bitmap);
                 Log.e("checking the frount 64", backImageBase64);
                 //convert base64
@@ -3271,8 +3262,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
     //convert bitmap to base64
     public String getEncoded64ImageStringFromBitmap(Bitmap bitmap) {
-        ProgressDialog progressBar = new ProgressDialog(getActivity());
-        progressBar.setTitle("Please Wait..");
+
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 70, stream);
         byte[] byteFormat = stream.toByteArray();
@@ -3526,6 +3516,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
             startActivityForResult(cropIntent, PIC_CROP);
 
 
+        progressBar.dismiss();
 
 
             // display an error message

@@ -30,8 +30,8 @@ import cardscaner.cfcs.com.cardscanner.R;
 
 public class DemoCustomeAdapter extends BaseAdapter implements Filterable {
 
-    private ArrayList<CustomerDetailsModel> mOriginalValues; // Original Values
-    private ArrayList<CustomerDetailsModel> mDisplayedValues;    // Values to be displayed
+    private ArrayList<CustomerDetailsModel> mOriginalValues; //Original Values
+    private ArrayList<CustomerDetailsModel> mDisplayedValues; //Values to be displayed
     LayoutInflater inflater;
     public CustomerNameInterface anInterface;
     public boolean flag = true;

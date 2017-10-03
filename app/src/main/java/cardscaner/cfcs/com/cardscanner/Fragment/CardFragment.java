@@ -1,9 +1,7 @@
 package cardscaner.cfcs.com.cardscanner.Fragment;
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -155,12 +153,7 @@ public class CardFragment extends Fragment implements ExpandDataisInterface {
         adapter = new CardListAdapter(getActivity(),list,getActivity());
         cardRecycler.setLayoutManager(new LinearLayoutManagerWithSmoothScroller(getActivity()));
         cardRecycler.smoothScrollToPosition(5);
-        /*RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
-        cardRecycler.setLayoutManager(mLayoutManager);
-        cardRecycler.setItemAnimator(new DefaultItemAnimator());*/
         cardRecycler.setAdapter(adapter);
-
-       // prepareMemberData();
 
         filterBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -188,19 +181,6 @@ public class CardFragment extends Fragment implements ExpandDataisInterface {
                 conn.showNoInternetAlret();
             }
     }
-
-    /*  private void prepareMemberData() {
-        CardListModel model = new CardListModel("Himanshu Dubey","Nmtronics Privat Limited");
-        list.add(model);
-
-        model = new CardListModel("Rahul","Cfcs");
-        list.add(model);
-
-        model = new CardListModel("Jaiswal Ji","Cfcs");
-        list.add(model);
-
-         adapter.notifyDataSetChanged();
-    }*/
 
     //Api Work
     public void getCustomerList(final String authCode, final String userId, final String CustomerName,final String PrincipleID,
@@ -280,10 +260,7 @@ public class CardFragment extends Fragment implements ExpandDataisInterface {
                             cardRecycler.setVisibility(View.VISIBLE);
                         }
 
-
-
                     adapter.notifyDataSetChanged();
-
                     pDialog.dismiss();
 
                 } catch (JSONException e) {
@@ -335,41 +312,27 @@ public class CardFragment extends Fragment implements ExpandDataisInterface {
         {
             principileId = Id;
             Log.e("principileId",principileId);
-          //  getCustomerList(authCode,userId,"",valueId,"0","0","0","0");
-           // popupWindow.dismiss();
 
         }else if (headerValueName.equalsIgnoreCase("Business Vertical"))
         {
             businessVerticalId = Id;
             Log.e("businessVerticalId",businessVerticalId);
-            //getCustomerList(authCode,userId,"","0",valueId,"0","0","0");
-         //   popupWindow.dismiss();
 
         }else if (headerValueName.equalsIgnoreCase("Industry Segment"))
         {
             industrySegmentId = Id;
             Log.e("industrySegmentId",industrySegmentId);
-          //  getCustomerList(authCode,userId,"","0","0",valueId,"0","0");
-         //   popupWindow.dismiss();
 
         }else if (headerValueName.equalsIgnoreCase("Industry Type"))
         {
             industryTypeId = Id;
             Log.e("industryTypeId",industryTypeId);
-          //  getCustomerList(authCode,userId,"","0","0","0",valueId,"0");
-          //  popupWindow.dismiss();
 
         }else if (headerValueName.equalsIgnoreCase("Region"))
         {
             regionId = Id;
             Log.e("regionId",regionId);
-          //  getCustomerList(authCode,userId,"","0","0","0","0",valueId);
-         //   popupWindow.dismiss();
-
         }
-
-      //  Toast.makeText(getActivity(), valueId, Toast.LENGTH_SHORT).show();
-
     }
 
 
@@ -405,16 +368,8 @@ public class CardFragment extends Fragment implements ExpandDataisInterface {
             @Override
             public boolean onGroupClick(ExpandableListView expandableListView, View view, int i, long l) {
 
-              //  Toast.makeText(getActivity(), listDataHeader.get(i), Toast.LENGTH_SHORT).show();
                 headerValueName = listDataHeader.get(i);
                 Log.e("checking headervalue",headerValueName);
-
-               /* if(groupPosition != previousGroup)
-                    expandableList.collapseGroup(previousGroup);
-                previousGroup = groupPosition;*/
-
-
-
                 return false;
             }
         });
@@ -445,47 +400,35 @@ public class CardFragment extends Fragment implements ExpandDataisInterface {
                 {
                     principileId = childTextId;
                     Log.e("principileId",principileId);
-                    //  getCustomerList(authCode,userId,"",valueId,"0","0","0","0");
-                    // popupWindow.dismiss();
 
                 }else if (headerValueName.equalsIgnoreCase("Business Vertical"))
                 {
                     businessVerticalId = childTextId;
                     Log.e("businessVerticalId",businessVerticalId);
-                    //getCustomerList(authCode,userId,"","0",valueId,"0","0","0");
-                    //   popupWindow.dismiss();
 
                 }else if (headerValueName.equalsIgnoreCase("Industry Segment"))
                 {
                     industrySegmentId = childTextId;
                     Log.e("industrySegmentId",industrySegmentId);
-                    //  getCustomerList(authCode,userId,"","0","0",valueId,"0","0");
-                    //   popupWindow.dismiss();
 
                 }else if (headerValueName.equalsIgnoreCase("Industry Type"))
                 {
                     industryTypeId = childTextId;
                     Log.e("industryTypeId",industryTypeId);
-                    //  getCustomerList(authCode,userId,"","0","0","0",valueId,"0");
-                    //  popupWindow.dismiss();
 
                 }else if (headerValueName.equalsIgnoreCase("Region"))
                 {
                     regionId = childTextId;
                     Log.e("regionId",regionId);
-                    //  getCustomerList(authCode,userId,"","0","0","0","0",valueId);
-                    //   popupWindow.dismiss();
 
                 }
 
-
                 v.setSelected(true);
                 if (view_Group != null) {
-                  //  view_Group.setBackgroundColor(Color.parseColor("#ffffff"));
+
                 }else
                     {
                         view_Group = v;
-                        //view_Group.setBackgroundColor(Color.parseColor("#e0e0e0"));
                     }
 
 
@@ -520,27 +463,10 @@ public class CardFragment extends Fragment implements ExpandDataisInterface {
                         .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
                         .addToBackStack(null)
                         .commit();
-
                 popupWindow.dismiss();
             }
         });
 
-
-       /* expListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
-            @Override
-            public boolean onChildClick(ExpandableListView expandableListView, View view, int i, int i1, long l) {
-
-                view.setSelected(true);
-                if (view_Group != null) {
-                    view_Group.setBackgroundColor(Color.parseColor("#e0e0e0"));
-                }else {
-                    view_Group = view;
-                    view_Group.setBackgroundColor(Color.parseColor("#676767"));
-                }
-
-                return true;
-           }
-        });*/
     }
     private void prepareListData() {
         listDataHeader = new ArrayList<String>();
@@ -586,7 +512,6 @@ public class CardFragment extends Fragment implements ExpandDataisInterface {
 
                     String businessVerticalId = cursor.getString(cursor.getColumnIndex(BusinessVerticalMasterTable.businessVerticalID));
                     String businessVerticalType = cursor.getString(cursor.getColumnIndex(BusinessVerticalMasterTable.businessVertical));
-
 
                     businessVerticalList.add(new AllExapndableListModel(businessVerticalType, businessVerticalId));
 
@@ -652,15 +577,7 @@ public class CardFragment extends Fragment implements ExpandDataisInterface {
                 }
 
             }
-
-
-
-
-            //   zoneIdString = zoneList.get(0).getZoneId();
-
-
         }
-
 
         listDataChild.put(listDataHeader.get(0), zoneTypeList); // Header, Child data
         listDataChild.put(listDataHeader.get(1), businessVerticalList);

@@ -207,14 +207,6 @@ public class CustomerDetailsActivity extends AppCompatActivity {
                 deleteDetails(authCode,userId,customerId);
             }
         });
-      /*  FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });*/
 
         emailIdtxt.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -411,18 +403,19 @@ public class CustomerDetailsActivity extends AppCompatActivity {
                             Picasso.with(CustomerDetailsActivity.this).load(SettingConstant.ImageUrl + CardFrontImage).error(R.drawable.card).into(cardImg);
 
                         }else
-                            {
-                                frountLay.setVisibility(View.GONE);
-                            }
+                        {
+                            frountLay.setVisibility(View.GONE);
+                        }
 
-                            if (!CardBackImage.equalsIgnoreCase(""))
-                            {
-                                Picasso.with(CustomerDetailsActivity.this).load(SettingConstant.ImageUrl + CardBackImage).error(R.drawable.card).into(backImg);
 
-                            }else
-                                {
-                                    backLay.setVisibility(View.GONE);
-                                }
+                        if (!CardBackImage.equalsIgnoreCase(""))
+                        {
+                            Picasso.with(CustomerDetailsActivity.this).load(SettingConstant.ImageUrl + CardBackImage).error(R.drawable.card).into(backImg);
+
+                        }else
+                        {
+                            backLay.setVisibility(View.GONE);
+                        }
 
 
                         if (Number.equalsIgnoreCase(""))
@@ -526,13 +519,6 @@ public class CustomerDetailsActivity extends AppCompatActivity {
                         {
                             delBtn.setVisibility(View.VISIBLE);
                         }
-
-
-                        /*phoneType2.setText("Phone No.("+NumberType2+")");
-                        phoneType3.setText("Phone No.("+NumberType3+")");
-                        phoneType4.setText("Phone No.("+NumberType4+")");
-                        phoneType5.setText("Phone No.("+NumberType5+")");*/
-
                     }
 
                    if (principleTypeIdList.size()>0)

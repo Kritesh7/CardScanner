@@ -18,8 +18,8 @@ public class MultiTouchListener  implements View.OnTouchListener
 
     private float mPrevX;
     private float mPrevY;
-
     public Context mainActivity;
+
     public MultiTouchListener(Context mainActivity1) {
         mainActivity = mainActivity1;
     }
