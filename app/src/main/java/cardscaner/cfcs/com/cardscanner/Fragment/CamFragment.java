@@ -2964,7 +2964,9 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
                 if (imageUri != null) {
 
-                    inspect(imageUri);
+                    if(flag == 1) {
+                        inspect(imageUri);
+                    }
 
                     try {
                         performCrop(imageUri);
@@ -2975,66 +2977,12 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                         Toast toast = Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT);
                         toast.show();
                     }
-
-                    /*if (flag == 1) {
-
-                        InputStream image_stream = null;
-                        try {
-                            image_stream = getActivity().getContentResolver().openInputStream(imageUri);
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                        }
-
-
-                        Bitmap bitmap= BitmapFactory.decodeStream(image_stream );
-                        int nh = (int) ( bitmap.getHeight() * (512.0 / bitmap.getWidth()) );
-                        Bitmap scaled = Bitmap.createScaledBitmap(bitmap, 512, nh, true);
-                        cardImg.setImageBitmap(scaled);
-
-                        // cardImg.setImageBitmap(bitmap);
-                        frountImageBase64 = getEncoded64ImageStringFromBitmap(bitmap);
-                        Log.e("checking the back 64",frountImageBase64);
-
-                        flag = 0;
-                    }else if (flag == 2) {
-
-                        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 500);
-                        backCardImg.setLayoutParams(layoutParams);
-
-                        InputStream image_stream = null;
-                        try {
-                            image_stream = getActivity().getContentResolver().openInputStream(imageUri);
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
-                        }
-                        Bitmap bitmap= BitmapFactory.decodeStream(image_stream );
-                        try {
-                            backCardImg.setImageBitmap(bitmap);
-                        } catch (OutOfMemoryError e) {
-                            e.printStackTrace();
-                        }
-
-
-                        backImageBase64 = getEncoded64ImageStringFromBitmap(bitmap);
-                        Log.e("checking the frount 64",backImageBase64);
-                        //convert base64
-
-
-                      //  backCardImg.setImageBitmap(decodeSampledBitmapFromResource(getPath(imageUri), 200, 200));
-                        flag = 0;
-                    }
-                   // cardImg.setImageURI(imageUri);
-                }*/
-
                 }
             }
         }else if (requestCode == PIC_CROP) {
 
 
             if (flag == 1) {
-
-
-
 
                 InputStream image_stream = null;
                 try {
@@ -3044,7 +2992,6 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                 }
 
                 Bitmap bitmap = BitmapFactory.decodeStream(image_stream);
-               // int nh = (int) (bitmap.getHeight() * (512.0 / bitmap.getWidth()));
                 Bitmap scaled = null;
                 try {
                     scaled = Bitmap.createScaledBitmap(bitmap, 812, 512, true);
