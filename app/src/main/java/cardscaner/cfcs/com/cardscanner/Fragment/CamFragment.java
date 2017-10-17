@@ -2986,9 +2986,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                         }
                         Bitmap bitmap = BitmapFactory.decodeStream(image_stream);
 
-                        //compress image
-                      /*  ByteArrayOutputStream out = new ByteArrayOutputStream();
-                        bitmap.compress(Bitmap.CompressFormat.PNG, 60, out);*/
+
                         try {
                             backCardImg.setImageBitmap(bitmap);
                         } catch (OutOfMemoryError e) {
