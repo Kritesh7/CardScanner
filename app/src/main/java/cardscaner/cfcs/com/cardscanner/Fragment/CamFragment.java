@@ -164,7 +164,6 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
             thirdTxt, designation, company_name, phoneNumberTxt, PhoneTxtthird, webUrlTxt, homeaddressFirst, homeaddressSecond, phoneNumerfour, phonenumerfivth;
     public TextView selectEditTxt, selectIndustrySegemnttxt, industryTypeTxt, principleTypeTxt;
     public Spinner addressOneSpinner, addressSpinersecond, addressSpinnerThirs, addressSpinnerFourth, phoneSpinner, phoneSecondSpinner, phoneThirdSpinner, phoneFourthSpinner, phoneFivthSpinner;
-
     public ImageView cardImg, backCardImg;
     public LinearLayout backCardBtn;
     public RecyclerView businessVerticalRecycler, industeryRecycler, principalTypeRecycler;
@@ -210,6 +209,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
     final int PIC_CROP = 2;
 
 
+
     public CamFragment() {
         // Required empty public constructor
     }
@@ -238,6 +238,8 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_cam, container, false);
+
+        Log.e("Brand Name",Build.BRAND);
 
         floatingActionButton = (android.support.design.widget.FloatingActionButton) rootView.findViewById(R.id.fab);
         phoneTxt = (EditTextMonitor) rootView.findViewById(R.id.phone_number);
@@ -354,7 +356,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
         });
 
         //spinner second address
-        addressOneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
+        addressSpinersecond.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
         ArrayAdapter<String> adressSecondAdapter = new ArrayAdapter<String>(getActivity(), R.layout.customizespinner,
                 adressList);
         adressSecondAdapter.setDropDownViewResource(R.layout.customizespinner);
@@ -374,7 +376,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
 
         //spinner third address
-        addressOneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
+        addressSpinnerThirs.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
         ArrayAdapter<String> adressThirdAdapter = new ArrayAdapter<String>(getActivity(), R.layout.customizespinner,
                 adressList);
         adressThirdAdapter.setDropDownViewResource(R.layout.customizespinner);
@@ -393,7 +395,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
         });
 
         //spinner fourth address
-        addressOneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
+        addressSpinnerFourth.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
         ArrayAdapter<String> adressFourthAdapter = new ArrayAdapter<String>(getActivity(), R.layout.customizespinner,
                 adressList);
         adressFourthAdapter.setDropDownViewResource(R.layout.customizespinner);
@@ -412,7 +414,8 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
         });
 
         //spinner First Phone
-        addressOneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
+        phoneList.add("Select");
+        phoneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
         ArrayAdapter<String> phoneFirstAdapter = new ArrayAdapter<String>(getActivity(), R.layout.customizespinner,
                 phoneList);
         phoneFirstAdapter.setDropDownViewResource(R.layout.customizespinner);
@@ -431,7 +434,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
         });
 
         //spinner Second Phone
-        addressOneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
+        phoneSecondSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
         ArrayAdapter<String> phoneSecondAdapter = new ArrayAdapter<String>(getActivity(), R.layout.customizespinner,
                 phoneList);
         phoneSecondAdapter.setDropDownViewResource(R.layout.customizespinner);
@@ -451,7 +454,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
         });
 
         //spinner Third Phone
-        addressOneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
+        phoneThirdSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
         ArrayAdapter<String> phoneThirdAdapter = new ArrayAdapter<String>(getActivity(), R.layout.customizespinner,
                 phoneList);
         phoneThirdAdapter.setDropDownViewResource(R.layout.customizespinner);
@@ -471,7 +474,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
         });
 
         //spinner Fourth Phone
-        addressOneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
+        phoneFourthSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
         ArrayAdapter<String> phoneFourthAdapter = new ArrayAdapter<String>(getActivity(), R.layout.customizespinner,
                 phoneList);
         phoneFourthAdapter.setDropDownViewResource(R.layout.customizespinner);
@@ -491,7 +494,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
         });
 
         //spinner Fivth Phone
-        addressOneSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
+        phoneFivthSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
         ArrayAdapter<String> phoneFivthAdapter = new ArrayAdapter<String>(getActivity(), R.layout.customizespinner,
                 phoneList);
         phoneFivthAdapter.setDropDownViewResource(R.layout.customizespinner);
@@ -513,6 +516,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
 
         //zone Type Spinner
+       // zoneList.add(new ZoneListModel("","Please select zone type"));
         zoneTypeSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
         ArrayAdapter<ZoneListModel> zoneTypeAdapter = new ArrayAdapter<ZoneListModel>(getActivity(), R.layout.customizespinner,
                 zoneList);
@@ -535,6 +539,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
         });
 
         //Mangement Type Spinner
+        managementTypeList.add(new ManagmentTypeListModel("", "Please Select Management Type"));
         managmentTypeSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
         ArrayAdapter<ManagmentTypeListModel> managementTypeAdapter = new ArrayAdapter<ManagmentTypeListModel>(getActivity(), R.layout.customizespinner,
                 managementTypeList);
@@ -557,6 +562,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
         });
 
         //contactType Spinner
+        contactTypeList.add(new ContactTypeListModel("", "Please select contact Type"));
         contactTypeSpinner.getBackground().setColorFilter(getResources().getColor(R.color.status_color), PorterDuff.Mode.SRC_ATOP);
         ArrayAdapter<ContactTypeListModel> contactTypeAdapter = new ArrayAdapter<ContactTypeListModel>(getActivity(), R.layout.customizespinner,
                 contactTypeList);
@@ -1422,146 +1428,141 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                 try {
                     Log.e("AppDdlList", response);
                     JSONObject jsonObject = new JSONObject(response.substring(response.indexOf("{"),response.lastIndexOf("}") +1 ));
-
-                    JSONArray numberTypeMasterArray = jsonObject.getJSONArray("NumberTypeMaster");
-                    if (phoneList.size()>0)
-                    {
-                        phoneList.clear();
-                    }
-                    phoneList.add("");
-                    for (int i=0; i< numberTypeMasterArray.length(); i++ )
-                    {
-                        JSONObject numberTypeObject = numberTypeMasterArray.getJSONObject(i);
-                        String NumberType = numberTypeObject.getString("NumberType");
-
-                        //save on data in local database
-                        masterDatabase.setNumberTypeMasterTable(userId,NumberType);
-
-                        phoneList.add(NumberType);
+                    String status = "";
+                    if (jsonObject.has("status")) {
+                        status = jsonObject.getString("status");
                     }
 
-                    JSONArray principleMasterArray = jsonObject.getJSONArray("PrincipleMaster");
-                    if (principalTypeList.size()>0)
-                    {
-                        principalTypeList.clear();
-                    }
-                    for (int j=0; j<principleMasterArray.length(); j++)
-                    {
-                        JSONObject principleMasterObject = principleMasterArray.getJSONObject(j);
-                        String PrincipleID = principleMasterObject.getString("PrincipleID");
-                        String Principle = principleMasterObject.getString("Principle");
+                    if (status.equalsIgnoreCase("failed")){}else {
+                        JSONArray numberTypeMasterArray = jsonObject.getJSONArray("NumberTypeMaster");
+                        if (phoneList.size() > 0) {
+                            phoneList.clear();
+                        }
+                        phoneList.add("");
+                        for (int i = 0; i < numberTypeMasterArray.length(); i++) {
+                            JSONObject numberTypeObject = numberTypeMasterArray.getJSONObject(i);
+                            String NumberType = numberTypeObject.getString("NumberType");
 
-                        //save data on local databse
-                        masterDatabase.setPrincipleMasterTable(userId,PrincipleID,Principle);
-                        principalTypeList.add(new CustomerDetailsModel(Principle,PrincipleID));
-                    }
+                            //save on data in local database
+                            masterDatabase.setNumberTypeMasterTable(userId, NumberType);
 
-                    JSONArray businessVerticalMasterArray = jsonObject.getJSONArray("BusinessVerticalMaster");
-                    if (listcust.size()>0)
-                    {
-                        listcust.clear();
-                    }
-                    for (int k = 0; k<businessVerticalMasterArray.length(); k++)
-                    {
-                        JSONObject businessVerticalObject = businessVerticalMasterArray.getJSONObject(k);
-                        String BusinessVerticalID = businessVerticalObject.getString("BusinessVerticalID");
-                        String BusinessVertical = businessVerticalObject.getString("BusinessVertical");
+                            phoneList.add(NumberType);
+                        }
 
-                        //data save on locaal database
-                        masterDatabase.setBusinessVerticalMasterTableData(BusinessVerticalID,userId,BusinessVertical);
-                        listcust.add(new CustomerDetailsModel(BusinessVertical,BusinessVerticalID));
-                    }
+                        JSONArray principleMasterArray = jsonObject.getJSONArray("PrincipleMaster");
+                        if (principalTypeList.size() > 0) {
+                            principalTypeList.clear();
+                        }
+                        for (int j = 0; j < principleMasterArray.length(); j++) {
+                            JSONObject principleMasterObject = principleMasterArray.getJSONObject(j);
+                            String PrincipleID = principleMasterObject.getString("PrincipleID");
+                            String Principle = principleMasterObject.getString("Principle");
 
-                    JSONArray industryTypeMasterArray = jsonObject.getJSONArray("IndustryTypeMaster");
-                    if (industryTypeList.size()>0)
-                    {
-                        industryTypeList.clear();
-                    }
-                    for (int l=0 ; l<industryTypeMasterArray.length(); l++)
-                    {
-                        JSONObject industeryTypeObject = industryTypeMasterArray.getJSONObject(l);
-                        String IndustryTypeID = industeryTypeObject.getString("IndustryTypeID");
-                        String IndustryType = industeryTypeObject.getString("IndustryType");
+                            //save data on local databse
+                            masterDatabase.setPrincipleMasterTable(userId, PrincipleID, Principle);
+                            principalTypeList.add(new CustomerDetailsModel(Principle, PrincipleID));
+                        }
 
-                        //data save on local database
-                        masterDatabase.setIndustryTypeMasterTable(userId,IndustryTypeID,IndustryType);
-                        industryTypeList.add(new CustomerDetailsModel(IndustryType,IndustryTypeID));
-                    }
+                        JSONArray businessVerticalMasterArray = jsonObject.getJSONArray("BusinessVerticalMaster");
+                        if (listcust.size() > 0) {
+                            listcust.clear();
+                        }
+                        for (int k = 0; k < businessVerticalMasterArray.length(); k++) {
+                            JSONObject businessVerticalObject = businessVerticalMasterArray.getJSONObject(k);
+                            String BusinessVerticalID = businessVerticalObject.getString("BusinessVerticalID");
+                            String BusinessVertical = businessVerticalObject.getString("BusinessVertical");
 
-                    JSONArray industrySegmentMasterArray = jsonObject.getJSONArray("IndustrySegmentMaster");
-                    if (industrySegMentList.size()>0)
-                    {
-                        industrySegMentList.clear();
-                    }
-                    for (int m=0; m<industrySegmentMasterArray.length(); m++)
-                    {
+                            //data save on locaal database
+                            masterDatabase.setBusinessVerticalMasterTableData(BusinessVerticalID, userId, BusinessVertical);
+                            listcust.add(new CustomerDetailsModel(BusinessVertical, BusinessVerticalID));
+                        }
 
-                        JSONObject industerySegmentObject = industrySegmentMasterArray.getJSONObject(m);
-                        String IndustrySegmentID = industerySegmentObject.getString("IndustrySegmentID");
-                        String IndustrySegment = industerySegmentObject.getString("IndustrySegment");
+                        JSONArray industryTypeMasterArray = jsonObject.getJSONArray("IndustryTypeMaster");
+                        if (industryTypeList.size() > 0) {
+                            industryTypeList.clear();
+                        }
+                        for (int l = 0; l < industryTypeMasterArray.length(); l++) {
+                            JSONObject industeryTypeObject = industryTypeMasterArray.getJSONObject(l);
+                            String IndustryTypeID = industeryTypeObject.getString("IndustryTypeID");
+                            String IndustryType = industeryTypeObject.getString("IndustryType");
 
-                        //data save on local database
-                        masterDatabase.setIndustrySegmentMasterTable(userId,IndustrySegmentID,IndustrySegment);
-                        industrySegMentList.add(new CustomerDetailsModel(IndustrySegment,IndustrySegmentID));
-                    }
+                            //data save on local database
+                            masterDatabase.setIndustryTypeMasterTable(userId, IndustryTypeID, IndustryType);
+                            industryTypeList.add(new CustomerDetailsModel(IndustryType, IndustryTypeID));
+                        }
 
-                    JSONArray zoneMasterArray = jsonObject.getJSONArray("ZoneMaster");
+                        JSONArray industrySegmentMasterArray = jsonObject.getJSONArray("IndustrySegmentMaster");
+                        if (industrySegMentList.size() > 0) {
+                            industrySegMentList.clear();
+                        }
+                        for (int m = 0; m < industrySegmentMasterArray.length(); m++) {
 
-                    if (zoneList.size()>0)
-                    {
-                        zoneList.clear();
-                    }
+                            JSONObject industerySegmentObject = industrySegmentMasterArray.getJSONObject(m);
+                            String IndustrySegmentID = industerySegmentObject.getString("IndustrySegmentID");
+                            String IndustrySegment = industerySegmentObject.getString("IndustrySegment");
 
-                    for (int n=0; n<zoneMasterArray.length(); n++)
-                    {
+                            //data save on local database
+                            masterDatabase.setIndustrySegmentMasterTable(userId, IndustrySegmentID, IndustrySegment);
+                            industrySegMentList.add(new CustomerDetailsModel(IndustrySegment, IndustrySegmentID));
+                        }
 
-                        JSONObject zoneMasterObject = zoneMasterArray.getJSONObject(n);
-                        String zoneID = zoneMasterObject.getString("ZoneID");
-                        String zoneName = zoneMasterObject.getString("ZoneName");
+                        JSONArray zoneMasterArray = jsonObject.getJSONArray("ZoneMaster");
 
-                        //data save on local database
-                        masterDatabase.setZoneMasterTable(userId,zoneID,zoneName);
-                        zoneList.add(new ZoneListModel(zoneID,zoneName));
-                    }
+                        if (zoneList.size() > 0) {
+                            zoneList.clear();
+                        }
 
-                    zoneIdString = zoneList.get(0).getZoneId();
+                        for (int n = 0; n < zoneMasterArray.length(); n++) {
 
-                    // managementType
-                    JSONArray managementTypeArray = jsonObject.getJSONArray("ManagementTypeMaster");
-                    if (managementTypeList.size()>0)
-                    {
-                        managementTypeList.clear();
-                    }
-                    managementTypeList.add(new ManagmentTypeListModel("0", "Please Select Management Type"));
-                    for (int o=0; o<managementTypeArray.length();o++)
-                    {
-                        JSONObject object = managementTypeArray.getJSONObject(o);
+                            JSONObject zoneMasterObject = zoneMasterArray.getJSONObject(n);
+                            String zoneID = zoneMasterObject.getString("ZoneID");
+                            String zoneName = zoneMasterObject.getString("ZoneName");
 
-                        String ManagementTypeID = object.getString("ManagementTypeID");
-                        String ManagementType = object.getString("ManagementType");
+                            //data save on local database
+                            masterDatabase.setZoneMasterTable(userId, zoneID, zoneName);
+                            zoneList.add(new ZoneListModel(zoneID, zoneName));
+                        }
 
-                        managementTypeList.add(new ManagmentTypeListModel(ManagementTypeID,ManagementType));
+                        try {
+                            zoneIdString = zoneList.get(0).getZoneId();
+                        } catch (IndexOutOfBoundsException e) {
 
-                        masterDatabase.setManageMentTypeTable(userId,ManagementTypeID,ManagementType);
-                    }
+                            Toast.makeText(getActivity(), "Zone data not available", Toast.LENGTH_SHORT).show();
+                            e.printStackTrace();
+                        }
+                        // managementType
+                        JSONArray managementTypeArray = jsonObject.getJSONArray("ManagementTypeMaster");
+                        if (managementTypeList.size() > 0) {
+                            managementTypeList.clear();
+                        }
+                        managementTypeList.add(new ManagmentTypeListModel("0", "Please Select Management Type"));
+                        for (int o = 0; o < managementTypeArray.length(); o++) {
+                            JSONObject object = managementTypeArray.getJSONObject(o);
 
-                    //Contact Type
-                    JSONArray contactTypeArray = jsonObject.getJSONArray("ContactTypeMaster");
+                            String ManagementTypeID = object.getString("ManagementTypeID");
+                            String ManagementType = object.getString("ManagementType");
 
-                    if (contactTypeList.size()>0)
-                    {
-                        contactTypeList.clear();
-                    }
-                    contactTypeList.add(new ContactTypeListModel("0", "Please Select Contact Type"));
-                    for (int p=0; p<contactTypeArray.length(); p++)
-                    {
-                        JSONObject object = contactTypeArray.getJSONObject(p);
-                        String ContactTypeID = object.getString("ContactTypeID");
-                        String ContactType = object.getString("ContactType");
+                            managementTypeList.add(new ManagmentTypeListModel(ManagementTypeID, ManagementType));
 
-                        contactTypeList.add(new ContactTypeListModel(ContactTypeID,ContactType));
+                            masterDatabase.setManageMentTypeTable(userId, ManagementTypeID, ManagementType);
+                        }
 
-                        masterDatabase.setContactTypeTable(userId,ContactTypeID,ContactType);
+                        //Contact Type
+                        JSONArray contactTypeArray = jsonObject.getJSONArray("ContactTypeMaster");
+
+                        if (contactTypeList.size() > 0) {
+                            contactTypeList.clear();
+                        }
+                        contactTypeList.add(new ContactTypeListModel("0", "Please Select Contact Type"));
+                        for (int p = 0; p < contactTypeArray.length(); p++) {
+                            JSONObject object = contactTypeArray.getJSONObject(p);
+                            String ContactTypeID = object.getString("ContactTypeID");
+                            String ContactType = object.getString("ContactType");
+
+                            contactTypeList.add(new ContactTypeListModel(ContactTypeID, ContactType));
+
+                            masterDatabase.setContactTypeTable(userId, ContactTypeID, ContactType);
+                        }
                     }
 
                     if (jsonObject.has("MsgNotification"))
@@ -1572,6 +1573,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                     }
 
                     pDialog.dismiss();
+//                    phoneFirstAdapter.notifyDataSetChanged();
 
                 } catch (JSONException e) {
                     Log.e("checking json excption" , e.getMessage());
@@ -2965,11 +2967,55 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                 if (imageUri != null) {
 
                     if(flag == 1) {
+
+                        //old function camara quality
                         inspect(imageUri);
+                        cardImg.setImageURI(imageUri);
+
+                        flag = 0;
+                    }else if (flag == 2)
+                    {
+                        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 500);
+                        backCardImg.setLayoutParams(layoutParams);
+
+                        InputStream image_stream = null;
+                        try {
+                            image_stream = getActivity().getContentResolver().openInputStream(imageUri);
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                        Bitmap bitmap = BitmapFactory.decodeStream(image_stream);
+
+                        //compress image
+                      /*  ByteArrayOutputStream out = new ByteArrayOutputStream();
+                        bitmap.compress(Bitmap.CompressFormat.PNG, 60, out);*/
+                        try {
+                            backCardImg.setImageBitmap(bitmap);
+                        } catch (OutOfMemoryError e) {
+                            e.printStackTrace();
+                        }
+
+
+
+                        backImageBase64 = getEncoded64ImageStringFromBitmap(bitmap);
+                        Log.e("checking the frount 64", backImageBase64);
+                        //convert base64
+
+
+                        //  backCardImg.setImageBitmap(decodeSampledBitmapFromResource(getPath(imageUri), 200, 200));
+                        flag = 0;
                     }
 
                     try {
-                        performCrop(imageUri);
+
+                        // check mi Mobile and not used crop in mi
+                        if (Build.BRAND.equalsIgnoreCase("Xiaomi"))
+                        {
+                            //cardImg.setImageURI(imageUri);
+                            progressBar.dismiss();
+                        }else {
+                            performCrop(imageUri);
+                        }
 
                     } catch (ActivityNotFoundException e) {
 
@@ -2995,8 +3041,13 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                 Bitmap scaled = null;
                 try {
                     scaled = Bitmap.createScaledBitmap(bitmap, 812, 512, true);
+
+                    //inspect(getImageUri(getActivity(),bitmap));
+
                 } catch (NullPointerException e) {
                     scaled = Bitmap.createScaledBitmap(bitmap, 512, 212, true);
+
+                   // inspect(getImageUri(getActivity(),bitmap));
 
                 }
                 // inspectFromBitmap(scaled);
@@ -3468,4 +3519,6 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
             // display an error message
     }
+
+
 }
