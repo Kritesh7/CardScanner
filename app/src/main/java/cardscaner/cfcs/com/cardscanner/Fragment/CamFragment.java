@@ -2998,8 +2998,6 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                         backImageBase64 = getEncoded64ImageStringFromBitmap(bitmap);
                         Log.e("checking the frount 64", backImageBase64);
                         //convert base64
-
-
                         //  backCardImg.setImageBitmap(decodeSampledBitmapFromResource(getPath(imageUri), 200, 200));
                         flag = 0;
                     }
