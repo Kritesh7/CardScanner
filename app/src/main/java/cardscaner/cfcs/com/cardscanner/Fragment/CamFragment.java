@@ -1911,7 +1911,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
             if (!textRecognizer.isOperational()) {
                 new AlertDialog.
                         Builder(getActivity()).
-                        setMessage("Text recognizer could not be set up on your device").show();
+                        setMessage("Text recognizer update failed please reinstall your app").show();
                 return;
             }
 
@@ -2496,7 +2496,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                         }
                                     }
 
-                                    // fourth phone numer
+                                // fourth phone numer
                                 int numberOfDigitsfourth = lines[i-3].length();
                                 if (numberOfDigitsfourth>2) {
                                     if (!phoneTxt.getText().toString().equalsIgnoreCase(lines[i - 3])) {
@@ -2893,7 +2893,6 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                             }
                         }
                     }
-
             }
 
 
