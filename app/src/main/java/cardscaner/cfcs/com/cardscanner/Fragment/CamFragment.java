@@ -2984,7 +2984,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
                                 flag = 0;
 
-
+//
                             }else {
                                 performCrop(imageUri);
                             }
