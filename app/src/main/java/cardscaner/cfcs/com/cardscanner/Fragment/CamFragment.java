@@ -786,7 +786,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
         }
 
         //editing mode
-            Bundle bundle = this.getArguments();
+           /* Bundle bundle = this.getArguments();
             if (bundle != null) {
 
                 Name = bundle.getString("Name");
@@ -824,8 +824,8 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                 sendindustryTypeList = getArguments().getStringArrayList("IndustryTypeList");
                 sendPrincipleList = getArguments().getStringArrayList("PrincipleList");
             }
-
-            try {
+*/
+           /* try {
 
 
                 if (!OfficeAddress.equalsIgnoreCase("") && OfficeAddress != null) {
@@ -946,7 +946,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                 PrincipleName = "";
 
             }
-
+*/
 
             //clcik on button and submite the data
             subButton.setOnClickListener(new View.OnClickListener() {
@@ -1407,10 +1407,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
 
 
-
-
-
-            return rootView;
+        return rootView;
         }
 
 
@@ -2969,9 +2966,40 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
                         //old function camara quality
                         inspect(imageUri);
-                        cardImg.setImageURI(imageUri);
+                        try {
 
-                        flag = 0;
+                            // check mi Mobile and not used crop in mi
+                            if (Build.BRAND.equalsIgnoreCase("Xiaomi"))
+                            {
+                               // cardImg.setImageURI(imageUri);
+                                progressBar.dismiss();
+
+                                InputStream  image_stream = getActivity().getContentResolver().openInputStream(imageUri);
+
+
+                                Bitmap bitmap = BitmapFactory.decodeStream(image_stream);
+                                cardImg.setImageBitmap(bitmap);
+                                frountImageBase64 = getEncoded64ImageStringFromBitmap(bitmap);
+                                Log.e("checking the back 64", frountImageBase64 + "");
+
+                                flag = 0;
+
+
+                            }else {
+                                performCrop(imageUri);
+                            }
+
+                        } catch (ActivityNotFoundException e) {
+
+                            String errorMessage = "Whoops - your device doesn't support the crop action!";
+                            Toast toast = Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT);
+                            toast.show();
+                        }catch (FileNotFoundException r)
+                        {
+                            Toast.makeText(conn, "File Not Found Exeption", Toast.LENGTH_SHORT).show();
+                        }
+
+                        //flag = 0;
                     }else if (flag == 2)
                     {
                         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 500);
@@ -2995,29 +3023,13 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
 
                         backImageBase64 = getEncoded64ImageStringFromBitmap(bitmap);
-                        Log.e("checking the frount 64", backImageBase64);
+                        Log.e("checking the frount 64", backImageBase64+" null");
                         //convert base64
                         //  backCardImg.setImageBitmap(decodeSampledBitmapFromResource(getPath(imageUri), 200, 200));
-                        flag = 0;
+                       // flag = 0;
                     }
 
-                    try {
 
-                        // check mi Mobile and not used crop in mi
-                        if (Build.BRAND.equalsIgnoreCase("Xiaomi"))
-                        {
-                            //cardImg.setImageURI(imageUri);
-                            progressBar.dismiss();
-                        }else {
-                            performCrop(imageUri);
-                        }
-
-                    } catch (ActivityNotFoundException e) {
-
-                        String errorMessage = "Whoops - your device doesn't support the crop action!";
-                        Toast toast = Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT);
-                        toast.show();
-                    }
                 }
             }
         }else if (requestCode == PIC_CROP) {
@@ -3051,7 +3063,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                 // cardImg.setImageBitmap(bitmap);
 
                 frountImageBase64 = getEncoded64ImageStringFromBitmap(bitmap);
-                Log.e("checking the back 64", frountImageBase64);
+                Log.e("checking the back 64", frountImageBase64 + "");
 
                 flag = 0;
             } else if (flag == 2) {

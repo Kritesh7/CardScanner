@@ -155,7 +155,7 @@ public class CustomerDetailsActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
-        editBtn.setOnClickListener(new View.OnClickListener() {
+       /* editBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -198,7 +198,7 @@ public class CustomerDetailsActivity extends AppCompatActivity {
                 startActivity(intent);
                 finish();
             }
-        });
+        });*/
 
         delBtn.setOnClickListener(new View.OnClickListener() {
             @Override
