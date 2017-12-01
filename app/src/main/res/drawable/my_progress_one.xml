@@ -1,0 +1,29 @@
+<animation-list
+    android:oneshot="false"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:drawable="@color/colorOne"
+        android:duration="800">
+
+        <item android:drawable="@color/colorTwo"
+            android:duration="800">
+
+            <item android:drawable="@color/colorThree"
+                android:duration="800">
+
+                <item android:drawable="@color/colorFour"
+                    android:duration="800">
+
+                    <item android:drawable="@color/colorFive"
+                        android:duration="800">
+
+                        <item android:drawable="@color/colorSix"
+                            android:duration="800">
+
+                        </item>
+                    </item>
+                </item>
+            </item>
+        </item>
+    </item>
+</animation-list>

@@ -21,8 +21,10 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.AnimationDrawable;
 import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -67,11 +69,20 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
 import com.android.volley.toolbox.StringRequest;
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.vision.Frame;
-import com.google.android.gms.vision.text.TextBlock;
-import com.google.android.gms.vision.text.TextRecognizer;
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.services.vision.v1.Vision;
+import com.google.api.services.vision.v1.VisionRequest;
+import com.google.api.services.vision.v1.VisionRequestInitializer;
+import com.google.api.services.vision.v1.model.AnnotateImageRequest;
+import com.google.api.services.vision.v1.model.BatchAnnotateImagesRequest;
+import com.google.api.services.vision.v1.model.BatchAnnotateImagesResponse;
+import com.google.api.services.vision.v1.model.EntityAnnotation;
+import com.google.api.services.vision.v1.model.Feature;
+import com.google.api.services.vision.v1.model.Image;
 import com.google.i18n.phonenumbers.PhoneNumberMatch;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.squareup.picasso.Picasso;
@@ -90,8 +101,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
@@ -122,7 +135,9 @@ import cardscaner.cfcs.com.cardscanner.Model.ZoneListModel;
 import cardscaner.cfcs.com.cardscanner.R;
 import cardscaner.cfcs.com.cardscanner.source.AppController;
 import cardscaner.cfcs.com.cardscanner.source.ConnectionDetector;
+import cardscaner.cfcs.com.cardscanner.source.CustomProgressDialogOne;
 import cardscaner.cfcs.com.cardscanner.source.EditTextMonitor;
+import cardscaner.cfcs.com.cardscanner.source.PackageManagerUtils;
 import cardscaner.cfcs.com.cardscanner.source.SettingConstant;
 import cardscaner.cfcs.com.cardscanner.source.SharedPrefs;
 import cardscaner.cfcs.com.cardscanner.source.UtilsMethods;
@@ -207,6 +222,15 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
             CardFrontImage = "", CardBackImage = "", PrincipleNameId = "",
             BusinessVerticalNameId = "", IndustryTypeNameId = "", IndustrySegmentNameId = "",checkedCheckBox = "";
     final int PIC_CROP = 2;
+    private static final String CLOUD_VISION_API_KEY = "AIzaSyDEAOyeLf6rEVrHU75I4S_l5Gyuu1Qm1yU";
+    public static final String FILE_NAME = "temp.jpg";
+    private static final String ANDROID_CERT_HEADER = "X-Android-Cert";
+    private static final String ANDROID_PACKAGE_HEADER = "X-Android-Package";
+   // private CustomProgressDialogOne customProgressDialogOne;
+    private ProgressBar viewProgressBar;
+
+
+    // private static final String TAG = getac.class.getSimpleName();
 
 
 
@@ -284,13 +308,14 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
         subButton = (Button) rootView.findViewById(R.id.submitbtn);
         remarkTxt = (EditTextMonitor) rootView.findViewById(R.id.remarks);
         contactSave = (CheckBox)rootView.findViewById(R.id.savecontact);
+        viewProgressBar = (ProgressBar) rootView.findViewById(R.id.viewProgressBar);
         masterDatabase = new MasterDatabase(getActivity());
         conn = new ConnectionDetector(getActivity());
         userId = UtilsMethods.getBlankIfStringNull(String.valueOf(SharedPrefs.getUserId(getActivity())));
         authCode = UtilsMethods.getBlankIfStringNull(String.valueOf(SharedPrefs.getAuthCode(getActivity())));
         zoneIdShared = UtilsMethods.getBlankIfStringNull(String.valueOf(SharedPrefs.getZoneId(getActivity())));
 
-
+     //   customProgressDialogOne = new CustomProgressDialogOne(getActivity());
 
         selectIndustrySegemnttxt.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -594,14 +619,14 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
             }
         });
 
-        if (!isGooglePlayServicesAvailable(getActivity())) {
+       /* if (!isGooglePlayServicesAvailable(getActivity())) {
 
             Log.e("onCreate", "Google Play Services not available. Ending Test case.");
             //getActivity().finish();
         } else {
             Log.e("onCreate", "Google Play Services available. Continuing.");
         }
-
+*/
 
         backCardBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1877,7 +1902,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
         }
     }
 
-    public boolean isGooglePlayServicesAvailable(Activity activity) {
+    /*public boolean isGooglePlayServicesAvailable(Activity activity) {
         GoogleApiAvailability googleApiAvailability = GoogleApiAvailability.getInstance();
         int status = googleApiAvailability.isGooglePlayServicesAvailable(activity);
         if(status != ConnectionResult.SUCCESS) {
@@ -1899,27 +1924,27 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
             return false;
         }
         return true;
-    }
+    }*/
 
 
-    private void inspectFromBitmap(Bitmap bitmap) {
-        TextRecognizer textRecognizer = new TextRecognizer.Builder(getActivity()).build();
-        try {
+    private void inspectFromBitmap(String  FetchStr) {
+       // TextRecognizer textRecognizer = new TextRecognizer.Builder(getActivity()).build();
+       /* try {
             if (!textRecognizer.isOperational()) {
                 new AlertDialog.
                         Builder(getActivity()).
                         setMessage("Text recognizer update failed please reinstall your app").show();
                 return;
-            }
+            }*/
 
-            Frame frame = new Frame.Builder().setBitmap(bitmap).build();
+           /* Frame frame = new Frame.Builder().setBitmap(bitmap).build();
             SparseArray<TextBlock> origTextBlocks = textRecognizer.detect(frame);
             List<TextBlock> textBlocks = new ArrayList<>();
             for (int i = 0; i < origTextBlocks.size(); i++) {
                 TextBlock textBlock = origTextBlocks.valueAt(i);
                 textBlocks.add(textBlock);
-            }
-            Collections.sort(textBlocks, new Comparator<TextBlock>() {
+            }*/
+           /* Collections.sort(textBlocks, new Comparator<TextBlock>() {
                 @Override
                 public int compare(TextBlock o1, TextBlock o2) {
                     int diffOfTops = o1.getBoundingBox().top - o2.getBoundingBox().top;
@@ -1929,22 +1954,22 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                     }
                     return diffOfLefts;
                 }
-            });
+            });*/
 
-            StringBuilder detectedText = new StringBuilder();
+           /* StringBuilder detectedText = new StringBuilder();
             for (TextBlock textBlock : textBlocks) {
                 if (textBlock != null && textBlock.getValue() != null) {
                     detectedText.append(textBlock.getValue());
                     detectedText.append("\n");
                 }
-            }
+            }*/
 
-            String convertStringBuilder = String.valueOf(detectedText);
-            String[] lines = convertStringBuilder.split(System.getProperty("line.separator"));
+         //   String convertStringBuilder = String.valueOf(detectedText);
+            String[] lines = FetchStr.split(System.getProperty("line.separator"));
 
             String convString = Arrays.toString(lines);
 
-            Log.e("checking the string is", convString);
+            Log.e("checking the string is-------------", FetchStr);
 
             for (int i =0; i<lines.length; i++)
             {
@@ -2894,9 +2919,9 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
 
         }
-        finally {
+        /*finally {
             textRecognizer.release();
-        }
+        }*/
 
        /* try {
 
@@ -2910,7 +2935,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
 
             e.printStackTrace();
         }*/
-    }
+
 
     public static int getCount(String number) {
         int flag = 0;
@@ -2932,7 +2957,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
             options.inSampleSize = 2;
             options.inScreenDensity = DisplayMetrics.DENSITY_LOW;
             bitmap = BitmapFactory.decodeStream(is, null, options);
-            inspectFromBitmap(bitmap);
+            //inspectFromBitmap(bitmap);
         } catch (FileNotFoundException e) {
             Log.w(TAG, "Failed to find the file: " + uri, e);
         } finally {
@@ -2965,8 +2990,13 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                     if(flag == 1) {
 
                         //old function camara quality
-                        inspect(imageUri);
+                       // inspect(imageUri);
+                        uploadImage(imageUri);
                         try {
+
+                            /*InputStream  image_stream_outer = getActivity().getContentResolver().openInputStream(imageUri);
+                            Bitmap bitmapOuter = BitmapFactory.decodeStream(image_stream_outer);
+                           */
 
                             // check mi Mobile and not used crop in mi
                             if (Build.BRAND.equalsIgnoreCase("Xiaomi"))
@@ -2982,9 +3012,10 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                                 frountImageBase64 = getEncoded64ImageStringFromBitmap(bitmap);
                                 Log.e("checking the back 64", frountImageBase64 + "");
 
+
+
                                 flag = 0;
 
-//
                             }else {
                                 performCrop(imageUri);
                             }
@@ -2997,6 +3028,8 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                         }catch (FileNotFoundException r)
                         {
                             Toast.makeText(conn, "File Not Found Exeption", Toast.LENGTH_SHORT).show();
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
 
                         //flag = 0;
@@ -3527,5 +3560,203 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
             // display an error message
     }
 
+
+    //Cloud Vision API Work
+    private void callCloudVision(final Bitmap bitmap) throws IOException {
+        // Switch text to loading
+     /*  final ProgressDialog progressBar = new ProgressDialog(getActivity());
+       progressBar.setMessage("Image Recorgnization.....");
+       progressBar.show();*/
+
+        viewProgressBar.setVisibility(View.VISIBLE);
+        android.support.v7.app.AlertDialog.Builder dialogBuilder = new android.support.v7.app.AlertDialog.Builder(getActivity());
+        final View dialogView = LayoutInflater.from(getActivity()).inflate(R.layout.custom_progress_dialog_one, null);
+        dialogBuilder.setView(dialogView);
+        dialogBuilder.setCancelable(false);
+        RelativeLayout mainLayout = (RelativeLayout) dialogView.findViewById(R.id.mainLayout);
+        mainLayout.setBackgroundResource(R.drawable.my_progress_one);
+        AnimationDrawable frameAnimation = (AnimationDrawable)mainLayout.getBackground();
+        frameAnimation.start();
+        final android.support.v7.app.AlertDialog b = dialogBuilder.create();
+        b.show();
+        Log.e("First Time Api", "Calling Api...............----------------->>>>>>>>>");
+
+        // Do the real work in an async task, because we need to use the network anyway
+        new AsyncTask<Object, Void, String>() {
+            @Override
+            protected String doInBackground(Object... params) {
+                try {
+                    HttpTransport httpTransport = AndroidHttp.newCompatibleTransport();
+                    JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
+
+                    VisionRequestInitializer requestInitializer =
+                            new VisionRequestInitializer(CLOUD_VISION_API_KEY) {
+                                /**
+                                 * We override this so we can inject important identifying fields into the HTTP
+                                 * headers. This enables use of a restricted cloud platform API key.
+                                 */
+                                @Override
+                                protected void initializeVisionRequest(VisionRequest<?> visionRequest)
+                                        throws IOException {
+                                    super.initializeVisionRequest(visionRequest);
+
+                                    String packageName = getActivity().getPackageName();
+                                    visionRequest.getRequestHeaders().set(ANDROID_PACKAGE_HEADER, packageName);
+
+                                    String sig = PackageManagerUtils.getSignature(getActivity().getPackageManager(), packageName);
+
+                                    visionRequest.getRequestHeaders().set(ANDROID_CERT_HEADER, sig);
+                                }
+                            };
+
+                    Vision.Builder builder = new Vision.Builder(httpTransport, jsonFactory, null);
+                    builder.setVisionRequestInitializer(requestInitializer);
+
+                    Vision vision = builder.build();
+
+                    BatchAnnotateImagesRequest batchAnnotateImagesRequest =
+                            new BatchAnnotateImagesRequest();
+                    batchAnnotateImagesRequest.setRequests(new ArrayList<AnnotateImageRequest>() {{
+                        AnnotateImageRequest annotateImageRequest = new AnnotateImageRequest();
+
+                        // Add the image
+                        Image base64EncodedImage = new Image();
+                        // Convert the bitmap to a JPEG
+                        // Just in case it's a format that Android understands but Cloud Vision
+                        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 90, byteArrayOutputStream);
+                        byte[] imageBytes = byteArrayOutputStream.toByteArray();
+
+                        // Base64 encode the JPEG
+                        base64EncodedImage.encodeContent(imageBytes);
+                        annotateImageRequest.setImage(base64EncodedImage);
+
+                        // add the features we want
+                        annotateImageRequest.setFeatures(new ArrayList<Feature>() {{
+                            Feature labelDetection = new Feature();
+                            labelDetection.setType("TEXT_DETECTION");
+                            labelDetection.setMaxResults(10);
+                            add(labelDetection);
+                        }});
+
+                        // Add the list of one thing to the request
+                        add(annotateImageRequest);
+                    }});
+
+                    Vision.Images.Annotate annotateRequest =
+                            vision.images().annotate(batchAnnotateImagesRequest);
+                    // Due to a bug: requests to Vision API containing large images fail when GZipped.
+                    annotateRequest.setDisableGZipContent(true);
+                    Log.d(TAG, "created Cloud Vision request object, sending request");
+
+                    BatchAnnotateImagesResponse response = annotateRequest.execute();
+
+
+                    return convertResponseToString(response);
+
+                } catch (GoogleJsonResponseException e) {
+                    Log.d(TAG, "failed to make API request because " + e.getContent());
+                } catch (IOException e) {
+                    Log.d(TAG, "failed to make API request because of other IOException " +
+                            e.getMessage());
+                }
+                return "Cloud Vision API request failed. Check logs for details.";
+            }
+
+            protected void onPostExecute(String result)
+            {
+
+                Log.e("what is result ", result);
+
+                viewProgressBar.setVisibility(View.GONE);
+                b.dismiss();
+                inspectFromBitmap(result);
+                //mImageDetails.setText(result);
+            }
+        }.execute();
+    }
+
+    private String convertResponseToString(BatchAnnotateImagesResponse response) {
+        String description = "";
+
+
+        //Json Form
+        try {
+            JSONObject object = new JSONObject(response);
+            JSONArray responseArray = object.getJSONArray("responses");
+
+            for (int i=0; i<responseArray.length(); i++)
+            {
+                JSONObject innrObj = responseArray.getJSONObject(i);
+                JSONArray textAnnotationArray = innrObj.getJSONArray("textAnnotations");
+                for (int k=0;k<textAnnotationArray.length(); k++)
+                {
+                    JSONObject inrtxtAnotaionObj = textAnnotationArray.getJSONObject(0);
+                    description = inrtxtAnotaionObj.getString("description");
+                    Log.e("checking response---------",description);
+
+                    break;
+                }
+
+            }
+
+        } catch (JSONException e) {
+            Log.e("checking exeption", e.getMessage());
+        }
+
+       /* List<EntityAnnotation> labels = response.getResponses().get(0).getTextAnnotations();
+        if (labels != null) {
+            for (EntityAnnotation label : labels) {
+                message += String.format(Locale.US, "%s", label.getDescription());
+                message += "\n";
+            }
+        } else {
+            message += "nothing";
+        }
+
+        Log.e("checking response",labels.size()+"");*/
+        return description;
+    }
+
+    public void uploadImage(Uri uri) {
+        if (uri != null) {
+            try {
+                // scale the image to save on bandwidth
+                Bitmap bitmap =
+                        scaleBitmapDown(
+                                MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), uri),
+                                1200);
+
+                callCloudVision(bitmap);
+              //  mMainImage.setImageBitmap(bitmap);
+
+            } catch (IOException e) {
+                Log.d(TAG, "Image picking failed because " + e.getMessage());
+                Toast.makeText(getActivity(), "Error found", Toast.LENGTH_LONG).show();
+            }
+        } else {
+            Log.d(TAG, "Image picker gave us a null image.");
+            Toast.makeText(getActivity(), "Error found", Toast.LENGTH_LONG).show();
+        }
+    }
+    public Bitmap scaleBitmapDown(Bitmap bitmap, int maxDimension) {
+
+        int originalWidth = bitmap.getWidth();
+        int originalHeight = bitmap.getHeight();
+        int resizedWidth = maxDimension;
+        int resizedHeight = maxDimension;
+
+        if (originalHeight > originalWidth) {
+            resizedHeight = maxDimension;
+            resizedWidth = (int) (resizedHeight * (float) originalWidth / (float) originalHeight);
+        } else if (originalWidth > originalHeight) {
+            resizedWidth = maxDimension;
+            resizedHeight = (int) (resizedWidth * (float) originalHeight / (float) originalWidth);
+        } else if (originalHeight == originalWidth) {
+            resizedHeight = maxDimension;
+            resizedWidth = maxDimension;
+        }
+        return Bitmap.createScaledBitmap(bitmap, resizedWidth, resizedHeight, false);
+    }
 
 }

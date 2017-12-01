@@ -13,4 +13,11 @@
     <color name="edit_below_line">#00897B</color>
 
     <color name="bluecolor">#0D47A1</color>
+
+    <color name="colorOne">#009688</color>
+    <color name="colorTwo">#00897B</color>
+    <color name="colorThree">#004D40</color>
+    <color name="colorFour">#004D40</color>
+    <color name="colorFive">#004D40</color>
+    <color name="colorSix">#004D40</color>
 </resources>

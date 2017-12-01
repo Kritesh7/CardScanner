@@ -31,10 +31,16 @@ dependencies {
     compile 'com.tuyenmonkey:mkloader:1.2.0'
     compile 'com.android.support:support-vector-drawable:26.+'
     compile 'com.android.support:support-v4:26.+'
-    compile 'com.google.android.gms:play-services-vision:10.0.0'
+   /* compile 'com.google.android.gms:play-services-vision:10.0.0'*/
     compile 'com.android.support:cardview-v7:26.0.0-alpha1'
     compile 'com.mcxiaoke.volley:library:1.0.19'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'net.rimoto:intlphoneinput:1.0.1'
+    compile 'com.github.d-max:spots-dialog:0.4@aar'
+    compile 'com.google.api-client:google-api-client-android:1.20.0' exclude module: 'httpclient'
+    compile 'com.google.http-client:google-http-client-gson:1.20.0' exclude module: 'httpclient'
+
+    compile 'com.google.apis:google-api-services-vision:v1-rev2-1.21.0'
+
     testCompile 'junit:junit:4.12'
 }
