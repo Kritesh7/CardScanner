@@ -3704,17 +3704,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
             Log.e("checking exeption", e.getMessage());
         }
 
-       /* List<EntityAnnotation> labels = response.getResponses().get(0).getTextAnnotations();
-        if (labels != null) {
-            for (EntityAnnotation label : labels) {
-                message += String.format(Locale.US, "%s", label.getDescription());
-                message += "\n";
-            }
-        } else {
-            message += "nothing";
-        }
 
-        Log.e("checking response",labels.size()+"");*/
         return description;
     }
 
