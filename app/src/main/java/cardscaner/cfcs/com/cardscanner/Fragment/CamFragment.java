@@ -3715,7 +3715,7 @@ public class CamFragment extends Fragment implements CustomerNameInterface,Busin
                 Bitmap bitmap =
                         scaleBitmapDown(
                                 MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), uri),
-                                1200);
+                                700);
 
                 callCloudVision(bitmap);
               //  mMainImage.setImageBitmap(bitmap);
